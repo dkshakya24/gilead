@@ -3,14 +3,19 @@
 import { useState, useRef, useEffect } from "react";
 import { LogOut, ChevronDown, ChevronUp, Edit2 } from "lucide-react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
-
-export default function ProfileSection() {
-    const router = useRouter();
+import { Session } from "@/lib/types";
+export default function ProfileSection({
+  session,
+  handleSignOut,
+}: {
+  session: Session;
+  handleSignOut: () => void;
+}) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-
   // Close dropdown when clicking outside
+  console.log(session, "sessionlkgjh");
+
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (
@@ -27,11 +32,10 @@ export default function ProfileSection() {
     };
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem("isLoggedIn");
-    router.push("/login");
-  };
-  
+  // const handleLogout = () => {
+  //   localStorage.removeItem("isLoggedIn");
+  //   router.push("/login");
+  // };
 
   return (
     <div className="flex gap-4">
@@ -85,21 +89,24 @@ export default function ProfileSection() {
               <div className="flex items-start">
                 <span className="mr-2 text-sm text-[#6B7280]">Name :</span>
                 <span className="text-sm font-medium text-[#111827]">
-                  Ashleigh Koss
+                  {session?.user?.name}
                 </span>
               </div>
 
               <div className="flex items-start">
                 <span className="mr-2 text-sm text-[#6B7280]">Email :</span>
                 <span className="text-sm font-medium text-[#111827]">
-                  ashleighkoss@gileadsciences.com
+                  {session?.user?.email}
                 </span>
               </div>
             </div>
 
             <div className="mb-3 h-px bg-gray-200"></div>
 
-            <button onClick={handleLogout} className="flex w-full items-center cursor-pointer justify-center gap-2 rounded-md bg-gray-100 px-4 py-3 text-sm font-medium text-[#C5203F] hover:bg-gray-200">
+            <button
+              onClick={handleSignOut}
+              className="flex w-full items-center cursor-pointer justify-center gap-2 rounded-md bg-gray-100 px-4 py-3 text-sm font-medium text-[#C5203F] hover:bg-gray-200"
+            >
               <LogOut className="h-4 w-4" />
               <span>Logout</span>
             </button>

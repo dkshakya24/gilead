@@ -1,27 +1,19 @@
-"use client";
+import Header from "@/components/Header";
 import InsightsPaneWrapper from "@/components/insights-panel-wrapper";
 import Sidebar from "@/components/Sidebar";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 interface ChatLayoutProps {
   children: React.ReactNode;
 }
 
 export default function ChatLayout({ children }: ChatLayoutProps) {
-  const router = useRouter();
-  
-  useEffect(() => {
-    const isLoggedIn = localStorage.getItem("isLoggedIn");
-    if (isLoggedIn !== "true") {
-      router.push("/login");
-    }
-  }, [router]);
-
   return (
     <div className="flex h-screen overflow-hidden">
       <Sidebar />
       <main className="flex-1 overflow-y-auto overflow-x-hidden">
-        {children}
+        <div className="h-[calc(100vh-2rem)] flex flex-col border-2 border-solid border-gray-200 rounded-xl mr-4 my-4 p-4 overflow-hidden">
+          <Header />
+          {children}
+        </div>
       </main>
       <InsightsPaneWrapper />
     </div>
