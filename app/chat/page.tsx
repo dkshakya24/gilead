@@ -12,5 +12,5 @@ export default async function IndexPage() {
   }
   console.log(session, "session122");
 
-  return <Chatlayout />;
+  return <Chatlayout session={session} />;
 }

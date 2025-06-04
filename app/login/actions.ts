@@ -14,6 +14,34 @@ const users = [
     name: "Deepak",
     salt: "qbc",
   },
+  {
+    id: "2",
+    email: "Sourabh.Pandey2@gilead.com",
+    password: "Admin@chryselys123",
+    name: "Sourabh",
+    salt: "def",
+  },
+  {
+    id: "3",
+    email: "Vaishali.Chaudhuri@gilead.com",
+    password: "Admin@chryselys123",
+    name: "Vaishali",
+    salt: "ghi",
+  },
+  {
+    id: "4",
+    email: "admin@chryselys.com",
+    password: "Admin@chryselys123",
+    name: "Admin",
+    salt: "jkl",
+  },
+  {
+    id: "5",
+    email: "gilead@gabiarc.com",
+    password: "Admin@chryselys123",
+    name: "Gilead",
+    salt: "jkl",
+  },
 
   // Add more users as needed
 ];
