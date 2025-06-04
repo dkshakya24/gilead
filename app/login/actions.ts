@@ -11,7 +11,7 @@ const users = [
     id: "1",
     email: "admin@chryselys.com",
     password: "Admin@chryselys123",
-    name: "Deepak",
+    name: "Admin",
     salt: "qbc",
   },
   {
@@ -30,13 +30,6 @@ const users = [
   },
   {
     id: "4",
-    email: "admin@chryselys.com",
-    password: "Admin@chryselys123",
-    name: "Admin",
-    salt: "jkl",
-  },
-  {
-    id: "5",
     email: "gilead@gabiarc.com",
     password: "Admin@chryselys123",
     name: "Gilead",
