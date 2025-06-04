@@ -86,7 +86,7 @@ const useWebSocket = (url: string) => {
         action: "sendmessage",
         query: msg,
         userId: username,
-        sessionId: sessionId ?? ""
+        sessionId: sessionId ?? "",
       });
       console.log("payload", payload);
       socketRef.current.send(payload);
