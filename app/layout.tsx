@@ -28,11 +28,29 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    // <html lang="en">
+    //   <body
+    //     className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+    //   >
+    //     {children}
+    //     <ToastContainer
+    //       position="top-center"
+    //       autoClose={3000}
+    //       hideProgressBar={false}
+    //       newestOnTop
+    //       closeOnClick
+    //       pauseOnFocusLoss
+    //       draggable
+    //       pauseOnHover
+    //       transition={Slide} // 👈 Make sure this is defined
+    //       theme="colored" // or "light", "dark"
+    //     />
+    //   </body>
+    // </html>
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
         <ToastContainer
           position="top-center"
           autoClose={3000}
@@ -45,6 +63,9 @@ export default function RootLayout({
           transition={Slide} // 👈 Make sure this is defined
           theme="colored" // or "light", "dark"
         />
+        <div className="flex flex-col min-h-screen">
+          <main className="flex flex-col flex-1 bg-white">{children}</main>
+        </div>
       </body>
     </html>
   );

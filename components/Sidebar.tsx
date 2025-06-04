@@ -35,15 +35,18 @@ const Sidebar = () => {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        const response = await fetch(`https://6try2laitd.execute-api.us-east-1.amazonaws.com/dev/get-chat-history?user_id=${username}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
+        const response = await fetch(
+          `https://6try2laitd.execute-api.us-east-1.amazonaws.com/dev/get-chat-history?user_id=${username}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
           }
-        });
+        );
 
         if (!response.ok) {
-          throw new Error('Failed to fetch data');
+          throw new Error("Failed to fetch data");
         }
 
         const data: ApiResponse = await response.json();
@@ -51,7 +54,7 @@ const Sidebar = () => {
         setOthers(data.others);
         setError(null);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
+        setError(err instanceof Error ? err.message : "An error occurred");
       } finally {
         setIsLoading(false);
       }
@@ -62,10 +65,10 @@ const Sidebar = () => {
 
   const formatTime = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleTimeString('en-US', { 
-      hour: '2-digit', 
-      minute: '2-digit',
-      hour12: true 
+    return date.toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
     });
   };
 
@@ -77,7 +80,7 @@ const Sidebar = () => {
   const handleNewChat = () => {
     clearMessages(); // Clear all messages
     setActiveIndex(null); // Reset active chat
-    router.push('/chat'); // Navigate to chat without sessionId
+    router.push("/chat"); // Navigate to chat without sessionId
   };
 
   const renderChatList = (chats: ChatItem[], title: string) => (
@@ -125,7 +128,7 @@ const Sidebar = () => {
       <div className="m-4 h-full flex flex-col border-2 border-solid border-gray-200 rounded-xl">
         {/* New Chat Button */}
         <div className="p-3">
-          <button 
+          <button
             onClick={handleNewChat}
             className="w-full flex cursor-pointer items-center justify-center gap-2 bg-[#d1214c] hover:bg-[#b91c43] text-white py-3 px-4 rounded-md"
           >

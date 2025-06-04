@@ -8,7 +8,7 @@ import ReasoningFactor from "@/components/ReasoningFactor";
 import { IngestUrlModal } from "@/components/ingest-url-modal";
 import { KeywordModal } from "@/components/KeywordModal";
 
-export default function LandingPage() {
+export default function ChatForm() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isKeywordModalOpen, setIsKeywordModalOpen] = useState(false);
 
