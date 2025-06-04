@@ -11,10 +11,30 @@ const users = [
     id: "1",
     email: "admin@chryselys.com",
     password: "Admin@chryselys123",
-    name: "Deepak",
+    name: "Admin",
     salt: "qbc",
   },
-
+  {
+    id: "2",
+    email: "Sourabh.Pandey2@gilead.com",
+    password: "Admin@chryselys123",
+    name: "Sourabh",
+    salt: "def",
+  },
+  {
+    id: "3",
+    email: "Vaishali.Chaudhuri@gilead.com",
+    password: "Admin@chryselys123",
+    name: "Vaishali",
+    salt: "ghi",
+  },
+  {
+    id: "4",
+    email: "gilead@gabiarc.com",
+    password: "Admin@chryselys123",
+    name: "Gilead",
+    salt: "jkl",
+  },
   // Add more users as needed
 ];
 
