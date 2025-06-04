@@ -16,14 +16,14 @@ const users = [
   },
   {
     id: "2",
-    email: "Sourabh.Pandey2@gilead.com",
+    email: "sourabh.pandey2@gilead.com",
     password: "Admin@chryselys123",
     name: "Sourabh",
     salt: "def",
   },
   {
     id: "3",
-    email: "Vaishali.Chaudhuri@gilead.com",
+    email: "vaishali.chaudhuri@gilead.com",
     password: "Admin@chryselys123",
     name: "Vaishali",
     salt: "ghi",

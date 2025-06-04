@@ -4,8 +4,9 @@ import * as React from "react";
 import { Search, LogOut, Plus } from "lucide-react";
 import { cn } from "@/utils";
 import { useRouter } from "next/navigation";
-import { username } from "@/lib/utils";
+// import { username } from "@/lib/utils";
 import { useChatStore } from "@/store/chatStore";
+import { Session } from "@/lib/types";
 
 type ChatItem = {
   Session_id: string;
@@ -22,7 +23,7 @@ type ApiResponse = {
   others: ChatItem[];
 };
 
-const Sidebar = () => {
+const Sidebar = ({ session }: { session?: Session }) => {
   const router = useRouter();
   const { clearMessages } = useChatStore();
   const [activeIndex, setActiveIndex] = React.useState<number | null>(0);
@@ -36,7 +37,7 @@ const Sidebar = () => {
       try {
         setIsLoading(true);
         const response = await fetch(
-          `https://6try2laitd.execute-api.us-east-1.amazonaws.com/dev/get-chat-history?user_id=${username}`,
+          `https://6try2laitd.execute-api.us-east-1.amazonaws.com/dev/get-chat-history?user_id=${session?.user.email}`,
           {
             method: "GET",
             headers: {
