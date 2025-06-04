@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef } from "react";
 import { useChatStore } from "@/store/chatStore";
 import { ChatMessage } from "./ChatMessage";
 import { username } from "@/lib/utils";
+import { Session } from "@/lib/types";
 
 export interface ChatEntry {
   role: "user" | "bot";
@@ -21,7 +22,13 @@ export interface ChatResponse {
   messages: MessageGroup[];
 }
 
-export default function ChatList({ sessionId }: { sessionId: string | null }) {
+export default function ChatList({
+  sessionId,
+  session,
+}: {
+  sessionId: string | null;
+  session: Session;
+}) {
   const {
     messages,
     streamingMessage,
@@ -48,7 +55,7 @@ export default function ChatList({ sessionId }: { sessionId: string | null }) {
           clearMessages();
 
           const response = await fetch(
-            `https://6try2laitd.execute-api.us-east-1.amazonaws.com/dev/get-chat-history?user_id=${username}&session_id=${sessionId}`,
+            `https://6try2laitd.execute-api.us-east-1.amazonaws.com/dev/get-chat-history?user_id=${session?.user.email}&session_id=${sessionId}`,
             {
               method: "GET",
               headers: {

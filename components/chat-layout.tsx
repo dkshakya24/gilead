@@ -5,8 +5,9 @@ import { useEffect, useState, Suspense } from "react";
 import ChatList from "@/components/chat-list";
 import PromptForm from "@/components/prompt-form";
 import { generateSessionId } from "@/lib/utils";
+import { Session } from "@/lib/types";
 
-const ChatContent = () => {
+const ChatContent = ({ session }: { session: Session }) => {
   const searchParams = useSearchParams();
   const [sessionId, setSessionId] = useState("");
   const id = searchParams.get("sessionId");
@@ -28,7 +29,7 @@ const ChatContent = () => {
 
       {/* Scrollable Chat List */}
       <div className="flex-1 w-full overflow-y-auto mx-auto rounded-lg px-[150px]">
-        <ChatList sessionId={sessionId} />
+        <ChatList sessionId={sessionId} session={session} />
       </div>
 
       {/* Sticky Prompt Form */}
@@ -39,10 +40,10 @@ const ChatContent = () => {
   );
 };
 
-const Chatlayout = () => {
+const Chatlayout = ({ session }: { session: Session }) => {
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <ChatContent />
+      <ChatContent session={session} />
     </Suspense>
   );
 };
