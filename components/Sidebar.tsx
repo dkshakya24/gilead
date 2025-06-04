@@ -37,7 +37,7 @@ const Sidebar = ({ session }: { session?: Session }) => {
       try {
         setIsLoading(true);
         const response = await fetch(
-          `https://6try2laitd.execute-api.us-east-1.amazonaws.com/dev/get-chat-history?user_id=${session?.user.email}`,
+          `https://6try2laitd.execute-api.us-east-1.amazonaws.com/dev/get-chat-history?user_id=${session?.user?.email}`,
           {
             method: "GET",
             headers: {
