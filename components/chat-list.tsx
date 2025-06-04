@@ -46,7 +46,7 @@ export default function ChatList({ sessionId }: { sessionId: string | null }) {
         try {
           // Clear existing messages before loading new ones
           clearMessages();
-          
+
           const response = await fetch(
             `https://6try2laitd.execute-api.us-east-1.amazonaws.com/dev/get-chat-history?user_id=${username}&session_id=${sessionId}`,
             {
@@ -98,7 +98,7 @@ export default function ChatList({ sessionId }: { sessionId: string | null }) {
           key={idx}
           msg={msg}
           isUser={msg.role === "user"}
-          sessionId={sessionId ?? ''}
+          sessionId={sessionId ?? ""}
         />
       ))}
 

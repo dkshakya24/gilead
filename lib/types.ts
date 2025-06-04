@@ -1,4 +1,4 @@
-export interface Chat extends Record<string, any> {
+export interface Chat {
   id: string;
   title: string;
   createdAt: Date;
@@ -6,6 +6,7 @@ export interface Chat extends Record<string, any> {
   path: string;
   //   messages: Message[];
   sharePath?: string;
+  [key: string]: string | Date | undefined; // Index signature for additional string properties
 }
 
 export type initialMessage = {

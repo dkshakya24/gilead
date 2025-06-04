@@ -7,7 +7,8 @@ import { KeywordsDropdown } from "./KeywordsDropdown";
 import ExportDropdown from "./export-dropdown";
 import ProfileSection from "./personal-details";
 import { auth, signOut } from "@/auth";
-import { Session } from "next-auth";
+import { Session } from "@/lib/types";
+// import { Session } from "next-auth";
 
 export default async function Header() {
   const session = (await auth()) as Session;
