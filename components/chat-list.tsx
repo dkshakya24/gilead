@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useRef } from "react";
 import { useChatStore } from "@/store/chatStore";
 import { ChatMessage } from "./ChatMessage";
-import { username } from "@/lib/utils";
 import { Session } from "@/lib/types";
 
 export interface ChatEntry {
