@@ -11,14 +11,11 @@ import { Message, UIState } from '@/lib/chat/actions'
 import { useScrollAnchor } from '@/lib/hooks/use-scroll-anchor'
 // import { toast } from 'sonner'
 import { API_URL, PROJECT_NAME } from '@/lib/utils'
-import { notFound, redirect } from 'next/navigation'
 import useWebSocket from '@/lib/hooks/useWebSocket'
 import Annotations from './aivy-message/annotations'
 import { MdOutlineInsertComment } from 'react-icons/md'
 import { Button } from './ui/button'
-import SourceMultiSelect from './source-multi-select'
-import { DownloadChat } from './ui/chatdownload-button'
-import ExternalDataFlag from '@/components/aivy-message/external-data-flag'
+
 import { toast } from 'sonner'
 import {
   MdOutlineScience,
@@ -306,17 +303,6 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
     }
   }, [newchatboxId, path, session?.user, chatMessages])
 
-  // useEffect(() => {
-  //   const messagesLength = messages?.length
-  //   if (messagesLength === 2) {
-  //     router.refresh()
-  //   }
-  // }, [messages, router])
-
-  // useEffect(() => {
-  //   setNewChatId(id)
-  // })
-
   const {
     messagesRef,
     scrollRef,
@@ -327,95 +313,56 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
   } = useScrollAnchor()
 
   return (
-    <div className="group w-full overflow-auto pl-0 transition-all duration-300 ease-in-out peer-[[data-state=open]]:lg:pl-[250px] peer-[[data-state=open]]:xl:pl-[300px]">
+    <div className="group w-full overflow-auto pl-0 transition-all duration-300 ease-in-out peer-[[data-state=open]]:lg:pl-[300px] peer-[[data-state=open]]:xl:pl-[340px]">
       <div className="flex flex-col h-[calc(100vh-4rem)] w-full justify-center md:justify-start">
         {chatMessages.length ? (
-          <div className="flex-1 w-full h-full overflow-y-auto">
-            <div className="sticky top-0 z-50 left-0 right-0 h-[60px] bg-blue-50/95 backdrop-blur supports-[backdrop-filter]:bg-blue-50/60 flex items-center justify-between px-2 sm:px-4 lg:px-6 flex">
-              <div className="w-full max-w-auto sm:max-w-none flex gap-4">
-                {/* <SourceMultiSelect
-                  session={session}
-                  setSuggestionQuestions={setSuggestionQuestions}
-                  setIsLoadingSuggestions={setIsLoadingSuggestions}
-                  dataKey={dataKey}
-                /> */}
-              </div>
-              {chatMessages.length && !isBtnClicked && (
-                <div className="flex items-center gap-2 ml-2">
-                  <Button
-                    onClick={handleannotationClicked}
-                    className="hover:bg-blue-600 transition-colors p-2 sm:p-3"
-                  >
-                    <MdOutlineInsertComment className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-                  </Button>
+          <div className="flex-1 w-full h-full overflow-y-auto flex justify-center items-start">
+            <div className="w-full mx-auto mb-8 bg-white flex flex-col min-h-[70vh]">
+              {/* Chat Header */}
+              <div className="sticky top-0 z-50 left-0 right-0 h-[70px] bg-gradient-to-r from-primary to-red-100/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 flex items-center justify-between px-6 rounded-t-2xl border-b border-gray-200">
+                <div className="flex items-center gap-3">
+                  <span className="text-xl font-semibold text-gray-800">
+                    GILEAD AI Assistant
+                  </span>
                 </div>
-              )}
-            </div>
-            <div className="w-full px-2 sm:px-4 lg:px-6 py-4 sm:py-6 pb-32 md:pb-6">
-              <ChatList
-                messages={[
-                  ...chatMessages,
-                  {
-                    sender: 'bot',
-                    message: messages.map(item => item.message).join(''),
-                    chatId: chat_id,
-                    sourceData: sourceData,
-                    citations: citationsData
-                  }
-                ]}
-                isShared={false}
-                session={session}
-                isLoading={isLoading}
-                isStreaming={isStreaming}
-                animation={animation}
-                setInput={setInput}
-                ragStreaming={ragStreaming}
-              />
-            </div>
-          </div>
-        ) : (
-          <div className="absolute md:sticky left-0 top-0 z-50 md:left-auto right-0 py-1 h-[60px] bg-blue-50/95 backdrop-blur supports-[backdrop-filter]:bg-blue-50/60 flex items-center justify-start px-2 sm:px-4 lg:px-6 flex">
-            <div className="w-full max-w-auto sm:max-w-none flex gap-4">
-              {/* <SourceMultiSelect
-                session={session}
-                setSuggestionQuestions={setSuggestionQuestions}
-                setIsLoadingSuggestions={setIsLoadingSuggestions}
-                dataKey={dataKey}
-              /> */}
-              {/* {isUserAllowedForEveningInsights(session?.user.email) && (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        role="checkbox"
-                        aria-checked={eveningInsight}
-                        onClick={handleEveningInsight}
-                        className={`px-3 py-1.5 rounded-md text-xs md:text-sm font-medium transition-colors flex items-center gap-1.5 ${
-                          eveningInsight
-                            ? 'bg-primary text-white hover:bg-primary shadow-[0_0_15px_rgba(37,99,235,0.5)]'
-                            : 'bg-secondary text-white hover:bg-secondary hover:shadow-[0_0_10px_rgba(37,99,235,0.3)]'
-                        }`}
-                      >
-                        {eveningInsight && <MdCheck className="w-4 h-4" />}
-                        Evening Insights
-                      </button>
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent
-                    side="bottom"
-                    align="center"
-                    className="z-100"
-                  >
-                    {' '}
-                    Select this option to ask anything about the Evening
-                    Insights.
-                  </TooltipContent>
-                </Tooltip>
-              )} */}
+                {/* Optional actions: export/share, etc. */}
+                <div className="flex items-center gap-2 ml-2">
+                  {chatMessages.length && !isBtnClicked && (
+                    <Button
+                      onClick={handleannotationClicked}
+                      className="hover:bg-primary transition-colors p-2 sm:p-3"
+                    >
+                      <MdOutlineInsertComment className="w-5 h-5 text-white" />
+                    </Button>
+                  )}
+                  {/* Add more action buttons here if needed */}
+                </div>
+              </div>
+              {/* Chat List */}
+              <div className="flex-1 w-full px-4 py-6 overflow-y-auto">
+                <ChatList
+                  messages={[
+                    ...chatMessages,
+                    {
+                      sender: 'bot',
+                      message: messages.map(item => item.message).join(''),
+                      chatId: chat_id,
+                      sourceData: sourceData,
+                      citations: citationsData
+                    }
+                  ]}
+                  isShared={false}
+                  session={session}
+                  isLoading={isLoading}
+                  isStreaming={isStreaming}
+                  animation={animation}
+                  setInput={setInput}
+                  ragStreaming={ragStreaming}
+                />
+              </div>
             </div>
           </div>
-        )}
+        ) : null}
 
         {chatMessages.length ? (
           <div className="w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 transition-all duration-300 ease-in-out fixed md:relative bottom-0 left-0 right-0 z-50">

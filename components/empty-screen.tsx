@@ -4,8 +4,8 @@ import { FaHandPointUp } from 'react-icons/fa'
 
 export function EmptyScreen({ infoMessage }: { infoMessage: string }) {
   return (
-    <div className="mx-auto max-w-3xl px-4 transition-all duration-300 ease-in-out peer-[[data-state=open]]:lg:max-w-[calc(100%-250px)] peer-[[data-state=open]]:xl:max-w-[calc(100%-300px)]">
-      <div className="flex flex-col gap-2 bg-background p-8 py-0 text-center items-center">
+    <div className="mx-auto max-w-3xl px-4 transition-all duration-300 ease-in-out peer-[[data-state=open]]:lg:max-w-[calc(100%-250px)] peer-[[data-state=open]]:xl:max-w-[calc(100%-320px)]">
+      <div className="flex flex-col gap-2  p-8 py-0 text-center items-center">
         <Image
           className="w-[200px] mr-2 dark:hidden hidden md:block"
           src={logoicon}

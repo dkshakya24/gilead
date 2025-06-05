@@ -32,7 +32,7 @@ interface UserMessageProps {
 export const UserMessage: React.FC<UserMessageProps> = ({ children }) => {
   return (
     <div
-      className="group relative flex items-start md:-ml-12"
+      className="group relative flex items-start md:-ml-10"
       role="article"
       aria-label="User Message"
     >
@@ -290,7 +290,7 @@ export function BotMessage({
   return (
     <div
       className={cn(
-        'group relative flex items-start md:-ml-12 transition-all duration-300 ease-in-out',
+        'group relative flex items-start md:-ml-10 transition-all duration-300 ease-in-out',
         className
       )}
     >
@@ -649,7 +649,7 @@ export function BotCard({
   showAvatar?: boolean
 }) {
   return (
-    <div className="group relative flex items-start md:-ml-12">
+    <div className="group relative flex items-start md:-ml-10">
       <div
         className={cn(
           'flex size-[24px] shrink-0 select-none items-center justify-center rounded-md border bg-white text-primary-foreground shadow-sm',

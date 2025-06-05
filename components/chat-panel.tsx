@@ -48,7 +48,7 @@ export function ChatPanel({
       />
       <ButtonScrollToTop isAtBottom={isAtBottom} scrollToTop={scrollToTop} /> */}
 
-      <div className="mx-auto w-full max-w-4xl px-4 sm:px-6 lg:px-8 transition-all duration-300 ease-in-out peer-[[data-state=open]]:lg:pl-[250px] peer-[[data-state=open]]:xl:pl-[300px] peer-[[data-state=open]]:lg:max-w-[calc(100%-250px)] peer-[[data-state=open]]:xl:max-w-[calc(100%-300px)]">
+      <div className="mx-auto w-full max-w-4xl px-4 sm:px-6 lg:px-8 transition-all duration-300 ease-in-out peer-[[data-state=open]]:lg:pl-[250px] peer-[[data-state=open]]:xl:pl-[320px] peer-[[data-state=open]]:lg:max-w-[calc(100%-250px)] peer-[[data-state=open]]:xl:max-w-[calc(100%-320px)]">
         {messages?.length >= 2 ? (
           <div className="flex h-12 items-center justify-center mb-4">
             <div className="flex space-x-2">

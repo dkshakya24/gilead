@@ -18,6 +18,7 @@ import { useLocalStorage } from '@/lib/hooks/use-local-storage'
 import { SideBarChat, type Chat } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import { useRouter } from 'next/navigation'
+import { format } from 'date-fns'
 
 interface SidebarItemProps {
   index: number
@@ -39,6 +40,14 @@ export function SidebarItem({
   // const [newChatId, setNewChatId] = useLocalStorage('newChatId', null)
   const shouldAnimate = index === 0 && isActive
 
+  // Format time
+  let timeString = ''
+  if (chat.created_on) {
+    try {
+      timeString = format(new Date(chat.created_on), 'hh:mm aa')
+    } catch {}
+  }
+
   if (!chat?.Session_id) return null
 
   const handleChatClick = (chatId: string) => {
@@ -47,7 +56,7 @@ export function SidebarItem({
 
   return (
     <motion.div
-      className={`relative ${accordian ? 'h-11' : 'h-8'}  cursor-pointer`}
+      className={`relative ${accordian ? 'h-12' : 'h-10'} cursor-pointer`}
       variants={{
         initial: {
           height: 0,
@@ -65,31 +74,23 @@ export function SidebarItem({
         ease: 'easeIn'
       }}
     >
-      <div className="absolute left-2 top-1 flex size-6 items-center justify-center">
-        {/* {chat.sharePath ? (
-          <Tooltip delayDuration={1000}>
-            <TooltipTrigger
-              tabIndex={-1}
-              className="focus:bg-muted focus:ring-1 focus:ring-ring"
-            >
-              <IconUsers className="mr-2 mt-1 text-white" />
-            </TooltipTrigger>
-            <TooltipContent>This is a shared chat.</TooltipContent>
-          </Tooltip>
-        ) : (
-          <IconMessage className="mr-2 mt-1 text-white" />
-        )} */}
-        <IconMessage className="mr-2 mt-1 text-white" />
-      </div>
+      {/* Active indicator bar */}
+      <div
+        className={`absolute left-0 top-0 h-full w-1 rounded-l-xl transition-all ${isActive ? 'bg-primary' : 'bg-transparent'}`}
+      ></div>
       <div
         key={chat.Session_id}
         onClick={() => handleChatClick(chat.Session_id)}
         className={cn(
           buttonVariants({ variant: 'ghost' }),
-          'group w-full px-8 transition-colors hover:bg-secondary dark:hover:bg-zinc-300/10',
-          isActive && 'bg-secondary pr-16 font-semibold dark:bg-zinc-800'
+          'group w-full px-[10px] py-2 my-1 rounded-xl bg-white/80 transition-colors  hover:bg-[#f7f7f7] text-gray-800 font-medium text-sm flex items-center',
+          isActive && 'bg-[#F7F7F7] text-primary font-bold',
+          accordian && 'h-12'
         )}
       >
+        {isActive && (
+          <span className="absolute left-0 top-[8px] bottom-[8px] w-1 bg-[#C5203F] rounded-r"></span>
+        )}
         <div
           className="relative max-h-5 flex-1 select-none overflow-hidden text-ellipsis break-all"
           title={chat.header_name}
@@ -117,21 +118,20 @@ export function SidebarItem({
                     delay: index * 0.05,
                     staggerChildren: 0.05
                   }}
-                  // onAnimationComplete={() => {
-                  //   if (index === chat.header_name.length - 1) {
-                  //     setNewChatId(null)
-                  //   }
-                  // }}
-                  className="text-white"
+                  className="text-gray-800"
                 >
                   {character}
                 </motion.span>
               ))
             ) : (
-              <span className="text-white">{chat.header_name}</span>
+              <span className="text-gray-600">{chat.header_name}</span>
             )}
           </span>
         </div>
+        {/* Time on the right */}
+        <span className="ml-2 text-xs text-gray-400 font-normal flex-shrink-0">
+          {timeString}
+        </span>
       </div>
       {isActive && <div className="absolute right-2 top-1">{children}</div>}
     </motion.div>

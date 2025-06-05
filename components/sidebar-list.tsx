@@ -16,9 +16,10 @@ import {
 interface SidebarListProps {
   userId?: string
   children?: React.ReactNode
+  search?: string
 }
 
-export function SidebarList({ userId }: SidebarListProps) {
+export function SidebarList({ userId, search = '' }: SidebarListProps) {
   const [todaychats, setTodayChats] = useState([])
   const [otherchats, setOtherChats] = useState([])
   const [loading, setLoading] = useState(true)
@@ -65,42 +66,49 @@ export function SidebarList({ userId }: SidebarListProps) {
     }
   }, [path.length])
 
+  const filterChats = (chats: any[]) =>
+    chats?.filter(chat =>
+      chat?.header_name?.toLowerCase().includes(search.toLowerCase())
+    )
+
+  const filteredTodayChats = filterChats(todaychats)
+  const filteredOtherChats = filterChats(otherchats)
+
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
       <div className="flex-1 overflow-auto">
         {loading ? (
           <Shimmer />
         ) : (
-          <div className="space-y-2 px-2">
-            {todaychats && (
+          <div className="space-y-4 px-1">
+            {filteredTodayChats && filteredTodayChats.length > 0 && (
               <>
-                <div className="flex items-center justify-between p-4">
-                  <h4 className="text-sm font-medium text-gray-400">Today</h4>
+                <div className="flex items-center justify-between pt-4 pb-2">
+                  <h4 className="text-sm font-medium text-[#7893A4]">Today</h4>
                 </div>
-                <SidebarItems chats={todaychats} />
+                <div className="shadow-sm">
+                  <SidebarItems chats={filteredTodayChats} />
+                </div>
               </>
             )}
-            {otherchats && (
+            {filteredOtherChats && filteredOtherChats.length > 0 && (
               <>
-                {/* Design 3: Card Style Accordion for Previous Chats */}
-                <div>
-                  <Accordion
-                    type="single"
-                    collapsible
-                    // defaultValue="previous-chats"
-                    className="bg-white/5 rounded-lg shadow-sm mt-4"
-                  >
+                <div className="pt-2">
+                  <Accordion type="single" collapsible className="mt-1">
                     <AccordionItem
                       value="previous-chats"
                       className="border-none"
                     >
-                      <AccordionTrigger className="px-4 py-3 text-sm font-medium text-gray-400 hover:bg-gray-800/30 rounded-t-lg">
+                      <AccordionTrigger className="py-3 text-xs font-bold uppercase tracking-wider truncate text-[#72737C]">
                         <div className="flex items-center gap-2">
                           Previous Chats
                         </div>
                       </AccordionTrigger>
-                      <AccordionContent className="px-2 pb-2 pt-0">
-                        <SidebarItems chats={otherchats} accordian={true} />
+                      <AccordionContent className="pb-2 pt-0">
+                        <SidebarItems
+                          chats={filteredOtherChats}
+                          accordian={true}
+                        />
                       </AccordionContent>
                     </AccordionItem>
                   </Accordion>
