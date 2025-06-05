@@ -18,7 +18,7 @@ export interface ChatMessageProps {
 export function ChatMessage({ message, ...props }: ChatMessageProps) {
   return (
     <div
-      className={cn('group relative mb-4 flex items-start md:-ml-12')}
+      className={cn('group relative mb-4 flex items-start md:-ml-10')}
       {...props}
     >
       <div
@@ -38,7 +38,7 @@ export function ChatMessage({ message, ...props }: ChatMessageProps) {
           components={{
             p({ children }) {
               return <p className="mb-2 last:mb-0">{children}</p>
-            },
+            }
             // code({ node, inline, className, children, ...props }) {
             //   if (children.length) {
             //     if (children[0] == '▍') {

@@ -11,14 +11,13 @@ export function EmptyScreen({ infoMessage }: { infoMessage: string }) {
           src={logoicon}
           alt="icon"
         />
-        <h1 className="text-lg font-semibold text-primary dark:text-white pt-2">
-          Hi! I'm WAO
+        <h1 className="text-[24px] font-medium text-center bg-gradient-to-r from-[#FF9892] to-[#870002] bg-clip-text text-transparent">
+          Welcome to GABI ARC!
         </h1>
-        <p className="leading-normal text-gray-600 md:text-gray-400 dark:text-white text-xs md:text-sm">
-          {/* <i>{infoMessage}</i> */}
-          Your AI powered Congress Assistant. To get the best insights during
-          ASCO 2025, please select your topic of interest from the dropdown list
-          above that you want to learn more about. Let’s dive in!
+
+        <p className="text-[#666666] text-center text-[16px]">
+          Ask me anything – from quick info to deep dives, I&apos;m here to
+          assist you anytime.
         </p>
       </div>
     </div>

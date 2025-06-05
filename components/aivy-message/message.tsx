@@ -677,7 +677,7 @@ export function SystemMessage({ children }: { children: React.ReactNode }) {
 
 export function SpinnerMessage() {
   return (
-    <div className="group relative flex items-center md:-ml-12">
+    <div className="group relative flex items-center md:-ml-10">
       <div className="flex size-[40px] shrink-0 select-none items-center justify-center rounded-full p-2 border bg-white text-primary-foreground shadow-sm">
         <Image src={logoicon} alt="icon" />
       </div>
@@ -692,7 +692,7 @@ export function SpinnerMessage() {
 }
 export function MessageLoader2() {
   return (
-    <div className="group absolute top-10px flex items-center md:-ml-12">
+    <div className="group absolute top-10px flex items-center md:-ml-10">
       <div className="flex size-[40px] shrink-0 select-none items-center justify-center rounded-full p-2 border bg-white text-primary-foreground shadow-sm">
         <Image src={logoicon} alt="icon" />
       </div>

@@ -99,7 +99,7 @@ export function SidebarList({ userId, search = '' }: SidebarListProps) {
                       value="previous-chats"
                       className="border-none"
                     >
-                      <AccordionTrigger className="py-3 text-xs font-bold uppercase tracking-wider truncate text-[#72737C]">
+                      <AccordionTrigger className="py-3 text-sm hover:bg-gray-100 px-2 rounded-md tracking-wider truncate text-[#72737C]">
                         <div className="flex items-center gap-2">
                           Previous Chats
                         </div>

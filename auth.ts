@@ -1,7 +1,7 @@
-import NextAuth from "next-auth";
-import Credentials from "next-auth/providers/credentials";
-import { z } from "zod";
-import { getUser } from "./app/login/actions";
+import NextAuth from 'next-auth'
+import Credentials from 'next-auth/providers/credentials'
+import { z } from 'zod'
+import { getUser } from './app/login/actions'
 
 // Define the table name and primary key
 export const { handlers, auth, signIn, signOut } = NextAuth({
@@ -12,31 +12,31 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const parsedCredentials = z
           .object({
             email: z.string().email(),
-            password: z.string().min(6),
+            password: z.string().min(6)
           })
-          .safeParse(credentials);
+          .safeParse(credentials)
 
         if (parsedCredentials.success) {
-          const { email, password } = parsedCredentials.data;
-          const user = await getUser(email, password);
+          const { email, password } = parsedCredentials.data
+          const user = await getUser(email, password)
 
-          if (!user) return null;
+          if (!user) return null
 
           if (user) {
             return {
               id: user.id,
               email: user.email,
               name: user.name, // Add this line
-              emailVerified: new Date(),
-            };
+              emailVerified: new Date()
+            }
           } else {
-            return null;
+            return null
           }
         }
 
-        return null;
-      },
-    }),
+        return null
+      }
+    })
     // MicrosoftEntraID({
     //   clientId: AUTH_MICROSOFT_ENTRA_ID_ID,
     //   clientSecret: AUTH_MICROSOFT_ENTRA_ID_SECRET,
@@ -46,12 +46,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id;
-        token.email = user.email;
-        token.name = user.name; // Add this line
-        token.emailVerified = new Date();
+        token.id = user.id
+        token.email = user.email
+        token.name = user.name // Add this line
+        token.emailVerified = new Date()
       }
-      return token;
+      return token
     },
     async session({ session, token }) {
       if (token) {
@@ -59,11 +59,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           id: token.id as string,
           email: token.email as string,
           name: token.name as string, // Add this line
-          emailVerified: token.emailVerified as Date,
-        };
+          emailVerified: token.emailVerified as Date
+        }
       }
-      return session;
-    },
+      return session
+    }
   },
-  trustHost: true,
-});
+  trustHost: true
+})

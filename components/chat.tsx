@@ -319,11 +319,11 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
           <div className="flex-1 w-full h-full overflow-y-auto flex justify-center items-start">
             <div className="w-full mx-auto mb-8 bg-white flex flex-col min-h-[70vh]">
               {/* Chat Header */}
-              <div className="sticky top-0 z-50 left-0 right-0 h-[70px] bg-gradient-to-r from-primary to-red-100/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 flex items-center justify-between px-6 rounded-t-2xl border-b border-gray-200">
+              <div className="sticky top-0 z-50 left-0 right-0 h-[70px] bg-white flex items-center justify-between px-6 border-b border-gray-200">
                 <div className="flex items-center gap-3">
-                  <span className="text-xl font-semibold text-gray-800">
+                  {/* <span className="text-xl font-semibold text-gray-800">
                     GILEAD AI Assistant
-                  </span>
+                  </span> */}
                 </div>
                 {/* Optional actions: export/share, etc. */}
                 <div className="flex items-center gap-2 ml-2">
