@@ -2,7 +2,7 @@
 
 import * as React from 'react'
 import Textarea from 'react-textarea-autosize'
-import logoicon from '@/public/aivy-icon.png'
+import logoicon from '@/public/GileadLogo.svg'
 import { Button } from '@/components/ui/button'
 import {
   Tooltip,

@@ -1,4 +1,4 @@
-import logoicon from '@/public/merck.png'
+import logoicon from '@/public/LandingPageImage.svg'
 import Image from 'next/image'
 import { FaHandPointUp } from 'react-icons/fa'
 

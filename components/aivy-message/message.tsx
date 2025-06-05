@@ -1,7 +1,7 @@
 'use client'
 
 import { cn, SUGGESTION_API } from '@/lib/utils'
-import logoicon from '@/public/aivy-icon.png'
+import logoicon from '@/public/GileadLogo.svg'
 import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
 import { BsChatQuote, BsDownload } from 'react-icons/bs'

@@ -1,4 +1,4 @@
-import logoicon from '@/public/aivy-icon.png'
+import logoicon from '@/public/GileadLogo.svg'
 
 import Link from 'next/link'
 import Image from 'next/image'
@@ -13,9 +13,7 @@ export default function WAOLandingPage() {
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-xl text-gray-600 font-medium">
             Welcome to{' '}
-            <b className="font-bold text-secondary">
-              AIVY AI Assistant
-            </b>
+            <b className="font-bold text-secondary">AIVY AI Assistant</b>
             <br />
             <i className="text-gray-400 text-sm">
               Your AI Powered Congress Assistant
