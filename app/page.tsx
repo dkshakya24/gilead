@@ -1,20 +1,26 @@
-import { auth } from "@/auth";
-import { Session } from "@/lib/types";
-import { redirect } from "next/navigation";
+// import { auth } from '@/auth'
+// import { redirect } from 'next/navigation'
+// import { Session } from '@/lib/types'
+// import WAOLandingPage from '@/components/wao-landingpage'
 
-import ChatForm from "@/components/chat-form";
+// export default async function Home() {
+//   const session = (await auth()) as Session
 
-export default async function IndexPage() {
-  // const id = await getChatId()
-  const session = (await auth()) as Session;
-  if (!session) {
-    redirect("/login");
-  }
-  console.log(session, "session122");
+//   if (!session?.user) {
+//     redirect('/login')
+//   }
 
-  return (
-    <>
-      <ChatForm />
-    </>
-  );
+//   return (
+//     <>
+//       <div className="flex w-full flex-col justify-center">
+//         <WAOLandingPage />
+//       </div>
+//     </>
+//   )
+// }
+
+import { redirect } from 'next/navigation'
+
+export default async function NewPage() {
+  redirect('/aivy')
 }

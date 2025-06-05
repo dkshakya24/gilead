@@ -1,45 +1,114 @@
-import Image from "next/image";
-import React from "react";
-import ReasoningFactor from "./ReasoningFactor";
-import { Bell } from "lucide-react";
-import { UrlDropdown } from "./URLDropdown";
-import { KeywordsDropdown } from "./KeywordsDropdown";
-import ExportDropdown from "./export-dropdown";
-import ProfileSection from "./personal-details";
-import { auth, signOut } from "@/auth";
-import { Session } from "@/lib/types";
-// import { Session } from "next-auth";
+import * as React from 'react'
+import Link from 'next/link'
 
-export default async function Header() {
-  const session = (await auth()) as Session;
-  const handleSignOut = async () => {
-    "use server";
-    await signOut();
-    window.location.href = "/login";
-  };
+import { MdInsights } from 'react-icons/md'
+import { auth } from '@/auth'
+import { Button } from '@/components/ui/button'
+import {
+  IconGitHub,
+  IconNextChat,
+  IconSeparator,
+  IconVercel
+} from '@/components/ui/icons'
+import { UserMenu } from '@/components/user-menu'
+import { SidebarMobile } from './sidebar-mobile'
+import { SidebarToggle } from './sidebar-toggle'
+import { ChatHistory } from './chat-history'
+import { Session } from '@/lib/types'
+import logo from '@/public/merck1.png'
+import Image from 'next/image'
+import logoicon from '@/public/aivy-icon.png'
+// import SourceMultiSelect from './source-multi-select'
+import {
+  PiHouseLineDuotone,
+  PiChatCircleDotsDuotone,
+  PiDatabaseDuotone
+} from 'react-icons/pi'
+
+async function UserOrLogin() {
+  const session = (await auth()) as Session
   return (
-    <div className="sticky top-0 bg-white z-10">
-      <div className="flex justify-between gap-x-4">
-        <div>
+    <>
+      {session?.user?.email ? (
+        <>
+          <SidebarMobile>
+            <ChatHistory userId={session.user.email} />
+          </SidebarMobile>
+        </>
+      ) : (
+        <Link
+          href="/new"
+          rel="nofollow"
+          className="flex items-center hover:opacity-80 transition-opacity"
+        >
           <Image
-            src="/GileadLogo.svg"
-            alt="Gilead Logo"
-            width={123}
-            height={0}
-            className="mb-3"
+            className="hidden size-6 mr-2 dark:block"
+            src={logoicon}
+            alt="icon"
           />
-        </div>
-        <div className="flex flex-wrap gap-4 mb-3">
-          <ReasoningFactor disabled />
-          <UrlDropdown disabled />
-          <KeywordsDropdown disabled />
-          <ExportDropdown disabled={false} session={session} />
-          <button className="flex items-center cursor-not-allowed opacity-50 justify-center w-[38px] h-[38px] bg-white border border-gray-200 rounded-full">
-            <Bell className="h-4 w-4" />
-          </button>
-          <ProfileSection handleSignOut={handleSignOut} session={session} />
-        </div>
+          <Image
+            className="size-6 mr-2 dark:hidden"
+            src={logoicon}
+            alt="icon"
+          />
+        </Link>
+      )}
+      <div className="flex items-center">
+        {session?.user?.email ? (
+          <UserMenu user={session.user} />
+        ) : (
+          <>
+            <IconSeparator className="size-6 text-muted-foreground/50" />
+            <Button
+              variant="link"
+              asChild
+              className="-ml-2 hover:text-primary transition-colors"
+            >
+              <Link href="/login">Login</Link>
+            </Button>
+          </>
+        )}
       </div>
-    </div>
-  );
+    </>
+  )
+}
+
+export function Header() {
+  return (
+    <header className="sticky top-0 z-50 flex items-center justify-between bg-white/80 backdrop-blur-md w-full h-16 px-6 border-b border-gray-100 dark:bg-white/80 shadow-sm">
+      <div className="flex items-center justify-between gap-3 mr-3">
+        <SidebarToggle />
+        <Link href="/" className="hover:opacity-80 transition-opacity">
+          <Image
+            src={logo}
+            alt="AIVY"
+            className="max-w-[150px] max-h-[90px]"
+          />
+        </Link>
+      </div>
+      <div className="flex items-center justify-between gap-6">
+        <nav className="hidden md:flex items-center space-x-4">
+          {/* <Link
+            href="/"
+            className="group text-gray-600 hover:text-primary px-3 py-2 rounded-md text-sm font-medium flex items-center transition-colors"
+          >
+            <PiHouseLineDuotone className="text-lg mr-2 group-hover:text-primary" />
+            Home
+          </Link> */}
+          {/* <Link
+            href="/askeugene"
+            className="group text-gray-600 hover:text-primary px-3 py-2 rounded-md text-sm font-medium flex items-center transition-colors"
+          >
+            <PiDatabaseDuotone className="text-lg mr-2 group-hover:text-primary" />
+            Ask Eugene
+          </Link> */}
+        </nav>
+      </div>
+      <div className="flex items-center space-x-4">
+        <React.Suspense fallback={<div className="flex-1 overflow-auto" />}>
+          <UserOrLogin />
+        </React.Suspense>
+      </div>
+    </header>
+  )
 }
