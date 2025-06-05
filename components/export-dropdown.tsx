@@ -66,7 +66,9 @@ export default function ExportDropdown({
   };
 
   useEffect(() => {
-    fetchChatFiles();
+    if (sessionId) {
+      fetchChatFiles();
+    }
     setIsChatDownloaded(true);
   }, [searchParams]);
 

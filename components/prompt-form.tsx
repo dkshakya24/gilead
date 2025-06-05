@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import useWebSocket from "@/hooks/useWebSocket";
 import { useChatStore } from "@/store/chatStore";
 import { Session } from "@/lib/types";
+import { usePathname } from "next/navigation";
 
 export default function PromptForm({
   sessionId,
@@ -20,12 +21,16 @@ export default function PromptForm({
   const { sendMessage } = useWebSocket(
     "wss://7x4ndqse6e.execute-api.us-east-1.amazonaws.com/dev"
   );
+  const path = usePathname();
   const { streamingMessage, isLoading } = useChatStore();
 
   const handleSend = useCallback(() => {
     if (message.trim()) {
       sendMessage(message, sessionId, session?.user?.email);
       setMessage("");
+    }
+    if (path === "/chat") {
+      window.history.replaceState({}, "", `/chat/${sessionId}`);
     }
   }, [sendMessage, message, sessionId, session?.user?.email]);
 
