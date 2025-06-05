@@ -9,23 +9,25 @@ import useWebSocket from "@/hooks/useWebSocket";
 import Image from "next/image";
 import { format } from "date-fns";
 import { useChatStore } from "@/store/chatStore";
-
+import { Session } from "@/lib/types";
 
 type Message = {
-    role: "user" | "bot";
-    content: string;
-    timestamp: Date;
-    responseTime?: number;
-  };
+  role: "user" | "bot";
+  content: string;
+  timestamp: Date;
+  responseTime?: number;
+};
 
 export function ChatMessage({
   msg,
   isUser,
   sessionId,
+  session,
 }: {
   msg: Message;
   isUser: boolean;
-  sessionId?: string
+  sessionId?: string;
+  session?: Session;
 }) {
   const { setOpen } = usePanelStore();
   const timestamp = msg.timestamp || new Date();
@@ -35,7 +37,7 @@ export function ChatMessage({
   );
 
   const onResend = (message: string, sessionId: string) => {
-    sendMessage(message, sessionId);
+    sendMessage(message, sessionId, session?.user?.email);
   };
 
   return (

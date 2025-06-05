@@ -40,7 +40,7 @@ export function KeywordsDropdown({ disabled }: { disabled: boolean }) {
     <DropdownMenu onOpenChange={(open) => !disabled && setIsDropdownOpen(open)}>
       <DropdownMenuTrigger asChild>
         <button
-          disabled={disabled}
+          // disabled={disabled}
           className={`flex h-[38px] items-center gap-x-2 px-3 py-2 rounded-3xl border text-sm transition
             ${
               disabled

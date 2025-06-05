@@ -7,8 +7,15 @@ import { Mic, FileUp, Send } from "lucide-react";
 import { cn } from "@/lib/utils";
 import useWebSocket from "@/hooks/useWebSocket";
 import { useChatStore } from "@/store/chatStore";
+import { Session } from "@/lib/types";
 
-export default function PromptForm({ sessionId }: { sessionId : string}) {
+export default function PromptForm({
+  sessionId,
+  session,
+}: {
+  sessionId: string;
+  session: Session;
+}) {
   const [message, setMessage] = useState("");
   const { sendMessage } = useWebSocket(
     "wss://7x4ndqse6e.execute-api.us-east-1.amazonaws.com/dev"
@@ -17,10 +24,10 @@ export default function PromptForm({ sessionId }: { sessionId : string}) {
 
   const handleSend = useCallback(() => {
     if (message.trim()) {
-      sendMessage(message, sessionId);
+      sendMessage(message, sessionId, session?.user?.email);
       setMessage("");
     }
-  }, [sendMessage, message, sessionId]);
+  }, [sendMessage, message, sessionId, session?.user?.email]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {

@@ -105,11 +105,12 @@ export default function ChatList({
           msg={msg}
           isUser={msg.role === "user"}
           sessionId={sessionId ?? ""}
+          session={session}
         />
       ))}
 
       {streamingMessage && (
-        <ChatMessage msg={streamingMessage} isUser={false} />
+        <ChatMessage msg={streamingMessage} isUser={false} session={session} />
       )}
 
       {isLoading && !streamingMessage && (
