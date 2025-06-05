@@ -34,7 +34,7 @@ const ChatContent = ({ session }: { session: Session }) => {
 
       {/* Sticky Prompt Form */}
       <div className="sticky bottom-0 mx-auto w-[60%] bg-white pt-3">
-        <PromptForm sessionId={sessionId} />
+        <PromptForm sessionId={sessionId} session={session} />
       </div>
     </>
   );
