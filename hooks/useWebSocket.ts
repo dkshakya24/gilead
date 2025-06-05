@@ -80,12 +80,12 @@ const useWebSocket = (url: string) => {
     setStreamingMessage,
   ]);
 
-  const sendMessage = (msg: string, sessionId?: string) => {
+  const sendMessage = (msg: string, sessionId?: string, useremail?: string) => {
     if (socketRef.current?.readyState === WebSocket.OPEN) {
       const payload = JSON.stringify({
         action: "sendmessage",
         query: msg,
-        userId: username,
+        userId: useremail || "",
         sessionId: sessionId ?? "",
       });
       console.log("payload", payload);
