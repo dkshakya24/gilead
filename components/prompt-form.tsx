@@ -84,7 +84,7 @@ export function PromptForm({
       transition={{ duration: 0.2 }}
     >
       {!hasSubmitted && path === '/aivy' ? (
-        <div className="w-full bg-white rounded-2xl p-6 flex flex-col shadow-none border-none mt-4 w-[700px] shadow-[0_0_6px_rgba(0,0,0,0.2)] rounded-xl p-4">
+        <div className="w-full bg-white rounded-2xl p-6 flex flex-col mt-4 w-[700px] shadow-md border border-gray-200 rounded-xl p-4">
           <textarea
             className="w-full bg-transparent border-none outline-none resize-none text-lg placeholder:text-gray-400 mb-6"
             placeholder="Ask Anything here..."

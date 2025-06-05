@@ -1,10 +1,9 @@
 'use client'
 
-import { useFormStatus } from 'react-dom'
-import { useActionState } from 'react'
+import { useFormStatus, useFormState } from 'react-dom'
+import { useEffect } from 'react'
 import { authenticate } from '@/app/login/actions'
 import Link from 'next/link'
-import { useEffect } from 'react'
 import { toast } from 'sonner'
 import { IconSpinner } from './ui/icons'
 import { getMessageFromCode } from '@/lib/utils'
@@ -16,30 +15,30 @@ import { Button } from './ui/new-button'
 
 export default function LoginForm() {
   const router = useRouter()
-  const [result, dispatch] = useActionState(authenticate, undefined)
+  const [state, formAction] = useFormState(authenticate, undefined)
 
   // const handleLogin = async () => {
   //   await signIn("microsoft-entra-id", { callbackUrl: "/" });
   // };
 
   useEffect(() => {
-    if (result) {
-      if (result.type === 'error') {
-        toast.error(getMessageFromCode(result.resultCode))
+    if (state) {
+      if (state.type === 'error') {
+        toast.error(getMessageFromCode(state.resultCode))
       } else {
-        toast.success(getMessageFromCode(result.resultCode), {
+        toast.success(getMessageFromCode(state.resultCode), {
           position: 'top-right',
           className: 'bottom-auto'
         })
         // router.refresh()
-        router.push('/')
+        router.push('/aivy')
       }
     }
-  }, [result, router])
+  }, [state, router])
 
   return (
     <>
-      <form action={dispatch}>
+      <form action={formAction}>
         <div className="space-y-4">
           <div className="flex flex-col gap-y-4">
             <InputField
