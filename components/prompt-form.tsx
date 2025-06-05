@@ -27,7 +27,7 @@ export default function PromptForm({
       sendMessage(message, sessionId, session?.user?.email);
       setMessage("");
     }
-  }, [sendMessage, message, sessionId]);
+  }, [sendMessage, message, sessionId, session?.user?.email]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {

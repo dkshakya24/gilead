@@ -25,7 +25,7 @@ export default function ExportDropdown({
   const [PPT, setPPT] = useState("");
   const [DOCXName, setDOCXName] = useState("");
   const [PPTName, setPPTName] = useState("");
-  const [isChatDownloaded, setIsChatDownloaded] = useState(false);
+  // const [isChatDownloaded, setIsChatDownloaded] = useState(false);
   const searchParams = useSearchParams();
   const sessionId = searchParams.get("sessionId");
 
@@ -59,7 +59,7 @@ export default function ExportDropdown({
       setPPTName(data?.body?.pptx.fileName);
       if (response.ok && data.statusCode === 200) {
         console.log("chat is downloaded");
-        setIsChatDownloaded(true);
+        // setIsChatDownloaded(true);
       }
     } catch (error) {
       console.error("Error fetching data:", error);
