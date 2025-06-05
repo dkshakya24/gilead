@@ -25,7 +25,7 @@ export default function ExportDropdown({
   const [PPT, setPPT] = useState("");
   const [DOCXName, setDOCXName] = useState("");
   const [PPTName, setPPTName] = useState("");
-  // const [isChatDownloaded, setIsChatDownloaded] = useState(false);
+  const [isChatDownloaded, setIsChatDownloaded] = useState(true);
   const searchParams = useSearchParams();
   const sessionId = searchParams.get("sessionId");
 
@@ -52,15 +52,14 @@ export default function ExportDropdown({
       );
       const data = await response.json();
       console.log(data, "kjhjgjhgjghjdeep");
-
+      if (response.ok && data.statusCode === 200) {
+        console.log("chat is downloaded");
+        setIsChatDownloaded(false);
+      }
       setDOCX(data?.body?.docx.file);
       setPPT(data?.body?.pptx.file);
       setDOCXName(data?.body?.docx.fileName);
       setPPTName(data?.body?.pptx.fileName);
-      if (response.ok && data.statusCode === 200) {
-        console.log("chat is downloaded");
-        // setIsChatDownloaded(true);
-      }
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -68,7 +67,8 @@ export default function ExportDropdown({
 
   useEffect(() => {
     fetchChatFiles();
-  }, []);
+    setIsChatDownloaded(true);
+  }, [searchParams]);
 
   const downloadPPTFile = () => {
     try {
@@ -198,14 +198,14 @@ export default function ExportDropdown({
       <div className="relative" ref={dropdownRef}>
         <button
           onClick={() => {
-            if (!disabled) setIsOpen((prev) => !prev);
+            if (!isChatDownloaded) setIsOpen((prev) => !prev);
           }}
           aria-expanded={isOpen}
           aria-haspopup="true"
           // disabled={disabled}
           className={`flex h-[38px] items-center gap-x-2 px-3 py-2 rounded-3xl border text-sm transition
             ${
-              disabled
+              isChatDownloaded
                 ? "border-gray-200 text-gray-400 cursor-not-allowed"
                 : "bg-white border-gray-200 text-black cursor-pointer"
             }`}
