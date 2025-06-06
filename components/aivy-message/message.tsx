@@ -279,14 +279,17 @@ export function BotMessage({
         className
       )}
     >
-      <div className="flex gap-x-2 items-center w-full mb-2">
-        {' '}
-        <Image src={logoicon1} alt="Gilead Logo" sizes="icon" />
-        <span className="text-xs text-gray-500">2:49 PM, 06 Jun</span>
-        <div className="text-xs text-gray-500 ml-2">
-          Response Time: NaN seconds
+      {chatId && (
+        <div className="flex gap-x-2 items-center w-full mb-2">
+          {' '}
+          <Image src={logoicon1} alt="Gilead Logo" sizes="icon" />
+          <span className="text-xs text-gray-500">2:49 PM, 06 Jun</span>
+          <div className="text-xs text-gray-500 ml-2">
+            Response Time: NaN seconds
+          </div>
         </div>
-      </div>
+      )}
+
       <div
         className={cn(
           'rounded-2xl px-5 py-3 gap-y-[6px] bg-white text-gray-800 rounded-tl-none',

@@ -126,7 +126,7 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
     setIsOpen(false)
 
     // Check if current path includes /aivy/chat and redirect to new chat
-    if (pathname?.includes('/aivy/chat')) {
+    if (pathname?.includes('/arc/chat')) {
       router.push('/new')
     }
   }

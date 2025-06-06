@@ -31,7 +31,7 @@ export default function LoginForm() {
           className: 'bottom-auto'
         })
         // router.refresh()
-        router.push('/aivy')
+        router.push('/arc')
       }
     }
   }, [state, router])

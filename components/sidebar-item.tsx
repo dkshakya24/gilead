@@ -36,7 +36,7 @@ export function SidebarItem({
   const router = useRouter()
   const pathname = usePathname()
 
-  const isActive = pathname === `/aivy/chat/${chat.Session_id}`
+  const isActive = pathname === `/arc/chat/${chat.Session_id}`
   // const [newChatId, setNewChatId] = useLocalStorage('newChatId', null)
   const shouldAnimate = index === 0 && isActive
 
@@ -51,7 +51,7 @@ export function SidebarItem({
   if (!chat?.Session_id) return null
 
   const handleChatClick = (chatId: string) => {
-    router.push(`/aivy/chat/${chatId}`) // Dynamic route with chat ID
+    router.push(`/arc/chat/${chatId}`) // Dynamic route with chat ID
   }
 
   return (

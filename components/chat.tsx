@@ -202,7 +202,7 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
   }, [path])
 
   useEffect(() => {
-    if (path === '/aivy') {
+    if (path === '/arc') {
       const fetchData = async () => {
         try {
           const response = await fetch('/api/utils/generate-id', {
@@ -287,7 +287,7 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
   useEffect(() => {
     if (session?.user) {
       if (!path.includes('chat') && chatMessages.length === 1) {
-        window.history.replaceState({}, '', `/aivy/chat/${newchatboxId}`)
+        window.history.replaceState({}, '', `/arc/chat/${newchatboxId}`)
       }
     }
   }, [newchatboxId, path, session?.user, chatMessages])

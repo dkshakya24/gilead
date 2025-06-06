@@ -2,7 +2,7 @@
 
 import * as React from 'react'
 import Textarea from 'react-textarea-autosize'
-import logoicon from '@/public/GileadLogo.svg'
+import logoicon from '@/public/GL.svg'
 import { Button } from '@/components/ui/button'
 import {
   Tooltip,
@@ -36,7 +36,7 @@ export function PromptForm({
   const [webSearch, setWebSearch] = React.useState(() => {
     // Initialize from localStorage if available, otherwise false
     if (typeof window !== 'undefined') {
-      if (path === '/aivy' && agent === 'websearch') {
+      if (path === '/arc') {
         return true
       } else {
         return false
@@ -83,7 +83,7 @@ export function PromptForm({
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.2 }}
     >
-      {!hasSubmitted && path === '/aivy' ? (
+      {!hasSubmitted && path === '/arc' ? (
         <div className="w-full bg-white rounded-2xl p-6 flex flex-col mt-4 w-[700px] shadow-md border border-gray-200 rounded-xl p-4">
           <textarea
             className="w-full bg-transparent border-none outline-none resize-none text-lg placeholder:text-gray-400 mb-6"
@@ -183,7 +183,7 @@ export function PromptForm({
           {/* Plus button (disabled) */}
           <div className="items-center pl-4 hidden md:flex">
             <div className="w-6 h-6 flex items-center justify-center">
-              <Image className="w-full p-[1px]" src={logoicon} alt="icon" />
+              <Image className="w-full" src={logoicon} alt="icon" />
             </div>
           </div>
 

@@ -22,5 +22,5 @@
 import { redirect } from 'next/navigation'
 
 export default async function NewPage() {
-  redirect('/aivy')
+  redirect('/arc')
 }
