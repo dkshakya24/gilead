@@ -8,9 +8,9 @@ import dynamic from 'next/dynamic'
 const ToastOnLoad = dynamic(() => import('@/components/toast-onload'), {
   ssr: false
 })
-// export const metadata = {
-//   title: 'AIVY AI Assistant By Chryselys'
-// }
+export const metadata = {
+  title: 'Welcome to GABI ARC'
+}
 
 export default async function IndexPage() {
   // const id = await getChatId()

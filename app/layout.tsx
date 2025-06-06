@@ -5,7 +5,7 @@ import '@/app/globals.css'
 import { cn } from '@/lib/utils'
 import { TailwindIndicator } from '@/components/tailwind-indicator'
 import { Providers } from '@/components/providers'
-import { Header } from '@/components/header'
+// import { Header } from '@/components/header'
 import { Toaster } from '@/components/ui/sonner'
 
 export const metadata = {
@@ -13,10 +13,10 @@ export const metadata = {
     ? new URL(`https://${process.env.VERCEL_URL}`)
     : undefined,
   title: {
-    default: 'gilead AI Assistant By Chryselys',
-    template: `%s - gilead AI Assistant By Chryselys`
+    default: 'Welcome to GABI ARC',
+    template: ``
   },
-  description: 'An AI-powered chatbot Built By Chryselys',
+  description: 'An AI-powered chatbot',
   icons: {
     icon: '/favicon.ico',
     shortcut: '/favicon-16x16.png',
