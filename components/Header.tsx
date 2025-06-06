@@ -24,6 +24,11 @@ import {
   PiChatCircleDotsDuotone,
   PiDatabaseDuotone
 } from 'react-icons/pi'
+import { Bell } from 'lucide-react'
+import ExportDropdown from './gilead/export-dropdwon'
+import { KeywordsDropdown } from './gilead/keywords-dropdown'
+import { UrlDropdown } from './gilead/url-dropdown'
+import ReasoningFactor from './gilead/reasoning-factor'
 
 async function UserOrLogin() {
   const session = (await auth()) as Session
@@ -73,7 +78,8 @@ async function UserOrLogin() {
   )
 }
 
-export function Header() {
+export async function Header() {
+  const session = (await auth()) as Session
   return (
     <header className="sticky top-0 z-50 flex items-center justify-between bg-white/80 backdrop-blur-md w-full h-16 px-6 border-b border-gray-100 dark:bg-white/80 shadow-sm">
       <div className="flex items-center justify-between gap-3 mr-3">
@@ -102,6 +108,13 @@ export function Header() {
             <PiDatabaseDuotone className="text-lg mr-2 group-hover:text-primary" />
             Ask Eugene
           </Link> */}
+          <ReasoningFactor disabled />
+          <UrlDropdown disabled />
+          <KeywordsDropdown disabled />
+          <ExportDropdown disabled={false} session={session} />
+          <button className="flex items-center cursor-not-allowed opacity-50 justify-center w-[38px] h-[38px] bg-white border border-gray-200 rounded-full">
+            <Bell className="h-4 w-4" />
+          </button>
         </nav>
       </div>
       <div className="flex items-center space-x-4">
