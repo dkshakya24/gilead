@@ -1,4 +1,4 @@
-import { Header } from '@/components/header'
+import { Header } from '@/components/Header'
 import { SidebarDesktop } from '@/components/sidebar-desktop'
 import SourceMultiSelect from '@/components/source-multi-select'
 interface ChatLayoutProps {
