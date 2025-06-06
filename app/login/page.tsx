@@ -2,7 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
 import LoginForm from '@/components/login-form'
-import rightimage from '@/public/LoginPageImage.png'
+import rightimage from '@/public/loginimage.png'
 
 export default function Page() {
   return (
