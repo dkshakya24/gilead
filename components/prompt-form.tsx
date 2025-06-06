@@ -176,7 +176,7 @@ export function PromptForm({
       ) : (
         <div
           className={cn(
-            'relative flex items-center md:flex w-full grow overflow-hidden rounded-3xl border border-gray-200 transition-all duration-200 md:pr-0 pr-[10px]',
+            'relative flex items-center bg-white md:flex w-full grow overflow-hidden rounded-3xl border border-gray-200 transition-all duration-200 md:pr-0 pr-[10px]',
             isFocused ? 'shadow-md' : 'shadow-sm'
           )}
         >
@@ -195,7 +195,7 @@ export function PromptForm({
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
             placeholder="Ask your question here and hit enter"
-            className="min-h-[60px] max-h-[100px] overflow-auto w-full resize-none bg-transparent px-2 py-4 focus-within:outline-none text-base"
+            className="min-h-[60px] max-h-[100px] bg-white overflow-auto w-full resize-none px-2 py-4 focus-within:outline-none text-base"
             autoFocus
             spellCheck={false}
             autoComplete="off"

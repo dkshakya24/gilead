@@ -29,6 +29,13 @@ const useWebSocket = (url: string): WebSocketHook => {
     setMessages([])
     setChat_id('')
   }
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('isStreaming', JSON.stringify(isStreaming))
+    }
+  }, [isStreaming])
+
   useEffect(() => {
     const connect = () => {
       const socket = new WebSocket(url)
@@ -73,7 +80,7 @@ const useWebSocket = (url: string): WebSocketHook => {
     if (data.type === 'end_of_stream') {
       setRagStreaming(true)
       setIsStreaming(false)
-      setChat_id(data.chat_id)
+      setChat_id(data.message_id)
       setSourceData(data.sources)
       setCitationsData(data.specific_citations)
       console.log(data, 'datadata')

@@ -37,7 +37,7 @@ async function UserOrLogin() {
       {session?.user?.email ? (
         <>
           <SidebarMobile>
-            <ChatHistory userId={session.user.email} />
+            <ChatHistory userId={session?.user?.email} />
           </SidebarMobile>
         </>
       ) : (
@@ -82,7 +82,7 @@ export async function Header() {
   const session = (await auth()) as Session
   return (
     <header className="sticky top-0 z-50 flex items-center justify-between bg-white/80 backdrop-blur-md w-full h-16 px-6 border-b border-gray-100 dark:bg-white/80 shadow-sm">
-      <div className="flex items-center justify-between gap-3 mr-3">
+      <div className="flex items-center gap-3">
         <SidebarToggle />
         <Link href="/" className="hover:opacity-80 transition-opacity">
           <Image
@@ -92,7 +92,7 @@ export async function Header() {
           />
         </Link>
       </div>
-      <div className="flex items-center justify-between gap-6">
+      <div className="flex items-center justify-end gap-4 flex-1 md:gap-6">
         <nav className="hidden md:flex items-center space-x-4">
           {/* <Link
             href="/"
@@ -116,11 +116,11 @@ export async function Header() {
             <Bell className="h-4 w-4" />
           </button>
         </nav>
-      </div>
-      <div className="flex items-center space-x-4">
-        <React.Suspense fallback={<div className="flex-1 overflow-auto" />}>
-          <UserOrLogin />
-        </React.Suspense>
+        <div className="flex items-center">
+          <React.Suspense fallback={<div className="flex-1 overflow-auto" />}>
+            <UserOrLogin />
+          </React.Suspense>
+        </div>
       </div>
     </header>
   )

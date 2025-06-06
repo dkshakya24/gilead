@@ -90,7 +90,7 @@ const FeedbackComponent = ({
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            user: `{"id":"${session.user.email}"}`
+            user: `{"id":"${session?.user?.email}"}`
           },
           body: JSON.stringify(payload)
         }

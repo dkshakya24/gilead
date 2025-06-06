@@ -290,7 +290,7 @@ export function DownloadChat({
     setIsBtnClicked(false)
     const payload = {
       headers: {
-        'User-Id': `${session.user.email}`
+        'User-Id': `${session?.user?.email}`
       },
       body: {
         chatter_id: chatterid

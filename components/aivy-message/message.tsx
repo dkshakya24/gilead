@@ -135,7 +135,7 @@ export function BotMessage({
         },
         body: JSON.stringify({
           chatterid: currentChatId,
-          user_id: session.user.email || ''
+          user_id: session?.user?.email || ''
         }) // Assuming `chatId` needs to be sent in the body
       })
       const data = await response.json()
@@ -309,38 +309,23 @@ export function BotMessage({
                 return <p className="mb-2 last:mb-0">{children}</p>
               },
               h1({ children }) {
-                return <h1 className="text-xl">{children}</h1>
+                return <h1 className="text-xl my-2 mt-[10px]">{children}</h1>
               },
-              // code({ node, inline, className, children, ...props }) {
-              //   if (children.length) {
-              //     if (children[0] == '▍') {
-              //       return (
-              //         <span className="mt-1 animate-pulse cursor-default">▍</span>
-              //       )
-              //     }
-
-              //     children[0] = (children[0] as string).replace('`▍`', '▍')
-              //   }
-
-              //   const match = /language-(\w+)/.exec(className || '')
-
-              //   if (inline) {
-              //     return (
-              //       <code className={className} {...props}>
-              //         {children}
-              //       </code>
-              //     )
-              //   }
-
-              //   return (
-              //     <CodeBlock
-              //       key={Math.random()}
-              //       language={(match && match[1]) || ''}
-              //       value={String(children).replace(/\n$/, '')}
-              //       {...props}
-              //     />
-              //   )
-              // },
+              h2({ children }) {
+                return <h2 className="text-lg my-2 mt-[10px]">{children}</h2>
+              },
+              h3({ children }) {
+                return <h3 className="text-base my-2 mt-[10px]">{children}</h3>
+              },
+              ul({ children }) {
+                return <ul className="list-disc pl-4 my-2">{children}</ul>
+              },
+              ol({ children }) {
+                return <ol className="list-decimal pl-4 my-2">{children}</ol>
+              },
+              li({ children }) {
+                return <li className="mb-1">{children}</li>
+              },
               a({ children, href, ...props }) {
                 return (
                   <a

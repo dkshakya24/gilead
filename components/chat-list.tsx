@@ -38,7 +38,7 @@ export function ChatList({
   console.log(messages, 'messages22223')
 
   return (
-    <div className="relative mx-auto md:max-w-xl lg:max-w-xl xl:max-w-3xl 2xl:max-w-8xl px-4 pb-[200px] md:pb-0">
+    <div className="relative mx-auto md:max-w-3xl lg:max-w-4xl xl:max-w-4xl 2xl:max-w-8xl px-4 pb-[200px] md:pb-0">
       {!isShared && !session ? (
         <>
           <div className="group relative mb-4 flex items-start md:-ml-10">

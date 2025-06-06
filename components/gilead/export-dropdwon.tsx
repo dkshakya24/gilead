@@ -32,7 +32,7 @@ export default function ExportDropdown({
 
   const payload = {
     headers: {
-      'User-Id': `${session.user.email}`
+      'User-Id': `${session?.user?.email}`
     },
     body: {
       session_id: sessionId
