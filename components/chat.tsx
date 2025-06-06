@@ -41,7 +41,7 @@ export interface ChatMessage {
   sender: string
   message: string
   chatId?: string
-  sourceData?: any
+  responseTime?: any
   citations?: any
 }
 
@@ -127,11 +127,8 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
       console.error('Error submitting feedback:', error)
     }
   }
-  const [suggestionQuestions, setSuggestionQuestions] = useState<string[]>([])
-  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false)
   const [info, setInfo] = useState<string>('')
   const [eveningInsight, setInsight] = useState(false)
-  console.log(dataKey, 'dataKey')
 
   const isUserAllowedForEveningInsights = (email: string | undefined) => {
     if (!email) return false
@@ -164,23 +161,32 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
     // Show feedback form logic here
   }
   useEffect(() => {
-    if (initialMessages?.length > 0) {
-      const history: ChatMessage[] = []
+    if (initialMessages?.messages?.length > 0) {
+      const chathistory: ChatMessage[] = []
 
-      initialMessages?.forEach((item: any) => {
-        history.push({ sender: 'user', message: item.question })
-        history.push({
-          sender: 'receiver',
-          message: item.answer,
-          chatId: item.Session_id,
-          sourceData: item.sources_list,
-          citations: item.specific_citations
+      initialMessages.messages?.forEach((chat: any) => {
+        chat.message.forEach((item: any) => {
+          if (item.role === 'user') {
+            chathistory.push({
+              sender: 'user',
+              message: item.content
+            })
+          } else if (item.role === 'assistant') {
+            chathistory.push({
+              sender: 'receiver',
+              message: item.content,
+              chatId: chat.message_id,
+              responseTime: item.responseTime
+            })
+          }
         })
       })
+
       if (initialMessages?.length > 0 && initialMessages[0].Data) {
         setDataKey(initialMessages[0].Data)
       }
-      setChatMessages([...chatMessages, ...history])
+      setChatMessages([...chatMessages, ...chathistory])
+      console.log(chathistory, 'chathistory')
     } else if (
       initialMessages?.error ===
       'No documents found for the provided User-Id and chatter_id'
@@ -196,24 +202,14 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
   }, [path])
 
   useEffect(() => {
-    const payload = {
-      headers: {
-        'User-Id': session?.user.email
-      },
-      body: {}
-    }
     if (path === '/aivy') {
       const fetchData = async () => {
         try {
-          const response = await fetch(
-            `${API_URL}/${PROJECT_NAME}_addchatbox`,
-            {
-              method: 'POST',
-              body: JSON.stringify(payload)
-            }
-          )
+          const response = await fetch('/api/utils/generate-id', {
+            method: 'GET'
+          })
           const data = await response.json()
-          setNewchatboxId(data.body.chatter_id)
+          setNewchatboxId(data.id)
           // Further processing of data can be done here
         } catch (error) {
           console.error('Error fetching data:', error)
@@ -255,17 +251,10 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
   }, [path, chatMessages, isStreaming, animation, input])
 
   const payload = {
-    action: 'websearchagent',
-    chatter_id: id ? id : newchatboxId,
-    question: input,
-    user_id: session?.user.email,
-    // externalData: externalDataEnabled,
-    data_source: 'esmo',
-    evening_insights: false,
-    Data: selectedStudies.length > 0 ? selectedStudies : [],
-    // Data: [],
-    externalData: true,
-    agent: agent
+    action: 'sendmessage',
+    sessionId: id ? id : newchatboxId,
+    query: input,
+    userId: session?.user.email
   }
 
   const handleSend = () => {

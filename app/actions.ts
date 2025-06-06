@@ -6,7 +6,7 @@ import { kv } from '@vercel/kv'
 
 import { auth } from '@/auth'
 import { type Chat } from '@/lib/types'
-import { API_URL ,PROJECT_NAME} from '@/lib/utils'
+import { API_URL, PROJECT_NAME } from '@/lib/utils'
 
 export async function getChats(userId?: string | null) {
   if (!userId) {
@@ -33,25 +33,19 @@ export async function getChats(userId?: string | null) {
 
 export async function getChat(id: string) {
   const session = await auth()
-  const payload = {
-    body: {
-      chatter_id: id
-    },
-    headers: {
-      'User-Id': session?.user?.email || ''
-    }
-  }
 
   try {
-    const response = await fetch(`${API_URL}/${PROJECT_NAME}_getallchatdetails`, {
-      method: 'POST',
-      body: JSON.stringify(payload) // Convert the payload object to a JSON string
-    })
+    const response = await fetch(
+      `${API_URL}/get-chat-history?user_id=${session?.user?.email}&session_id=${id}`,
+      {
+        method: 'GET'
+      }
+    )
     const resp = await response.json()
-    const data = resp.body
-    console.log('resp.body', data)
 
-    return data
+    console.log('resp.body', resp)
+
+    return resp
 
     // return data
     // setNewchatboxId(data.chatter_id)

@@ -2,6 +2,7 @@
 
 import { cn, SUGGESTION_API } from '@/lib/utils'
 import logoicon from '@/public/GileadLogo.svg'
+import logoicon1 from '@/public/GL.svg'
 import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
 import { BsChatQuote, BsDownload } from 'react-icons/bs'
@@ -32,10 +33,13 @@ interface UserMessageProps {
 export const UserMessage: React.FC<UserMessageProps> = ({ children }) => {
   return (
     <div
-      className="group relative flex justify-end items-start"
+      className="group relative flex flex-col justify-end items-end w-full"
       role="article"
       aria-label="User Message"
     >
+      <div className="flex gap-x-2 items-center mb-2">
+        <span className="text-xs text-gray-500">2:49 PM, 06 Jun</span>
+      </div>
       <div className="rounded-2xl px-5 py-3 gap-y-[6px] bg-[#DAE1E7] text-[#323F49] rounded-tr-none">
         <div className="text-[#4A5E6D] text-sm leading-relaxed  whitespace-pre-wrap">
           {children}
@@ -271,10 +275,18 @@ export function BotMessage({
   return (
     <div
       className={cn(
-        'group relative flex justify-start items-start transition-all duration-300 ease-in-out',
+        'group relative flex flex-col justify-start items-start transition-all duration-300 ease-in-out',
         className
       )}
     >
+      <div className="flex gap-x-2 items-center w-full mb-2">
+        {' '}
+        <Image src={logoicon1} alt="Gilead Logo" sizes="icon" />
+        <span className="text-xs text-gray-500">2:49 PM, 06 Jun</span>
+        <div className="text-xs text-gray-500 ml-2">
+          Response Time: NaN seconds
+        </div>
+      </div>
       <div
         className={cn(
           'rounded-2xl px-5 py-3 gap-y-[6px] bg-white text-gray-800 rounded-tl-none',
@@ -663,11 +675,11 @@ export function SpinnerMessage() {
   return (
     <div className="group relative flex items-center md:-ml-10">
       <div className="flex size-[40px] shrink-0 select-none items-center justify-center rounded-full p-2 border bg-white text-primary-foreground shadow-sm">
-        <Image src={logoicon} alt="icon" />
+        <Image src={logoicon1} alt="icon" />
       </div>
       <div className="ml-4 flex-1 flex items-center gap-2 overflow-hidden px-1 group/item">
         <p className="mt-0 text-secondary animate-pulse">
-          AI Assistant is generating insights
+          Auto Research & Comprehension Engine at work — please wait
         </p>{' '}
         {spinner}{' '}
       </div>
@@ -678,7 +690,7 @@ export function MessageLoader2() {
   return (
     <div className="group absolute top-10px flex items-center md:-ml-10">
       <div className="flex size-[40px] shrink-0 select-none items-center justify-center rounded-full p-2 border bg-white text-primary-foreground shadow-sm">
-        <Image src={logoicon} alt="icon" />
+        <Image src={logoicon1} alt="icon" />
       </div>
       <div className="ml-4 flex-1 flex items-center gap-2 overflow-hidden px-1 group/item">
         <p className="mt-0 text-secondary animate-pulse">

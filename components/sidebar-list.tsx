@@ -25,25 +25,18 @@ export function SidebarList({ userId, search = '' }: SidebarListProps) {
   const [loading, setLoading] = useState(true)
   const path = usePathname()
   // console.log('pathssss', path.length, todaychats)
-  const payload = {
-    body: '{}',
-    headers: {
-      'User-Id': userId
-    }
-  }
 
   const fetchChatHistory = async () => {
     try {
       const response = await fetch(
-        `${API_URL}/${PROJECT_NAME}_getchathistory`,
+        `${API_URL}/get-chat-history?user_id=${userId}`,
         {
-          method: 'POST',
-          body: JSON.stringify(payload)
+          method: 'GET'
         }
       )
       const data = await response.json()
-      setTodayChats(data?.body?.today)
-      setOtherChats(data?.body?.others)
+      setTodayChats(data?.today)
+      setOtherChats(data?.others)
       if (response.ok) {
         setLoading(false)
       }
