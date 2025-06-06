@@ -32,13 +32,19 @@ export function UserMenu({ user }: UserMenuProps) {
             <div className="flex size-7 shrink-0 select-none items-center justify-center rounded-full bg-muted/50 text-xs font-medium uppercase text-muted-foreground">
               {getUserInitials(user.email)}
             </div>
-            <span className="ml-2 hidden md:block dark:text-gray-600">
-              {user.email}
-            </span>
+            <div className="ml-2 hidden md:flex flex-col items-start dark:text-gray-600">
+              <span className="font-semibold text-sm">
+                {user.name || user.email.split('@')[0]}
+              </span>
+              <span className="text-xs text-zinc-500">{user.email}</span>
+            </div>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent sideOffset={8} align="start" className="w-fit">
           <DropdownMenuItem className="flex-col items-start">
+            <div className="font-semibold text-sm">
+              {user.name || user.email.split('@')[0]}
+            </div>
             <div className="text-xs text-zinc-500">{user.email}</div>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
