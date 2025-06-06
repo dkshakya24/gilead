@@ -365,7 +365,7 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
         ) : null}
 
         {chatMessages.length ? (
-          <div className="w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 transition-all duration-300 ease-in-out fixed md:relative bottom-0 left-0 right-0 z-50">
+          <div className="w-full bg-white backdrop-blur supports-[backdrop-filter]:bg-white transition-all duration-300 ease-in-out fixed md:relative bottom-0 left-0 right-0 z-50">
             <ChatPanel
               id={id}
               input={input}

@@ -98,7 +98,7 @@ export function ChatList({
               </>
             )
           )}
-          {index < messages.length - 1 && <Separator className="my-4" />}
+          {index < messages.length - 1 && <br className="my-4" />}
         </div>
       ))}
       {!ragStreaming && !animation ? <MessageLoader2 /> : null}

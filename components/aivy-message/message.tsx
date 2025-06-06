@@ -32,17 +32,14 @@ interface UserMessageProps {
 export const UserMessage: React.FC<UserMessageProps> = ({ children }) => {
   return (
     <div
-      className="group relative flex items-start md:-ml-10"
+      className="group relative flex justify-end items-start"
       role="article"
       aria-label="User Message"
     >
-      <div
-        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border bg-white shadow-sm`}
-      >
-        <FaUserMd className="text-secondary" aria-hidden="true" />
-      </div>
-      <div className="ml-4 flex-1 space-y-2 overflow-hidden pl-2 text-gray-600">
-        {children}
+      <div className="rounded-2xl px-5 py-3 gap-y-[6px] bg-[#DAE1E7] text-[#323F49] rounded-tr-none">
+        <div className="text-[#4A5E6D] text-sm leading-relaxed  whitespace-pre-wrap">
+          {children}
+        </div>
       </div>
     </div>
   )
@@ -124,22 +121,6 @@ export function BotMessage({
     parent?.insertBefore(document.createTextNode(originalText), span)
     parent?.removeChild(span)
   }
-  // const getPromptMessages = async () => {
-  //   try {
-  //     const response = await fetch(`${SUGGESTION_API}`, {
-  //       method: 'GET'
-  //     })
-  //     const data = await response.json()
-  //     if (response.ok) {
-  //       setLoading(false)
-  //     }
-  //     if (data) {
-  //       setPromptMessages(data?.frequent_questions)
-  //     }
-  //   } catch (error) {
-  //     console.error('Error fetching prompt messages:', error)
-  //   }
-  // }
 
   const getPromptMessages = async (currentChatId: string) => {
     try {
@@ -290,193 +271,195 @@ export function BotMessage({
   return (
     <div
       className={cn(
-        'group relative flex items-start md:-ml-10 transition-all duration-300 ease-in-out',
+        'group relative flex justify-start items-start transition-all duration-300 ease-in-out',
         className
       )}
     >
-      <div className="hidden md:flex size-[40px] shrink-0 select-none items-center justify-center rounded-full p-2 border bg-white text-primary-foreground shadow-sm">
-        <Image src={logoicon} alt="icon" />
-      </div>
       <div
-        ref={messageRef}
-        className="relative ml-0 md:ml-4 flex-1 space-y-2 overflow-hidden px-0 md:px-1 group/item transition-all duration-300 ease-in-out"
+        className={cn(
+          'rounded-2xl px-5 py-3 gap-y-[6px] bg-white text-gray-800 rounded-tl-none',
+          chatId && 'border border-gray-200'
+        )}
       >
-        <MemoizedReactMarkdown
-          className="prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0 text-gray-600"
-          remarkPlugins={[remarkGfm, remarkMath]}
-          rehypePlugins={[rehypeRaw as any, rehypeSanitize]}
-          components={{
-            p({ children }) {
-              return <p className="mb-2 last:mb-0">{children}</p>
-            },
-            h1({ children }) {
-              return <h1 className="text-xl">{children}</h1>
-            },
-            // code({ node, inline, className, children, ...props }) {
-            //   if (children.length) {
-            //     if (children[0] == '▍') {
-            //       return (
-            //         <span className="mt-1 animate-pulse cursor-default">▍</span>
-            //       )
-            //     }
-
-            //     children[0] = (children[0] as string).replace('`▍`', '▍')
-            //   }
-
-            //   const match = /language-(\w+)/.exec(className || '')
-
-            //   if (inline) {
-            //     return (
-            //       <code className={className} {...props}>
-            //         {children}
-            //       </code>
-            //     )
-            //   }
-
-            //   return (
-            //     <CodeBlock
-            //       key={Math.random()}
-            //       language={(match && match[1]) || ''}
-            //       value={String(children).replace(/\n$/, '')}
-            //       {...props}
-            //     />
-            //   )
-            // },
-            a({ children, href, ...props }) {
-              return (
-                <a
-                  className={
-                    href?.includes('#')
-                      ? 'text-xs inline-flex hover:text-white bg-gray-100 rounded-full justify-center items-center underline-none p-1 hover:bg-primary hover:opacity-1 mr-1'
-                      : 'text-xs inline-flex  justify-center items-center underline-none text-secondary font-bold'
-                  }
-                  onClick={() => {
-                    // console.log('source clicked')
-                    if (href) setHref(href)
-                    if (href?.includes('#')) {
-                      setIsCitationModalClicked(true)
-                    }
-                  }}
-                  href={href}
-                  target={href?.includes('#') ? '' : '_blank'}
-                  {...props}
-                >
-                  {children}
-                </a>
-              )
-            },
-            table({ children }) {
-              return (
-                <div className="my-4 overflow-x-auto">
-                  <table className="min-w-full border-collapse border border-gray-300 bg-white shadow-sm rounded-lg">
-                    {children}
-                  </table>
-                </div>
-              )
-            },
-            thead({ children }) {
-              return <thead className="bg-gray-50">{children}</thead>
-            },
-            th({ children }) {
-              return (
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600 border-b border-gray-300">
-                  {children}
-                </th>
-              )
-            },
-            td({ children }) {
-              return (
-                <td className="px-6 py-4 text-sm text-gray-600 border-b border-gray-200 whitespace-normal">
-                  {children}
-                </td>
-              )
-            },
-            tr({ children }) {
-              return (
-                <tr className="hover:bg-gray-50 transition-colors">
-                  {children}
-                </tr>
-              )
-            }
-          }}
+        <div
+          ref={messageRef}
+          className="relative ml-0 md:ml-4 flex-1 space-y-2 overflow-hidden px-0 md:px-1 group/item transition-all duration-300 ease-in-out"
         >
-          {children}
-        </MemoizedReactMarkdown>
+          <MemoizedReactMarkdown
+            className="prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0 text-gray-600"
+            remarkPlugins={[remarkGfm, remarkMath]}
+            rehypePlugins={[rehypeRaw as any, rehypeSanitize]}
+            components={{
+              p({ children }) {
+                return <p className="mb-2 last:mb-0">{children}</p>
+              },
+              h1({ children }) {
+                return <h1 className="text-xl">{children}</h1>
+              },
+              // code({ node, inline, className, children, ...props }) {
+              //   if (children.length) {
+              //     if (children[0] == '▍') {
+              //       return (
+              //         <span className="mt-1 animate-pulse cursor-default">▍</span>
+              //       )
+              //     }
 
-        {/* Tooltip */}
-        {tooltipVisible && (
-          <div
-            // ref={tooltipRef}
-            className="fixed text-white p-2 rounded right-4 bottom-1/2"
-            style={{
-              top: tooltipPosition.top,
-              // left: tooltipPosition.left
-              // transform: 'translateX(0%)'
-              // top: 300,
-              left: tooltipPosition.left
+              //     children[0] = (children[0] as string).replace('`▍`', '▍')
+              //   }
+
+              //   const match = /language-(\w+)/.exec(className || '')
+
+              //   if (inline) {
+              //     return (
+              //       <code className={className} {...props}>
+              //         {children}
+              //       </code>
+              //     )
+              //   }
+
+              //   return (
+              //     <CodeBlock
+              //       key={Math.random()}
+              //       language={(match && match[1]) || ''}
+              //       value={String(children).replace(/\n$/, '')}
+              //       {...props}
+              //     />
+              //   )
+              // },
+              a({ children, href, ...props }) {
+                return (
+                  <a
+                    className={
+                      href?.includes('#')
+                        ? 'text-xs inline-flex hover:text-white bg-gray-100 rounded-full justify-center items-center underline-none p-1 hover:bg-primary hover:opacity-1 mr-1'
+                        : 'text-xs inline-flex  justify-center items-center underline-none text-secondary font-bold'
+                    }
+                    onClick={() => {
+                      if (href) setHref(href)
+                      if (href?.includes('#')) {
+                        setIsCitationModalClicked(true)
+                      }
+                    }}
+                    href={href}
+                    target={href?.includes('#') ? '' : '_blank'}
+                    {...props}
+                  >
+                    {children}
+                  </a>
+                )
+              },
+              table({ children }) {
+                return (
+                  <div className="my-4 overflow-x-auto">
+                    <table className="min-w-full border-collapse border border-gray-300 bg-white shadow-sm rounded-lg">
+                      {children}
+                    </table>
+                  </div>
+                )
+              },
+              thead({ children }) {
+                return <thead className="bg-gray-50">{children}</thead>
+              },
+              th({ children }) {
+                return (
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600 border-b border-gray-300">
+                    {children}
+                  </th>
+                )
+              },
+              td({ children }) {
+                return (
+                  <td className="px-6 py-4 text-sm text-gray-600 border-b border-gray-200 whitespace-normal">
+                    {children}
+                  </td>
+                )
+              },
+              tr({ children }) {
+                return (
+                  <tr className="hover:bg-gray-50 transition-colors">
+                    {children}
+                  </tr>
+                )
+              }
             }}
           >
-            <Button onClick={handleFeedbackClick}>
-              {' '}
-              <RiFeedbackLine className="tex-sm w-4 h-4 text-white mr-2" />
-              Give Feedback
-            </Button>
-          </div>
-        )}
+            {children}
+          </MemoizedReactMarkdown>
 
-        {/* sources section */}
-        <div className="">
-          <div className="flex items-center space-x-2">
-            {!isStreaming && citations?.length > 0 ? (
-              <SourcesDrawer sourceCall={handleSource}>
-                <h1 className="pt-3 px-12 text-primary text-center font-bold text-xl underline underline-offset-8">
-                  Citations
-                </h1>
-                {sourceLoading ? (
-                  <div className="animate-pulse space-y-4 px-4 pt-10">
-                    {[...Array(10)].map((_, index) => (
-                      <div
-                        key={index}
-                        className="flex items-center space-x-4 w-full max-w-md"
-                      >
-                        <div className="bg-gray-300 rounded-full h-6 w-6" />
-                        <div className="flex-1 space-y-2 py-1">
-                          <div className="h-4 bg-gray-300 rounded w-3/4" />
-                          <div className="h-4 bg-gray-300 rounded" />
+          {/* Tooltip */}
+          {tooltipVisible && (
+            <div
+              // ref={tooltipRef}
+              className="fixed text-white p-2 rounded right-4 bottom-1/2"
+              style={{
+                top: tooltipPosition.top,
+                // left: tooltipPosition.left
+                // transform: 'translateX(0%)'
+                // top: 300,
+                left: tooltipPosition.left
+              }}
+            >
+              <Button onClick={handleFeedbackClick}>
+                {' '}
+                <RiFeedbackLine className="tex-sm w-4 h-4 text-white mr-2" />
+                Give Feedback
+              </Button>
+            </div>
+          )}
+
+          {/* sources section */}
+          <div className="">
+            <div className="flex items-center space-x-2">
+              {!isStreaming && citations?.length > 0 ? (
+                <SourcesDrawer sourceCall={handleSource}>
+                  <h1 className="pt-3 px-12 text-primary text-center font-bold text-xl underline underline-offset-8">
+                    Citations
+                  </h1>
+                  {sourceLoading ? (
+                    <div className="animate-pulse space-y-4 px-4 pt-10">
+                      {[...Array(10)].map((_, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center space-x-4 w-full max-w-md"
+                        >
+                          <div className="bg-gray-300 rounded-full h-6 w-6" />
+                          <div className="flex-1 space-y-2 py-1">
+                            <div className="h-4 bg-gray-300 rounded w-3/4" />
+                            <div className="h-4 bg-gray-300 rounded" />
+                          </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="p-2 md:p-3 md:px-10 pt-0 flex flex-1 flex-col overflow-hidden">
-                    <div className="flex-1 overflow-auto">
-                      <div className="w-full">
-                        <ol>
-                          {citations.map((item: any) => (
-                            <li
-                              key={item.source_id}
-                              className="border-gray-200 border-b-2 border p-2 md:p-4 mb-2 rounded-sm"
-                            >
-                              <div className="flex flex-col gap-2 px-1 md:px-2 justify-center w-full pb-2 md:pb-3">
-                                <div className="flex flex-row md:flex-row gap-2 justify-between">
-                                  <p className="text-xs md:text-sm text-primary text-white text-center bg-secondary rounded-sm p-1 max-w-[200px]">
-                                    Citation ID: {item.source_id}
-                                  </p>
-                                  <a
-                                    href={item.img_url}
-                                    download={item.doc_name}
-                                    className="flex items-center text-xs md:text-sm text-white bg-secondary rounded-sm px-2"
-                                  >
-                                    <BsDownload className="text-lg md:text-xl text-white" />
-                                  </a>
-                                </div>
-                                <h2 className="text-xs md:text-sm flex gap-2 text-primary">
-                                  <i>
-                                    <b> Abstract Title -</b> {item.Title}
-                                  </i>
-                                </h2>
-                                <h2 className="text-xs md:text-sm flex flex-row justify-start gap-3 py-2">
-                                  {/* <span className="flex flex-row gap-2 items-center">
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="p-2 md:p-3 md:px-10 pt-0 flex flex-1 flex-col overflow-hidden">
+                      <div className="flex-1 overflow-auto">
+                        <div className="w-full">
+                          <ol>
+                            {citations.map((item: any) => (
+                              <li
+                                key={item.source_id}
+                                className="border-gray-200 border-b-2 border p-2 md:p-4 mb-2 rounded-sm"
+                              >
+                                <div className="flex flex-col gap-2 px-1 md:px-2 justify-center w-full pb-2 md:pb-3">
+                                  <div className="flex flex-row md:flex-row gap-2 justify-between">
+                                    <p className="text-xs md:text-sm text-primary text-white text-center bg-secondary rounded-sm p-1 max-w-[200px]">
+                                      Citation ID: {item.source_id}
+                                    </p>
+                                    <a
+                                      href={item.img_url}
+                                      download={item.doc_name}
+                                      className="flex items-center text-xs md:text-sm text-white bg-secondary rounded-sm px-2"
+                                    >
+                                      <BsDownload className="text-lg md:text-xl text-white" />
+                                    </a>
+                                  </div>
+                                  <h2 className="text-xs md:text-sm flex gap-2 text-primary">
+                                    <i>
+                                      <b> Abstract Title -</b> {item.Title}
+                                    </i>
+                                  </h2>
+                                  <h2 className="text-xs md:text-sm flex flex-row justify-start gap-3 py-2">
+                                    {/* <span className="flex flex-row gap-2 items-center">
                                     {' '}
                                     <Calendar className="text-sm md:text-md text-primary" />
                                     <i>{item.Date}</i>
@@ -486,97 +469,97 @@ export function BotMessage({
                                     <Pin className="text-sm md:text-md text-primary" />
                                     <i>{item.Place}</i>
                                   </span> */}
-                                  <span className="flex flex-row gap-2 items-center text-gray-600">
-                                    <i>
-                                      <b> Presented By -</b>
-                                    </i>
-                                    <FaUserGroup className="text-sm text-primary" />
-                                    <i className="max-w-[300px] truncate">
-                                      {item.Presented_by}
-                                    </i>
-                                  </span>
-                                  {/* <q>
+                                    <span className="flex flex-row gap-2 items-center text-gray-600">
+                                      <i>
+                                        <b> Presented By -</b>
+                                      </i>
+                                      <FaUserGroup className="text-sm text-primary" />
+                                      <i className="max-w-[300px] truncate">
+                                        {item.Presented_by}
+                                      </i>
+                                    </span>
+                                    {/* <q>
                                     {' '}
                                     <i>{item.quote}</i>
                                   </q> */}
-                                </h2>
-                              </div>
-                              <div className="w-full flex flex-col">
-                                <div className="relative group mb-2 w-full h-[30vh] md:h-screen md:max-h-[50vh]">
-                                  <div>
-                                    <Image
-                                      className="w-full rounded-md border-gray shadow-md"
-                                      src={item.img_url}
-                                      alt={item.img_url}
-                                      layout="fill"
-                                      objectFit="contain"
-                                    />
-                                    <MdFullscreen
-                                      className="absolute top-2 bg-primary right-2 text-white block md:group-hover:block md:hidden rounded-full w-[30px] h-[30px] md:w-[35px] md:h-[35px] p-2"
-                                      onClick={() => {
-                                        setSelectedImage(item.img_url)
-                                      }}
-                                    />
+                                  </h2>
+                                </div>
+                                <div className="w-full flex flex-col">
+                                  <div className="relative group mb-2 w-full h-[30vh] md:h-screen md:max-h-[50vh]">
+                                    <div>
+                                      <Image
+                                        className="w-full rounded-md border-gray shadow-md"
+                                        src={item.img_url}
+                                        alt={item.img_url}
+                                        layout="fill"
+                                        objectFit="contain"
+                                      />
+                                      <MdFullscreen
+                                        className="absolute top-2 bg-primary right-2 text-white block md:group-hover:block md:hidden rounded-full w-[30px] h-[30px] md:w-[35px] md:h-[35px] p-2"
+                                        onClick={() => {
+                                          setSelectedImage(item.img_url)
+                                        }}
+                                      />
+                                    </div>
+                                  </div>
+                                  <div className="w-full flex flex-row md:flex-row gap-2 justify-between items-start md:items-center py-1 md:py-2">
+                                    <p className="text-xs md:text-sm flex gap-2 break-all">
+                                      <GrDocumentImage className="text-lg md:text-xl text-primary flex-shrink-0" />
+                                      {item.doc_name}
+                                    </p>
+                                    <p className="text-xs md:text-sm text-primary text-white text-center bg-secondary rounded-sm px-2 py-1">
+                                      {item.page_num}
+                                    </p>
                                   </div>
                                 </div>
-                                <div className="w-full flex flex-row md:flex-row gap-2 justify-between items-start md:items-center py-1 md:py-2">
-                                  <p className="text-xs md:text-sm flex gap-2 break-all">
-                                    <GrDocumentImage className="text-lg md:text-xl text-primary flex-shrink-0" />
-                                    {item.doc_name}
-                                  </p>
-                                  <p className="text-xs md:text-sm text-primary text-white text-center bg-secondary rounded-sm px-2 py-1">
-                                    {item.page_num}
-                                  </p>
+                              </li>
+                            ))}
+                          </ol>
+                        </div>
+                        <div>
+                          {selectedImage && (
+                            <div className="fixed inset-0 top-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-2 md:p-4">
+                              <div
+                                ref={citationModalRef}
+                                className="w-full md:max-w-[58%] flex flex-col relative bg-white rounded-md p-2 md:p-4 box-border overflow-y-auto h-[95vh] md:h-auto md:max-h-[95vh]"
+                              >
+                                <button
+                                  className="absolute top-2 right-2 z-10 flex items-center justify-center"
+                                  onClick={() => setSelectedImage(null)}
+                                >
+                                  <MdOutlineCloseFullscreen className="bg-primary text-white rounded-full p-1 w-8 h-8 md:w-10 md:h-10 transition-transform hover:scale-110" />
+                                </button>
+                                <div className="w-full h-full flex items-center justify-center">
+                                  <Image
+                                    className="w-full h-auto max-h-[85vh] object-contain object-center border border-gray-200 rounded-sm"
+                                    src={selectedImage}
+                                    alt="Citation image"
+                                    width={800}
+                                    height={800}
+                                    priority
+                                  />
                                 </div>
                               </div>
-                            </li>
-                          ))}
-                        </ol>
-                      </div>
-                      <div>
-                        {selectedImage && (
-                          <div className="fixed inset-0 top-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-2 md:p-4">
-                            <div
-                              ref={citationModalRef}
-                              className="w-full md:max-w-[58%] flex flex-col relative bg-white rounded-md p-2 md:p-4 box-border overflow-y-auto h-[95vh] md:h-auto md:max-h-[95vh]"
-                            >
-                              <button
-                                className="absolute top-2 right-2 z-10 flex items-center justify-center"
-                                onClick={() => setSelectedImage(null)}
-                              >
-                                <MdOutlineCloseFullscreen className="bg-primary text-white rounded-full p-1 w-8 h-8 md:w-10 md:h-10 transition-transform hover:scale-110" />
-                              </button>
-                              <div className="w-full h-full flex items-center justify-center">
-                                <Image
-                                  className="w-full h-auto max-h-[85vh] object-contain object-center border border-gray-200 rounded-sm"
-                                  src={selectedImage}
-                                  alt="Citation image"
-                                  width={800}
-                                  height={800}
-                                  priority
-                                />
-                              </div>
                             </div>
-                          </div>
-                        )}
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                )}
-              </SourcesDrawer>
-            ) : null}
+                  )}
+                </SourcesDrawer>
+              ) : null}
+            </div>
           </div>
-        </div>
-        {isCitationModalClicked ? (
-          <>
-            <CitationComponent
-              hrefValue={href}
-              citations={citations}
-              setIsCitationModalClicked={setIsCitationModalClicked}
-            />
-          </>
-        ) : null}
-        {/* {!isStreaming && chatId ? (
+          {isCitationModalClicked ? (
+            <>
+              <CitationComponent
+                hrefValue={href}
+                citations={citations}
+                setIsCitationModalClicked={setIsCitationModalClicked}
+              />
+            </>
+          ) : null}
+          {/* {!isStreaming && chatId ? (
           <div className="mt-4 hidden md:block">
             <Separator className="my-4" />
             <div className="flex items-center gap-2 mb-4">
@@ -624,18 +607,19 @@ export function BotMessage({
             )}
           </div>
         ) : null} */}
-        {isFeedbackClicked ? (
-          <FeedbackComponent
-            setIsFeedbackClicked={setIsFeedbackClicked}
-            chatId={chatId}
-            selectedText={selectedText}
-            startOffset={startOffset}
-            endOffset={endOffset}
-            session={session}
-            selectSpanElement={selectSpanElement}
-            revertSelection={revertSelection}
-          />
-        ) : null}
+          {isFeedbackClicked ? (
+            <FeedbackComponent
+              setIsFeedbackClicked={setIsFeedbackClicked}
+              chatId={chatId}
+              selectedText={selectedText}
+              startOffset={startOffset}
+              endOffset={endOffset}
+              session={session}
+              selectSpanElement={selectSpanElement}
+              revertSelection={revertSelection}
+            />
+          ) : null}
+        </div>
       </div>
     </div>
   )
