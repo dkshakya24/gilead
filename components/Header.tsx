@@ -82,7 +82,7 @@ export async function Header() {
   const session = (await auth()) as Session
   return (
     <header className="sticky top-0 z-50 flex items-center justify-between bg-white/80 backdrop-blur-md w-full h-16 px-6 border-b border-gray-100 dark:bg-white/80 shadow-sm">
-      <div className="flex items-center justify-between gap-3 mr-3 w-1/4">
+      <div className="flex items-center gap-3">
         <SidebarToggle />
         <Link href="/" className="hover:opacity-80 transition-opacity">
           <Image
@@ -92,33 +92,31 @@ export async function Header() {
           />
         </Link>
       </div>
-      <div className="w-3/4">
-        <div className="flex items-center justify-between gap-6">
-          <nav className="hidden md:flex items-center space-x-4">
-            {/* <Link
+      <div className="flex items-center justify-end gap-4 flex-1 md:gap-6">
+        <nav className="hidden md:flex items-center space-x-4">
+          {/* <Link
             href="/"
             className="group text-gray-600 hover:text-primary px-3 py-2 rounded-md text-sm font-medium flex items-center transition-colors"
           >
             <PiHouseLineDuotone className="text-lg mr-2 group-hover:text-primary" />
             Home
           </Link> */}
-            {/* <Link
+          {/* <Link
             href="/askeugene"
             className="group text-gray-600 hover:text-primary px-3 py-2 rounded-md text-sm font-medium flex items-center transition-colors"
           >
             <PiDatabaseDuotone className="text-lg mr-2 group-hover:text-primary" />
             Ask Eugene
           </Link> */}
-            <ReasoningFactor disabled />
-            <UrlDropdown disabled />
-            <KeywordsDropdown disabled />
-            <ExportDropdown disabled={false} session={session} />
-            <button className="flex items-center cursor-not-allowed opacity-50 justify-center w-[38px] h-[38px] bg-white border border-gray-200 rounded-full">
-              <Bell className="h-4 w-4" />
-            </button>
-          </nav>
-        </div>
-        <div className="flex items-center space-x-4">
+          <ReasoningFactor disabled />
+          <UrlDropdown disabled />
+          <KeywordsDropdown disabled />
+          <ExportDropdown disabled={false} session={session} />
+          <button className="flex items-center cursor-not-allowed opacity-50 justify-center w-[38px] h-[38px] bg-white border border-gray-200 rounded-full">
+            <Bell className="h-4 w-4" />
+          </button>
+        </nav>
+        <div className="flex items-center">
           <React.Suspense fallback={<div className="flex-1 overflow-auto" />}>
             <UserOrLogin />
           </React.Suspense>
