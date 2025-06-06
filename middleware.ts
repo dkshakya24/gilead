@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@/auth'
 
-const protectedRoutes = ['/acr']
+const protectedRoutes = ['/arc']
 const authPageRoutes = ['/login']
 const apiAuthPrefix = '/api/auth'
 
