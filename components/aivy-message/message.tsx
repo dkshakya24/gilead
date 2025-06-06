@@ -135,7 +135,7 @@ export function BotMessage({
         },
         body: JSON.stringify({
           chatterid: currentChatId,
-          user_id: session.user.email || ''
+          user_id: session?.user?.email || ''
         }) // Assuming `chatId` needs to be sent in the body
       })
       const data = await response.json()
