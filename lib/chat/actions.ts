@@ -18,4 +18,6 @@ export type UIState = {
   chatId?: string
   sourceData?: any
   citations?: any
+  responseTime?: any
+  createdTime?: string
 }[]

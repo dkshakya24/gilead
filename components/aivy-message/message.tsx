@@ -28,9 +28,13 @@ import { Calendar, GroupIcon, Pin, TicketsPlaneIcon, User } from 'lucide-react'
 
 interface UserMessageProps {
   children: string
+  createdTime?: string
 }
 
-export const UserMessage: React.FC<UserMessageProps> = ({ children }) => {
+export const UserMessage: React.FC<UserMessageProps> = ({
+  children,
+  createdTime
+}) => {
   return (
     <div
       className="group relative flex flex-col justify-end items-end w-full"
@@ -38,7 +42,7 @@ export const UserMessage: React.FC<UserMessageProps> = ({ children }) => {
       aria-label="User Message"
     >
       <div className="flex gap-x-2 items-center mb-2">
-        <span className="text-xs text-gray-500">2:49 PM, 06 Jun</span>
+        <span className="text-xs text-gray-500">{createdTime}</span>
       </div>
       <div className="rounded-2xl px-5 py-3 gap-y-[6px] bg-[#DAE1E7] text-[#323F49] rounded-tr-none">
         <div className="text-[#4A5E6D] text-sm leading-relaxed  whitespace-pre-wrap">
@@ -52,12 +56,14 @@ export const UserMessage: React.FC<UserMessageProps> = ({ children }) => {
 export function BotMessage({
   children,
   chatId,
+  createdTime,
   className,
   isStreaming,
   sourceData,
   citations,
   session,
-  setInput
+  setInput,
+  responseTime
 }: {
   children: string
   className?: string
@@ -66,7 +72,9 @@ export function BotMessage({
   sourceData?: any
   session?: any
   citations?: any
+  createdTime?: any
   setInput?: (msg: string) => void
+  responseTime?: string
 }) {
   const [sourceLoading, setSourceLoading] = useState(true)
   const [selectedImage, setSelectedImage] = useState(null)
@@ -126,31 +134,51 @@ export function BotMessage({
     parent?.removeChild(span)
   }
 
-  const getPromptMessages = async (currentChatId: string) => {
-    try {
-      const response = await fetch(`${SUGGESTION_API}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          chatterid: currentChatId,
-          user_id: session?.user?.email || ''
-        }) // Assuming `chatId` needs to be sent in the body
-      })
-      const data = await response.json()
-      if (response.ok) {
-        setLoading(false)
-      }
-      // Extract only the suggested questions
-      if (data) {
-        const messages = data?.slice(0) // Exclude the first sentence
-        setPromptMessages(messages)
-      }
-    } catch (error) {
-      console.error('Error fetching prompt messages:', error)
-    }
-  }
+  // const getPromptMessages = async (currentChatId: string) => {
+  //   try {
+  //     if (!SUGGESTION_API) {
+  //       console.error('SUGGESTION_API is not configured')
+  //       return
+  //     }
+
+  //     console.log('Fetching from:', SUGGESTION_API)
+  //     const response = await fetch(`${SUGGESTION_API}`, {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json'
+  //       },
+  //       body: JSON.stringify({
+  //         chatterid: currentChatId,
+  //         user_id: session?.user?.email || ''
+  //       })
+  //     })
+
+  //     if (!response.ok) {
+  //       const errorText = await response.text()
+  //       console.error('API Error:', {
+  //         status: response.status,
+  //         statusText: response.statusText,
+  //         body: errorText
+  //       })
+  //       return
+  //     }
+
+  //     const data = await response.json()
+  //     if (response.ok) {
+  //       setLoading(false)
+  //     }
+
+  //     if (data) {
+  //       const messages = data?.slice(0)
+  //       setPromptMessages(messages)
+  //     }
+  //   } catch (error) {
+  //     console.error('Error fetching prompt messages:', error)
+  //     if (error instanceof SyntaxError) {
+  //       console.error('Invalid JSON response from server')
+  //     }
+  //   }
+  // }
 
   useEffect(() => {
     document.addEventListener('mouseup', handleMouseUpEvent)
@@ -158,15 +186,13 @@ export function BotMessage({
       document.removeEventListener('mouseup', handleMouseUpEvent)
     }
   }, [])
-  useEffect(() => {
-    if (!isStreaming && chatId && currentChatId) {
-      // Set chat as ended
-      // getPromptMessages()
-      setTimeout(() => {
-        getPromptMessages(currentChatId)
-      }, 2000)
-    }
-  }, [chatId])
+  // useEffect(() => {
+  //   if (!isStreaming && chatId && currentChatId) {
+  //     setTimeout(() => {
+  //       getPromptMessages(currentChatId)
+  //     }, 2000)
+  //   }
+  // }, [chatId])
   useEffect(() => {
     const handleClickOutside = (event: any) => {
       if (
@@ -283,9 +309,9 @@ export function BotMessage({
         <div className="flex gap-x-2 items-center w-full mb-2">
           {' '}
           <Image src={logoicon1} alt="Gilead Logo" sizes="icon" />
-          <span className="text-xs text-gray-500">2:49 PM, 06 Jun</span>
+          <span className="text-xs text-gray-500">{createdTime}</span>
           <div className="text-xs text-gray-500 ml-2">
-            Response Time: NaN seconds
+            Response Time: {responseTime ? `${responseTime}` : 'Calculating...'}
           </div>
         </div>
       )}
