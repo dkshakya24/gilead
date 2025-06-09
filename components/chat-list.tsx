@@ -66,7 +66,9 @@ export function ChatList({
       {messages.map((message, index) => (
         <div key={index}>
           {message.sender === 'user' ? (
-            <UserMessage>{message.message}</UserMessage>
+            <UserMessage createdTime={message.createdTime}>
+              {message.message}
+            </UserMessage>
           ) : message.sender === 'receiver' ? (
             <BotMessage
               chatId={message.chatId}
@@ -75,6 +77,8 @@ export function ChatList({
               citations={message.citations}
               session={session}
               setInput={setInput}
+              createdTime={message.createdTime}
+              responseTime={message.responseTime}
             >
               {message.message}
             </BotMessage>
@@ -91,6 +95,8 @@ export function ChatList({
                     citations={message.citations}
                     session={session}
                     setInput={setInput}
+                    responseTime={message.responseTime}
+                    createdTime={message.createdTime}
                   >
                     {message.message}
                   </BotMessage>

@@ -11,6 +11,7 @@ interface WebSocketHook {
   chat_id: string
   sourceData: any
   citationsData: any
+  responseTime: any
   ragStreaming?: boolean
 }
 
@@ -22,7 +23,7 @@ const useWebSocket = (url: string): WebSocketHook => {
   const [sourceData, setSourceData] = useState<any>([])
   const [citationsData, setCitationsData] = useState<any>([])
   const [animation, setAnimation] = useState(false)
-
+  const [responseTime, setResponseTime] = useState<string>()
   const { setIsStreaming, setRagStreaming } = useWebSocketStore()
 
   const emptyMessages = () => {
@@ -77,6 +78,7 @@ const useWebSocket = (url: string): WebSocketHook => {
       setChat_id(data.message_id)
       setSourceData(data.sources)
       setCitationsData(data.specific_citations)
+      setResponseTime(data.responseTime)
       console.log(data, 'datadata')
     }
   }
@@ -97,6 +99,7 @@ const useWebSocket = (url: string): WebSocketHook => {
     chat_id,
     sourceData,
     citationsData,
+    responseTime,
     animation,
     ragStreaming: useWebSocketStore(state => state.ragStreaming),
     isStreaming: useWebSocketStore(state => state.isStreaming)

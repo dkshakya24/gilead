@@ -43,6 +43,7 @@ export interface ChatMessage {
   chatId?: string
   responseTime?: any
   citations?: any
+  createdTime?: string
 }
 
 export function Chat({ id, className, session, initialMessages }: ChatProps) {
@@ -58,7 +59,8 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
     sourceData,
     citationsData,
     animation,
-    ragStreaming
+    ragStreaming,
+    responseTime
   } = useWebSocket(WEBSOCKET as string)
   const [input, setInput] = useState('')
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([])
@@ -169,14 +171,32 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
           if (item.role === 'user') {
             chathistory.push({
               sender: 'user',
-              message: item.content
+              message: item.content,
+              createdTime: new Date(item.created_time)
+                .toLocaleString('en-US', {
+                  month: 'short',
+                  day: '2-digit',
+                  hour: 'numeric',
+                  minute: '2-digit',
+                  hour12: true
+                })
+                .replace(',', '')
             })
           } else if (item.role === 'assistant') {
             chathistory.push({
               sender: 'receiver',
               message: item.content,
               chatId: chat.message_id,
-              responseTime: item.responseTime
+              responseTime: item.responseTime,
+              createdTime: new Date(item.created_time)
+                .toLocaleString('en-US', {
+                  month: 'short',
+                  day: '2-digit',
+                  hour: 'numeric',
+                  minute: '2-digit',
+                  hour12: true
+                })
+                .replace(',', '')
             })
           }
         })
@@ -254,7 +274,17 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
     // if (!message) return
     // setIsLoading(true)
     emptyMessages()
-    const userMessage: ChatMessage = { sender: 'user', message: input }
+    const userMessage: ChatMessage = {
+      sender: 'user',
+      message: input,
+      createdTime: new Date().toLocaleString('en-US', {
+        day: '2-digit',
+        month: 'short',
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+      })
+    }
     let userMessages: any = []
     if (messages.length > 0) {
       userMessages = [
@@ -330,7 +360,15 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
                       message: messages.map(item => item.message).join(''),
                       chatId: chat_id,
                       sourceData: sourceData,
-                      citations: citationsData
+                      citations: citationsData,
+                      responseTime: responseTime,
+                      createdTime: new Date().toLocaleString('en-US', {
+                        day: '2-digit',
+                        month: 'short',
+                        hour: 'numeric',
+                        minute: '2-digit',
+                        hour12: true
+                      })
                     }
                   ]}
                   isShared={false}
