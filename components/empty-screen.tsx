@@ -1,8 +1,9 @@
 import logoicon from '@/public/LandingPageImage.svg'
 import Image from 'next/image'
-import { FaHandPointUp } from 'react-icons/fa'
 
-export function EmptyScreen({ infoMessage }: { infoMessage: string }) {
+import { Session } from '@/lib/types'
+
+export function EmptyScreen({ session }: { session: Session }) {
   return (
     <div className="mx-auto max-w-3xl px-4 transition-all duration-300 ease-in-out peer-[[data-state=open]]:lg:max-w-[calc(100%-250px)] peer-[[data-state=open]]:xl:max-w-[calc(100%-320px)]">
       <div className="flex flex-col gap-2  p-8 py-0 text-center items-center">
@@ -12,7 +13,7 @@ export function EmptyScreen({ infoMessage }: { infoMessage: string }) {
           alt="icon"
         />
         <h1 className="text-[24px] font-medium text-center bg-gradient-to-r from-[#FF9892] to-[#870002] bg-clip-text text-transparent">
-          Welcome to GABI ARC!
+          Welcome to GABI ARC, {session?.user?.name} !
         </h1>
 
         <p className="text-[#666666] text-center text-[16px]">

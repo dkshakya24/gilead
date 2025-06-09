@@ -12,6 +12,7 @@ import {
   AccordionItem,
   AccordionTrigger
 } from './accordian'
+import { useWebSocketStore } from '@/lib/store/websocket-store'
 
 interface SidebarListProps {
   userId?: string
@@ -45,19 +46,11 @@ export function SidebarList({ userId, search = '' }: SidebarListProps) {
     }
   }
 
-  useEffect(() => {
-    fetchChatHistory()
-  }, [])
+  const isStreaming = useWebSocketStore(state => state.isStreaming)
 
   useEffect(() => {
-    if (path.length > 1) {
-      const interval = setInterval(fetchChatHistory, 5000)
-      setTimeout(() => {
-        clearInterval(interval)
-        console.log('Interval cleared')
-      }, 60000)
-    }
-  }, [path.length])
+    fetchChatHistory()
+  }, [isStreaming])
 
   const filterChats = (chats: any[]) =>
     chats?.filter(chat =>
