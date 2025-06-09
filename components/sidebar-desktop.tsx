@@ -1,4 +1,4 @@
-import { Sidebar } from '@/components/Sidebar'
+import { Sidebar } from '@/components/sidebar'
 
 import { auth } from '@/auth'
 import { ChatHistory } from '@/components/chat-history'
