@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useWebSocketStore } from '@/lib/store/websocket-store'
 
 interface WebSocketHook {
   messages: { message: string }[]
@@ -17,24 +18,17 @@ const useWebSocket = (url: string): WebSocketHook => {
   const [messages, setMessages] = useState<any>([])
   const socketRef = useRef<WebSocket | null>(null)
   const [isConnected, setIsConnected] = useState(false)
-  const [isStreaming, setIsStreaming] = useState(false)
   const [chat_id, setChat_id] = useState('')
   const [sourceData, setSourceData] = useState<any>([])
-  const [ragStreaming, setRagStreaming] = useState(true)
   const [citationsData, setCitationsData] = useState<any>([])
-  console.log(citationsData, 'deep111')
-
   const [animation, setAnimation] = useState(false)
+
+  const { setIsStreaming, setRagStreaming } = useWebSocketStore()
+
   const emptyMessages = () => {
     setMessages([])
     setChat_id('')
   }
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('isStreaming', JSON.stringify(isStreaming))
-    }
-  }, [isStreaming])
 
   useEffect(() => {
     const connect = () => {
@@ -100,12 +94,12 @@ const useWebSocket = (url: string): WebSocketHook => {
     sendMessage,
     isConnected,
     emptyMessages,
-    isStreaming,
     chat_id,
     sourceData,
     citationsData,
     animation,
-    ragStreaming
+    ragStreaming: useWebSocketStore(state => state.ragStreaming),
+    isStreaming: useWebSocketStore(state => state.isStreaming)
   }
 }
 

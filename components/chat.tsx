@@ -200,9 +200,8 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
       console.log('kasdhasdrouter1')
     }
   }, [path])
-
   useEffect(() => {
-    if (path === '/arc') {
+    if (path === '/arc' && !newchatboxId) {
       const fetchData = async () => {
         try {
           const response = await fetch('/api/utils/generate-id', {
@@ -210,19 +209,13 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
           })
           const data = await response.json()
           setNewchatboxId(data.id)
-          // Further processing of data can be done here
         } catch (error) {
           console.error('Error fetching data:', error)
         }
       }
       fetchData()
     }
-  }, [])
-  const handleEveningInsight = () => {
-    const newValue = !eveningInsight
-    setInsight(newValue)
-    localStorage.setItem('eveningInsight', JSON.stringify(newValue))
-  }
+  }, [path, newchatboxId])
 
   const updateSelectedStudies = () => {
     // localStorage.setItem('studies', JSON.stringify(['UC']))
@@ -369,7 +362,7 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
         ) : (
           <div className="flex flex-col items-center justify-center w-full py-4 sm:py-6 px-2 sm:px-4 lg:px-6 pt-[100px] md:pt-4">
             <div className="flex flex-col items-center justify-center h-full pb-4">
-              <EmptyScreen infoMessage={info} />
+              {session && <EmptyScreen session={session} />}
             </div>
             <div className="w-full max-w-4xl">
               <ChatPanel

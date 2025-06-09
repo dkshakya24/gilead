@@ -1,16 +1,18 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import {
   Download,
   ArrowRight,
   FileText,
   FileCheck,
   FileBarChart2,
-  Mail
+  Mail,
+  Loader2
 } from 'lucide-react'
 import { Session } from '@/lib/types'
 import { usePathname, useSearchParams } from 'next/navigation'
+import { useWebSocketStore } from '@/lib/store/websocket-store'
 
 export default function ExportDropdown({
   disabled,
@@ -25,133 +27,119 @@ export default function ExportDropdown({
   const [PPT, setPPT] = useState('')
   const [DOCXName, setDOCXName] = useState('')
   const [PPTName, setPPTName] = useState('')
-  const [isChatDownloaded, setIsChatDownloaded] = useState(true)
+  const [isChatDownloaded, setIsChatDownloaded] = useState(false)
   const searchParams = useSearchParams()
   const pathname = usePathname()
   const sessionId = pathname.split('/').pop()
+  const isStreaming = useWebSocketStore(state => state.isStreaming)
 
-  const payload = {
-    headers: {
-      'User-Id': `${session?.user?.email}`
-    },
-    body: {
-      session_id: sessionId
-    }
-  }
-  const fetchChatFiles = async () => {
+  const payload = useMemo(
+    () => ({
+      headers: {
+        'User-Id': `${session?.user?.email}`
+      },
+      body: {
+        session_id: sessionId
+      }
+    }),
+    [session?.user?.email, sessionId]
+  )
+
+  const fetchChatFiles = useCallback(async () => {
+    if (!pathname.includes('chat')) return
+
     try {
+      setIsChatDownloaded(false)
       const response = await fetch(
         `https://g6dy9f8dr4.execute-api.us-east-1.amazonaws.com/dev/`,
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
-            // 'User-id': userId || '' // Add your user_id in the headers
           },
           body: JSON.stringify(payload)
         }
       )
       const data = await response.json()
-      console.log(data, 'kjhjgjhgjghjdeep')
+
       if (response.ok && data.statusCode === 200) {
-        console.log('chat is downloaded')
-        setIsChatDownloaded(false)
+        setDOCX(data?.body?.docx.file)
+        setPPT(data?.body?.pptx.file)
+        setDOCXName(data?.body?.docx.fileName)
+        setPPTName(data?.body?.pptx.fileName)
+        setIsChatDownloaded(true)
+        console.log('downloaded')
       }
-      setDOCX(data?.body?.docx.file)
-      setPPT(data?.body?.pptx.file)
-      setDOCXName(data?.body?.docx.fileName)
-      setPPTName(data?.body?.pptx.fileName)
     } catch (error) {
       console.error('Error fetching data:', error)
+    } finally {
+      setIsChatDownloaded(true)
     }
-  }
+  }, [payload, pathname])
 
   useEffect(() => {
-    fetchChatFiles()
-    setIsChatDownloaded(true)
-  }, [searchParams])
+    if (pathname.includes('chat') && !isStreaming) {
+      fetchChatFiles()
+    }
+  }, [isStreaming, pathname])
 
-  const downloadPPTFile = () => {
+  const downloadPPTFile = useCallback(() => {
     try {
-      // MIME type for .pptx files
       const mimeType =
         'application/vnd.openxmlformats-officedocument.presentationml.presentation'
-
-      const base64 = `data:application/vnd.openxmlformats-officedocument.presentationml.presentation;base64,${PPT}`
-      // Extract base64 data if it includes a MIME type prefix
+      const base64 = `data:${mimeType};base64,${PPT}`
       const data = base64.startsWith('data:') ? base64.split(',')[1] : base64
-
-      // Decode base64 string
       const byteCharacters = atob(data)
-
-      // Convert byte characters to byte numbers
       const byteNumbers = new Array(byteCharacters.length)
+
       for (let i = 0; i < byteCharacters.length; i++) {
         byteNumbers[i] = byteCharacters.charCodeAt(i)
       }
+
       const byteArray = new Uint8Array(byteNumbers)
-
-      // Create a Blob from the byte array
       const blob = new Blob([byteArray], { type: mimeType })
-
-      // Create a link element and trigger download
       const link = document.createElement('a')
       link.href = URL.createObjectURL(blob)
-      link.download = PPTName // Default file name for .pptx
-
-      // Append the link to the body, click it, and remove it
+      link.download = PPTName
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
     } catch (error) {
       console.error('Failed to download presentation:', error)
     }
-    console.log('clickingwppt')
-  }
+  }, [PPT, PPTName])
 
-  const downloadDocxFile = () => {
+  const downloadDocxFile = useCallback(() => {
     try {
-      // Base64 string without the Data URI prefix
       const mimeType =
         'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
 
-      // Check if DOCX is defined and not empty
       if (!DOCX) {
         throw new Error('No document data provided.')
       }
-      const base64 = `data:application/vnd.openxmlformats-officedocument.presentationml.presentation;base64,${DOCX}`
-      // Extract the base64 data part if it includes a MIME type prefix
+
+      const base64 = `data:${mimeType};base64,${DOCX}`
       const data = base64.startsWith('data:') ? base64.split(',')[1] : base64
-
-      // Decode the base64 string
       const byteCharacters = atob(data)
-
-      // Convert byte characters to byte numbers
       const byteNumbers = new Array(byteCharacters.length)
+
       for (let i = 0; i < byteCharacters.length; i++) {
         byteNumbers[i] = byteCharacters.charCodeAt(i)
       }
+
       const byteArray = new Uint8Array(byteNumbers)
-
-      // Create a Blob from the byte array
       const blob = new Blob([byteArray], { type: mimeType })
-      console.log(byteArray, 'dkshakya')
-
-      // Create a link element and trigger download
       const link = document.createElement('a')
       link.href = URL.createObjectURL(blob)
-      link.download = DOCXName // Default file name for .docx
-      console.log(link.href, blob, 'dkshakya1')
-
-      // Append the link to the body, click it, and remove it
+      link.download = DOCXName
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
     } catch (error) {
       console.error('Failed to download document:', error)
     }
-    console.log('clickingwork')
-  }
+  }, [DOCX, DOCXName])
+
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (
@@ -168,50 +156,57 @@ export default function ExportDropdown({
     }
   }, [disabled])
 
-  const exportOptions = [
-    {
-      label: 'Word',
-      icon: <FileText className="h-5 w-5 text-blue-600" />,
-      onClick: downloadDocxFile,
-      disabled: false
-    },
-    {
-      label: 'PPT',
-      icon: <FileBarChart2 className="h-5 w-5 text-orange-500" />,
-      onClick: downloadPPTFile,
-      disabled: false
-    },
-    {
-      label: 'PDF',
-      icon: <FileCheck className="h-5 w-5 text-[#C5203F]" />,
-      disabled: true
-    },
-    {
-      label: 'Mail',
-      icon: <Mail className="h-5 w-5 text-[#C5203F]" />,
-      disabled: true
-    }
-  ]
+  const exportOptions = useMemo(
+    () => [
+      {
+        label: 'Word',
+        icon: <FileText className="h-5 w-5 text-blue-600" />,
+        onClick: downloadDocxFile,
+        disabled: false
+      },
+      {
+        label: 'PPT',
+        icon: <FileBarChart2 className="h-5 w-5 text-orange-500" />,
+        onClick: downloadPPTFile,
+        disabled: false
+      },
+      {
+        label: 'PDF',
+        icon: <FileCheck className="h-5 w-5 text-[#C5203F]" />,
+        disabled: true
+      },
+      {
+        label: 'Mail',
+        icon: <Mail className="h-5 w-5 text-[#C5203F]" />,
+        disabled: true
+      }
+    ],
+    [downloadDocxFile, downloadPPTFile]
+  )
 
   return (
     <div className="flex gap-4">
       <div className="relative" ref={dropdownRef}>
         <button
           onClick={() => {
-            if (!isChatDownloaded) setIsOpen(prev => !prev)
+            if (isChatDownloaded && pathname.includes('chat'))
+              setIsOpen(prev => !prev)
           }}
           aria-expanded={isOpen}
           aria-haspopup="true"
-          // disabled={disabled}
           className={`flex h-[38px] items-center gap-x-2 px-3 py-2 rounded-3xl border text-sm transition
             ${
-              isChatDownloaded
-                ? 'border-gray-200 text-gray-400 cursor-not-allowed'
-                : 'bg-white border-gray-200 text-black cursor-pointer'
+              isChatDownloaded && pathname.includes('chat')
+                ? 'bg-white border-gray-200 text-black cursor-pointer'
+                : 'border-gray-200 text-gray-400 cursor-not-allowed'
             }`}
         >
           Export
-          <Download className="h-4 w-4" />
+          {!isChatDownloaded && pathname.includes('chat') ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Download className="h-4 w-4" />
+          )}
         </button>
 
         {isOpen && !disabled && (
