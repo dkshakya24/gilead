@@ -318,16 +318,16 @@ export function BotMessage({
 
       <div
         className={cn(
-          'rounded-2xl px-5 py-3 gap-y-[6px] bg-white text-gray-800 rounded-tl-none',
+          'rounded-2xl px-5 py-3 gap-y-[6px] bg-white text-gray-800 rounded-tl-none w-full',
           chatId && 'border border-gray-200'
         )}
       >
         <div
           ref={messageRef}
-          className="relative ml-0 md:ml-4 flex-1 space-y-2 overflow-hidden px-0 md:px-1 group/item transition-all duration-300 ease-in-out"
+          className="relative ml-0 md:ml-4 flex-1 space-y-2 overflow-hidden px-0 md:px-1 group/item transition-all duration-300 ease-in-out w-full"
         >
           <MemoizedReactMarkdown
-            className="prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0 text-gray-600"
+            className="prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0 text-gray-600 w-full xl:max-w-[calc(100%-50px)] 2xl:max-w-[calc(100%-50px)]"
             remarkPlugins={[remarkGfm, remarkMath]}
             rehypePlugins={[rehypeRaw as any, rehypeSanitize]}
             components={{
