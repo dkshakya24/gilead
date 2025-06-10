@@ -81,7 +81,7 @@ export function PromptForm({
         setHasSubmitted(true)
         onSubmit()
       }}
-      className="w-full max-w-4xl mx-auto px-2 pb-4 fixed bottom-0 left-0 right-0  md:relative md:bottom-auto md:left-auto md:right-auto z-[999] md:z-50"
+      className="w-full max-w-4xl mx-auto px-2 pb-1 fixed bottom-0 left-0 right-0  md:relative md:bottom-auto md:left-auto md:right-auto z-[999] md:z-50"
       initial={{ y: 10, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.2 }}
@@ -180,42 +180,43 @@ export function PromptForm({
           </div>
         </div>
       ) : (
-        <div
-          className={cn(
-            'relative flex items-center bg-white md:flex w-full grow overflow-hidden rounded-3xl border border-gray-200 transition-all duration-200 md:pr-0 pr-[10px]',
-            isFocused ? 'shadow-md' : 'shadow-sm'
-          )}
-        >
-          {/* Plus button (disabled) */}
-          <div className="items-center pl-4 hidden md:flex">
-            <div className="w-6 h-6 flex items-center justify-center">
-              <Image className="w-full" src={logoicon} alt="icon" />
+        <>
+          <div
+            className={cn(
+              'relative flex items-center bg-white md:flex w-full grow overflow-hidden rounded-3xl border border-gray-200 transition-all duration-200 md:pr-0 pr-[10px]',
+              isFocused ? 'shadow-md' : 'shadow-sm'
+            )}
+          >
+            {/* Plus button (disabled) */}
+            <div className="items-center pl-4 hidden md:flex">
+              <div className="w-6 h-6 flex items-center justify-center">
+                <Image className="w-full" src={logoicon} alt="icon" />
+              </div>
             </div>
-          </div>
 
-          {/* Textarea input */}
-          <Textarea
-            ref={inputRef}
-            tabIndex={0}
-            onKeyDown={onKeyDown}
-            onFocus={() => setIsFocused(true)}
-            onBlur={() => setIsFocused(false)}
-            placeholder="Ask your question here and hit enter"
-            className="min-h-[60px] max-h-[100px] bg-white overflow-auto w-full resize-none px-2 py-4 focus-within:outline-none text-base"
-            autoFocus
-            spellCheck={false}
-            autoComplete="off"
-            autoCorrect="off"
-            name="message"
-            rows={1}
-            value={input}
-            onChange={e => setInput(e.target.value)}
-          />
+            {/* Textarea input */}
+            <Textarea
+              ref={inputRef}
+              tabIndex={0}
+              onKeyDown={onKeyDown}
+              onFocus={() => setIsFocused(true)}
+              onBlur={() => setIsFocused(false)}
+              placeholder="Ask your question here and hit enter"
+              className="min-h-[60px] max-h-[100px] bg-white overflow-auto w-full resize-none px-2 py-4 focus-within:outline-none text-base"
+              autoFocus
+              spellCheck={false}
+              autoComplete="off"
+              autoCorrect="off"
+              name="message"
+              rows={1}
+              value={input}
+              onChange={e => setInput(e.target.value)}
+            />
 
-          {/* Tools/Features */}
-          <div className="flex items-center gap-x-1 justify-between md:justify-end p-0 md:p-4">
-            {/* Search button */}
-            {/* <Tooltip>
+            {/* Tools/Features */}
+            <div className="flex items-center gap-x-1 justify-between md:justify-end p-0 md:p-4">
+              {/* Search button */}
+              {/* <Tooltip>
               <TooltipTrigger asChild>
                 <Button
                   type="button"
@@ -236,22 +237,26 @@ export function PromptForm({
               <TooltipContent>Search the web</TooltipContent>
             </Tooltip> */}
 
-            {/* Arrow button - Send */}
-            <Button
-              type="submit"
-              size="icon"
-              disabled={input === '' || isStreaming}
-              className={cn(
-                'rounded-full md:w-10 md:h-10 w-8 h-8 flex items-center justify-center transition-all duration-200 ml-1 bg-primary text-white',
-                input === '' || isStreaming
-                  ? 'opacity-40 cursor-not-allowed'
-                  : 'opacity-100'
-              )}
-            >
-              <ArrowUp className=" md:w-5 md:h-5 w-4 h-4" />
-            </Button>
+              {/* Arrow button - Send */}
+              <Button
+                type="submit"
+                size="icon"
+                disabled={input === '' || isStreaming}
+                className={cn(
+                  'rounded-full md:w-10 md:h-10 w-8 h-8 flex items-center justify-center transition-all duration-200 ml-1 bg-primary text-white',
+                  input === '' || isStreaming
+                    ? 'opacity-40 cursor-not-allowed'
+                    : 'opacity-100'
+                )}
+              >
+                <ArrowUp className=" md:w-5 md:h-5 w-4 h-4" />
+              </Button>
+            </div>
           </div>
-        </div>
+          <p className="text-gray-500 mt-auto flex min-h-4 w-full items-center justify-center p-2 text-center text-xs md:px-[60px]">
+            AI-generated content — verify important information independently.
+          </p>
+        </>
       )}
     </motion.form>
   )
