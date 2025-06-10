@@ -19,14 +19,6 @@ export const AUTH_MICROSOFT_ENTRA_ID_SECRET =
   process.env.NEXT_PUBLIC_AUTH_MICROSOFT_ENTRA_ID_SECRET
 export const AUTH_MICROSOFT_ENTRA_ID_ISSUER =
   process.env.NEXT_PUBLIC_AUTH_MICROSOFT_ENTRA_ID_ISSUER
-export const AWS_ACCESS_KEY_ID = process.env.NEXT_PUBLIC_APP_ACCESS_KEY_ID
-export const AWS_SECRET_ACCESS_KEY =
-  process.env.NEXT_PUBLIC_APP_SECRET_ACCESS_KEY
-
-export const nanoid = customAlphabet(
-  '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
-  7
-) // 7-character random string
 
 export async function fetcher<JSON = any>(
   input: RequestInfo,
