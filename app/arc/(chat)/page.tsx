@@ -22,7 +22,7 @@ export default async function IndexPage() {
 
   return (
     <>
-      <ToastOnLoad />
+      {/* <ToastOnLoad /> */}
       <Chat session={session} />
     </>
   )

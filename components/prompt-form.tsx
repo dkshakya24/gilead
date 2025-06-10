@@ -16,6 +16,9 @@ import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { ArrowUp, ArrowUp01Icon } from 'lucide-react'
 import Image from 'next/image'
+import ReasoningFactor from './gilead/reasoning-factor'
+import { UrlDropdown } from './gilead/url-dropdown'
+import { KeywordsDropdown } from './gilead/keywords-dropdown'
 
 export function PromptForm({
   input,
@@ -97,7 +100,7 @@ export function PromptForm({
             disabled={isStreaming}
           />
           <div className="flex items-center gap-3 mt-auto">
-            <div className="flex items-center border border-gray-200 rounded-full px-4 py-2 text-base text-gray-700 bg-white">
+            {/* <div className="flex items-center border border-gray-200 rounded-full px-4 py-2 text-base text-gray-700 bg-white">
               Reasoning Factor:{' '}
               <span className="ml-2 text-red-600 font-semibold">HIGH</span>
               <svg
@@ -152,7 +155,10 @@ export function PromptForm({
                 />
               </svg>
               Keywords
-            </button>
+            </button> */}
+            <ReasoningFactor disabled />
+            <UrlDropdown disabled />
+            <KeywordsDropdown disabled />
             <button
               type="submit"
               className="ml-auto rounded-full w-12 h-12 flex items-center justify-center bg-[#C7203A] text-white shadow-none border-none"
