@@ -223,21 +223,31 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
   }, [path])
   useEffect(() => {
     if (path === '/arc' && !newchatboxId) {
+      let isMounted = true
       const fetchData = async () => {
         try {
           const response = await fetch('/api/utils/generate-id', {
             method: 'GET',
-            cache: 'no-store'
+            cache: 'no-store',
+            headers: {
+              'Cache-Control': 'no-cache',
+              Pragma: 'no-cache'
+            }
           })
           const data = await response.json()
-          setNewchatboxId(data.id)
+          if (isMounted) {
+            setNewchatboxId(data.id)
+          }
         } catch (error) {
           console.error('Error fetching data:', error)
         }
       }
       fetchData()
+      return () => {
+        isMounted = false
+      }
     }
-  }, [path])
+  }, [path, newchatboxId])
 
   const updateSelectedStudies = () => {
     // localStorage.setItem('studies', JSON.stringify(['UC']))
