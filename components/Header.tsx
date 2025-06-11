@@ -94,21 +94,7 @@ export async function Header() {
       </div>
       <div className="flex items-center justify-end gap-4 flex-1 md:gap-6">
         <nav className="hidden md:flex items-center space-x-4">
-          {/* <Link
-            href="/"
-            className="group text-gray-600 hover:text-primary px-3 py-2 rounded-md text-sm font-medium flex items-center transition-colors"
-          >
-            <PiHouseLineDuotone className="text-lg mr-2 group-hover:text-primary" />
-            Home
-          </Link> */}
-          {/* <Link
-            href="/askeugene"
-            className="group text-gray-600 hover:text-primary px-3 py-2 rounded-md text-sm font-medium flex items-center transition-colors"
-          >
-            <PiDatabaseDuotone className="text-lg mr-2 group-hover:text-primary" />
-            Ask Eugene
-          </Link> */}
-          <ReasoningFactor disabled />
+          <ReasoningFactor disabled={false} />
           <UrlDropdown disabled />
           <KeywordsDropdown disabled />
           <ExportDropdown disabled={false} session={session} />

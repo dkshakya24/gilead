@@ -2,12 +2,20 @@
 
 import React, { useState, useRef, useEffect } from 'react'
 import { ChevronDown } from 'lucide-react'
+import { useStore } from '@/lib/store/useStore'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger
+} from '@/components/ui/tooltip'
+import { Button } from '../ui/button'
+import { InfoCircledIcon } from '@radix-ui/react-icons'
 
 export default function ReasoningFactor({ disabled }: { disabled: boolean }) {
-  const [reasoning, setReasoning] = useState('HIGH')
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
-  const reasoningOptions = ['HIGH', 'MEDIUM', 'LOW']
+  const reasoningOptions = ['High', 'Medium', 'Low'] as const
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const { reasoning, setReasoning } = useStore()
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -39,6 +47,40 @@ export default function ReasoningFactor({ disabled }: { disabled: boolean }) {
       >
         Reasoning Factor:
         <span className="ml-2 text-[#C5203F] font-medium">{reasoning}</span>
+        {reasoning === 'High' && (
+          // <div className="relative group ml-2">
+
+          //   <svg
+          //     xmlns="http://www.w3.org/2000/svg"
+          //     className="h-4 w-4 text-gray-400"
+          //     fill="none"
+          //     viewBox="0 0 24 24"
+          //     stroke="currentColor"
+          //   >
+          //     <path
+          //       strokeLinecap="round"
+          //       strokeLinejoin="round"
+          //       strokeWidth={2}
+          //       d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+          //     />
+          //   </svg>
+          //   <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">
+          //     High reasoning provides more detailed and thorough responses
+          //   </div>
+          // </div>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <InfoCircledIcon className="ml-1" />
+            </TooltipTrigger>
+            <TooltipContent
+              side="bottom"
+              className="bg-white border border-primary text-gray-600"
+            >
+              High reasoning enables deeper insights <br />
+              but may take a bit more time to process.
+            </TooltipContent>
+          </Tooltip>
+        )}
         <ChevronDown
           className={`w-[17px] h-[17px] ml-auto transition-transform duration-200 ${
             isDropdownOpen ? 'rotate-180' : ''

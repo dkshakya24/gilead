@@ -15,7 +15,7 @@ import useWebSocket from '@/lib/hooks/useWebSocket'
 import Annotations from './aivy-message/annotations'
 import { MdOutlineInsertComment } from 'react-icons/md'
 import { Button } from './ui/button'
-
+import { useStore } from '@/lib/store/useStore'
 import { toast } from 'sonner'
 import {
   MdOutlineScience,
@@ -49,6 +49,7 @@ export interface ChatMessage {
 export function Chat({ id, className, session, initialMessages }: ChatProps) {
   const router = useRouter()
   const path = usePathname()
+  const { reasoning } = useStore()
   const {
     messages,
     sendMessage,
@@ -267,7 +268,8 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
     action: 'sendmessage',
     sessionId: id ? id : newchatboxId,
     query: input,
-    userId: session?.user.email
+    userId: session?.user.email,
+    reasoning: reasoning
   }
 
   const handleSend = () => {

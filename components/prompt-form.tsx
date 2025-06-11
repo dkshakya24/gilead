@@ -156,7 +156,7 @@ export function PromptForm({
               </svg>
               Keywords
             </button> */}
-            <ReasoningFactor disabled />
+            <ReasoningFactor disabled={false} />
             <UrlDropdown disabled />
             <KeywordsDropdown disabled />
             <button
