@@ -226,7 +226,8 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
       const fetchData = async () => {
         try {
           const response = await fetch('/api/utils/generate-id', {
-            method: 'GET'
+            method: 'GET',
+            cache: 'no-store'
           })
           const data = await response.json()
           setNewchatboxId(data.id)
@@ -236,7 +237,7 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
       }
       fetchData()
     }
-  }, [path, newchatboxId])
+  }, [path])
 
   const updateSelectedStudies = () => {
     // localStorage.setItem('studies', JSON.stringify(['UC']))
