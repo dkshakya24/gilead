@@ -48,6 +48,7 @@ interface Question {
 
 export function ExportDropdown({ session }: { session?: any }) {
   const { chatMessages, chatId } = useStore()
+  const { isStreaming } = useWebSocketStore()
   // const [isBtnClicked, setIsBtnClicked] = React.useState(false)
   const [isModalOpen, setIsModalOpen] = React.useState(false)
   // const [inputValue, setInputValue] = React.useState('')
@@ -67,8 +68,10 @@ export function ExportDropdown({ session }: { session?: any }) {
     'Internal Meeting',
     'Custom'
   ]
+
   const pathname = usePathname()
   const sessionId = pathname.split('/').pop()
+
   const getQuestionChatId = (question: string) => {
     const result: any = questions.find((item: any) => item.message === question)
     return result.chatId
@@ -378,18 +381,20 @@ export function ExportDropdown({ session }: { session?: any }) {
     ],
     [downloadDocxFile, downloadPPTFile]
   )
+
   return (
     <div className="flex gap-4">
       <div className="relative" ref={dropdownRef}>
         <button
           onClick={() => {
-            if (pathname.includes('chat')) setIsOpen(prev => !prev)
+            if (!isStreaming && pathname.includes('chat'))
+              setIsOpen(prev => !prev)
           }}
           aria-expanded={isOpen}
           aria-haspopup="true"
           className={`flex h-[38px] items-center gap-x-2 px-3 py-2 rounded-3xl border text-sm transition
             ${
-              pathname.includes('chat')
+              !isStreaming && pathname.includes('chat')
                 ? 'bg-white border-gray-200 text-black cursor-pointer'
                 : 'border-gray-200 text-gray-400 cursor-not-allowed'
             }`}

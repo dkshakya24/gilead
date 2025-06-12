@@ -134,51 +134,51 @@ export function BotMessage({
     parent?.removeChild(span)
   }
 
-  // const getPromptMessages = async (currentChatId: string) => {
-  //   try {
-  //     if (!SUGGESTION_API) {
-  //       console.error('SUGGESTION_API is not configured')
-  //       return
-  //     }
+  const getPromptMessages = async (currentChatId: string) => {
+    try {
+      if (!SUGGESTION_API) {
+        console.error('SUGGESTION_API is not configured')
+        return
+      }
 
-  //     console.log('Fetching from:', SUGGESTION_API)
-  //     const response = await fetch(`${SUGGESTION_API}`, {
-  //       method: 'POST',
-  //       headers: {
-  //         'Content-Type': 'application/json'
-  //       },
-  //       body: JSON.stringify({
-  //         chatterid: currentChatId,
-  //         user_id: session?.user?.email || ''
-  //       })
-  //     })
+      console.log('Fetching from:', SUGGESTION_API)
+      const response = await fetch(`${SUGGESTION_API}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          session_id: currentChatId,
+          user_id: session?.user?.email || ''
+        })
+      })
 
-  //     if (!response.ok) {
-  //       const errorText = await response.text()
-  //       console.error('API Error:', {
-  //         status: response.status,
-  //         statusText: response.statusText,
-  //         body: errorText
-  //       })
-  //       return
-  //     }
+      if (!response.ok) {
+        const errorText = await response.text()
+        console.error('API Error:', {
+          status: response.status,
+          statusText: response.statusText,
+          body: errorText
+        })
+        return
+      }
 
-  //     const data = await response.json()
-  //     if (response.ok) {
-  //       setLoading(false)
-  //     }
+      const data = await response.json()
+      if (response.ok) {
+        setLoading(false)
+      }
 
-  //     if (data) {
-  //       const messages = data?.slice(0)
-  //       setPromptMessages(messages)
-  //     }
-  //   } catch (error) {
-  //     console.error('Error fetching prompt messages:', error)
-  //     if (error instanceof SyntaxError) {
-  //       console.error('Invalid JSON response from server')
-  //     }
-  //   }
-  // }
+      if (data) {
+        const messages = data?.slice(0)
+        setPromptMessages(messages)
+      }
+    } catch (error) {
+      console.error('Error fetching prompt messages:', error)
+      if (error instanceof SyntaxError) {
+        console.error('Invalid JSON response from server')
+      }
+    }
+  }
 
   useEffect(() => {
     document.addEventListener('mouseup', handleMouseUpEvent)
@@ -186,13 +186,13 @@ export function BotMessage({
       document.removeEventListener('mouseup', handleMouseUpEvent)
     }
   }, [])
-  // useEffect(() => {
-  //   if (!isStreaming && chatId && currentChatId) {
-  //     setTimeout(() => {
-  //       getPromptMessages(currentChatId)
-  //     }, 2000)
-  //   }
-  // }, [chatId])
+  useEffect(() => {
+    if (!isStreaming && chatId && currentChatId) {
+      setTimeout(() => {
+        getPromptMessages(currentChatId)
+      }, 2000)
+    }
+  }, [chatId])
   useEffect(() => {
     const handleClickOutside = (event: any) => {
       if (
@@ -585,54 +585,54 @@ export function BotMessage({
               />
             </>
           ) : null}
-          {/* {!isStreaming && chatId ? (
-          <div className="mt-4 hidden md:block">
-            <Separator className="my-4" />
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-2 h-2 rounded-full bg-secondary animate-pulse"></div>
-              <p className="text-sm font-medium text-gray-600">
-                You may want to ask
-              </p>
-            </div>
-            {loading ? (
-              <div className="space-y-3">
-                {Array.from({ length: 3 }).map((_, i) => (
-                  <div
-                    key={i}
-                    className="w-full h-12 rounded-lg shrink-0 animate-pulse bg-zinc-100 dark:bg-zinc-800"
-                  />
-                ))}
+          {!isStreaming && chatId ? (
+            <div className="mt-4 hidden md:block">
+              <Separator className="my-4" />
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-2 h-2 rounded-full bg-secondary animate-pulse"></div>
+                <p className="text-sm font-medium text-gray-600">
+                  You may want to ask
+                </p>
               </div>
-            ) : (
-              <div className="mt-4 space-y-3">
-                {promptMessages.map((message, index) => (
-                  <div
-                    key={index}
-                    onClick={() => handleMessageClick(message)}
-                    className="group relative px-4 py-3 border border-gray-200 cursor-pointer rounded-lg shadow-sm hover:shadow-md transition-all duration-200 ease-in-out bg-white hover:bg-gray-50 hover:border-secondary/30"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <p className="text-sm text-gray-700 group-hover:text-gray-900 transition-colors duration-200">
-                          {message}
-                        </p>
-                      </div>
-                      <div className="ml-4 flex items-center">
-                        <div className="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center group-hover:bg-secondary/20 transition-colors duration-200">
-                          <FaArrowRightLong
-                            size={14}
-                            className="text-secondary group-hover:translate-x-0.5 transition-transform duration-200"
-                          />
+              {loading ? (
+                <div className="space-y-3">
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <div
+                      key={i}
+                      className="w-full h-12 rounded-lg shrink-0 animate-pulse bg-zinc-100 dark:bg-zinc-800"
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="mt-4 space-y-3">
+                  {promptMessages.map((message, index) => (
+                    <div
+                      key={index}
+                      onClick={() => handleMessageClick(message)}
+                      className="group relative px-4 py-3 border border-gray-200 cursor-pointer rounded-lg shadow-sm hover:shadow-md transition-all duration-200 ease-in-out bg-white hover:bg-gray-50 hover:border-secondary/30"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <p className="text-sm text-gray-700 group-hover:text-gray-900 transition-colors duration-200">
+                            {message}
+                          </p>
+                        </div>
+                        <div className="ml-4 flex items-center">
+                          <div className="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center group-hover:bg-secondary/20 transition-colors duration-200">
+                            <FaArrowRightLong
+                              size={14}
+                              className="text-secondary group-hover:translate-x-0.5 transition-transform duration-200"
+                            />
+                          </div>
                         </div>
                       </div>
+                      <div className="absolute inset-0 rounded-lg ring-1 ring-inset ring-secondary/0 group-hover:ring-secondary/20 transition-all duration-200"></div>
                     </div>
-                    <div className="absolute inset-0 rounded-lg ring-1 ring-inset ring-secondary/0 group-hover:ring-secondary/20 transition-all duration-200"></div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        ) : null} */}
+                  ))}
+                </div>
+              )}
+            </div>
+          ) : null}
           {isFeedbackClicked ? (
             <FeedbackComponent
               setIsFeedbackClicked={setIsFeedbackClicked}
