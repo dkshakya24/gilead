@@ -687,7 +687,7 @@ export function SystemMessage({ children }: { children: React.ReactNode }) {
 
 export function SpinnerMessage() {
   return (
-    <div className="group relative flex items-center md:-ml-10">
+    <div className="group relative flex items-center md:-ml-1">
       <div className="flex size-[40px] shrink-0 select-none items-center justify-center rounded-full p-2 border bg-white text-primary-foreground shadow-sm">
         <Image src={logoicon1} alt="icon" />
       </div>
