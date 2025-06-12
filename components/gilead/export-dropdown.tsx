@@ -37,6 +37,7 @@ import { AiOutlineLoading3Quarters } from 'react-icons/ai' // Import a spinning 
 import { TbLoader } from 'react-icons/tb'
 import DraggableQuestions from '@/components/gilead/draggableQuestions'
 import { Info } from 'lucide-react'
+import { useStore } from '@/lib/store/useStore'
 
 interface Question {
   id: string
@@ -45,19 +46,8 @@ interface Question {
   chatId: string
 }
 
-export function ExportDropdown({
-  isStreaming,
-  session,
-  chatterid,
-  chatMessages,
-  newMessageId
-}: {
-  isStreaming?: boolean
-  session?: any
-  chatterid?: string
-  chatMessages?: any
-  newMessageId: any
-}) {
+export function ExportDropdown({ session }: { session?: any }) {
+  const { chatMessages, chatId } = useStore()
   const [isBtnClicked, setIsBtnClicked] = React.useState(false)
   const [isModalOpen, setIsModalOpen] = React.useState(false)
   const [inputValue, setInputValue] = React.useState('')
@@ -89,7 +79,7 @@ export function ExportDropdown({
 
   function processChatMessages(
     chatMessages: { sender: string; message: string; chatId?: string }[],
-    newMessageId: string
+    chatId: string
   ): { message: string; chatId: string }[] {
     return chatMessages
       .map((msg, index, arr) => {
@@ -102,7 +92,7 @@ export function ExportDropdown({
           return {
             id: (index + 1).toString(),
             message: msg.message,
-            chatId: nextBotMessage ? nextBotMessage.chatId! : newMessageId,
+            chatId: nextBotMessage ? nextBotMessage.chatId! : chatId,
             checked: false
           }
         }
@@ -112,9 +102,9 @@ export function ExportDropdown({
   }
 
   React.useEffect(() => {
-    const res = processChatMessages(chatMessages, newMessageId)
+    const res = processChatMessages(chatMessages, chatId)
     setQuestions(res)
-  }, [chatMessages, newMessageId])
+  }, [chatMessages, chatId])
 
   const openModal = () => {
     setIsModalOpen(true)
@@ -295,8 +285,6 @@ export function ExportDropdown({
       ),
       icon: <TbLoader className="animate-spin text-secondary w-4 h-4" />
     })
-    console.log(PPT_GENERATE_API, PPT_DOWNLOAD_API, 'PPT_GENERATE_API')
-    // const response = await fetch(`${PPT_GENERATE_API}`, {
     try {
       const response = await fetch(`${PPT_GENERATE_API}`, {
         method: 'POST',
@@ -305,7 +293,7 @@ export function ExportDropdown({
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          chatter_id: chatterid,
+          chatter_id: sessionId,
           presentation_purpose:
             selectedValue === 'Custom' ? customInput : selectedValue,
           selected_questions: questions
@@ -327,7 +315,6 @@ export function ExportDropdown({
       console.error('Error during API call:', error)
     }
     setLoading(false)
-    // setInputValue('')
   }
 
   const handleDocxFile = async () => {
@@ -354,7 +341,7 @@ export function ExportDropdown({
         'User-Id': `${session.user.email}`
       },
       body: {
-        chatter_id: chatterid
+        chatter_id: sessionId
       }
     }
     try {
