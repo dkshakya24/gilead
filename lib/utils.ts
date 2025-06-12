@@ -6,19 +6,24 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export const API_URL = process.env.NEXT_PUBLIC_API_URL
-export const FEEDBACK_API = process.env.NEXT_PUBLIC_FEEDBACK_API
+export const API_URL =
+  'https://6try2laitd.execute-api.us-east-1.amazonaws.com/dev'
+export const FEEDBACK_API =
+  'https://wnpwxjhzvc.execute-api.us-east-1.amazonaws.com/dev/'
 export const SUGGESTION_API = process.env.NEXT_PUBLIC_SUGGESTION_API
-export const WEBSOCKET = process.env.NEXT_PUBLIC_WEBSOCKET
+export const WEBSOCKET =
+  'wss://7x4ndqse6e.execute-api.us-east-1.amazonaws.com/dev'
 export const PROJECT_NAME = process.env.NEXT_PUBLIC_PROJECT_NAME
-export const PPT_GENERATE_API = process.env.NEXT_PUBLIC_PPT_GENERATE_API
-export const PPT_DOWNLOAD_API = process.env.NEXT_PUBLIC_PPT_DOWNLOAD_API
-export const AUTH_MICROSOFT_ENTRA_ID_ID =
-  process.env.NEXT_PUBLIC_AUTH_MICROSOFT_ENTRA_ID_ID
-export const AUTH_MICROSOFT_ENTRA_ID_SECRET =
-  process.env.NEXT_PUBLIC_AUTH_MICROSOFT_ENTRA_ID_SECRET
-export const AUTH_MICROSOFT_ENTRA_ID_ISSUER =
-  process.env.NEXT_PUBLIC_AUTH_MICROSOFT_ENTRA_ID_ISSUER
+export const PPT_GENERATE_API =
+  ' https://jnjldv2wrroq4d2yvxst5p7kki0basvl.lambda-url.us-east-1.on.aws/'
+export const PPT_DOWNLOAD_API =
+  'https://11vzxy3g5g.execute-api.us-east-1.amazonaws.com/dev/gilead_download_ppt_chat'
+// export const AUTH_MICROSOFT_ENTRA_ID_ID =
+//   process.env.NEXT_PUBLIC_AUTH_MICROSOFT_ENTRA_ID_ID
+// export const AUTH_MICROSOFT_ENTRA_ID_SECRET =
+//   process.env.NEXT_PUBLIC_AUTH_MICROSOFT_ENTRA_ID_SECRET
+// export const AUTH_MICROSOFT_ENTRA_ID_ISSUER =
+//   process.env.NEXT_PUBLIC_AUTH_MICROSOFT_ENTRA_ID_ISSUER
 
 export async function fetcher<JSON = any>(
   input: RequestInfo,
