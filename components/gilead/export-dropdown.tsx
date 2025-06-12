@@ -48,20 +48,17 @@ interface Question {
 
 export function ExportDropdown({ session }: { session?: any }) {
   const { chatMessages, chatId } = useStore()
-  const [isBtnClicked, setIsBtnClicked] = React.useState(false)
+  // const [isBtnClicked, setIsBtnClicked] = React.useState(false)
   const [isModalOpen, setIsModalOpen] = React.useState(false)
-  const [inputValue, setInputValue] = React.useState('')
+  // const [inputValue, setInputValue] = React.useState('')
   const [loading, setLoading] = React.useState(false)
-  const [loader, setLoader] = React.useState(false)
+  // const [loader, setLoader] = React.useState(false)
   const [questions, setQuestions] = useState<any>([])
   const [selectedValue, setSelectedValue] = useState('Senior Leadership')
   const [customInput, setCustomInput] = useState('')
   const dropdownRef = useRef<HTMLDivElement>(null)
   const [isOpen, setIsOpen] = useState(false)
   const [isChatDownloaded, setIsChatDownloaded] = useState(false)
-  const [DOCX, setDOCX] = useState('')
-  const [PPT, setPPT] = useState('')
-  const [DOCXName, setDOCXName] = useState('')
   const options = [
     'Workshop',
     'Country Discussion',
@@ -113,18 +110,6 @@ export function ExportDropdown({ session }: { session?: any }) {
   const closeModal = () => {
     setIsModalOpen(false)
   }
-
-  const payload = useMemo(
-    () => ({
-      headers: {
-        'User-Id': `${session?.user?.email}`
-      },
-      body: {
-        session_id: sessionId
-      }
-    }),
-    [session?.user?.email, sessionId]
-  )
 
   const downloadPPTFile = (PPT?: string, fileName?: string) => {
     try {
@@ -200,8 +185,6 @@ export function ExportDropdown({ session }: { session?: any }) {
       const link = document.createElement('a')
       link.href = URL.createObjectURL(blob)
       link.download = fileName ?? '' // Default file name for .docx
-      console.log(link.href, blob, 'dkshakya1')
-
       // Append the link to the body, click it, and remove it
       document.body.appendChild(link)
       link.click()
@@ -217,8 +200,6 @@ export function ExportDropdown({ session }: { session?: any }) {
   }
 
   const handleFileDownload = async (id: string) => {
-    setIsBtnClicked(false)
-    setLoader(true)
     const toastId = toast.success('Downloading Your File...', {
       position: 'top-center',
       className: 'top-[-15px]',
@@ -250,23 +231,20 @@ export function ExportDropdown({ session }: { session?: any }) {
       setSelectedValue('Senior Leadership')
       setCustomInput('')
       setQuestions(questions.map((item: any) => ({ ...item, checked: false })))
-      setLoader(false)
       downloadPPTFile(data.pptx_base64, data?.presentation_name)
       if (data) {
         toast.dismiss(toastId)
       }
     } catch (error) {
       console.error('Error fetching data:', error)
-      setLoader(false)
+
       throw error // Re-throw the error for further handling if needed
     }
-    setLoader(false)
   }
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
     closeModal()
-    setIsBtnClicked(false)
     setLoading(true)
     const toastId = toast.success('Preparing Your File...', {
       position: 'top-center',
@@ -293,7 +271,7 @@ export function ExportDropdown({ session }: { session?: any }) {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          chatter_id: sessionId,
+          session_id: sessionId,
           presentation_purpose:
             selectedValue === 'Custom' ? customInput : selectedValue,
           selected_questions: questions
@@ -335,39 +313,42 @@ export function ExportDropdown({ session }: { session?: any }) {
       ),
       icon: <TbLoader className="animate-spin text-secondary w-4 h-4" />
     })
-    setIsBtnClicked(false)
+    setLoading(true)
     const payload = {
       headers: {
         'User-Id': `${session.user.email}`
       },
       body: {
-        chatter_id: sessionId
+        session_id: sessionId
       }
     }
     try {
-      const response = await fetch(`${API_URL}/${PROJECT_NAME}_download`, {
-        method: 'POST',
-        headers: {
-          'User-Id': session.user.email,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(payload)
-      })
+      const response = await fetch(
+        `https://g6dy9f8dr4.execute-api.us-east-1.amazonaws.com/dev/`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        }
+      )
 
       if (!response.ok) {
         throw new Error(`Error: ${response.status} ${response.statusText}`)
       }
       const data = await response.json()
-      downloadDocxFile(data.body.docx.file, data?.body.docx.fileName)
-      if (data) {
+      if (data?.body?.docx?.file) {
+        downloadDocxFile(data.body.docx.file, data.body.docx.fileName)
         toast.dismiss(toastId2)
-        console.log('docx download data is here')
       }
     } catch (error) {
       console.error('Error during API call:', error)
+      toast.error('Failed to download DOCX file')
+    } finally {
+      setLoading(false)
+      // setInputValue('')
     }
-    setLoading(false)
-    setInputValue('')
   }
 
   const exportOptions = useMemo(
@@ -402,20 +383,19 @@ export function ExportDropdown({ session }: { session?: any }) {
       <div className="relative" ref={dropdownRef}>
         <button
           onClick={() => {
-            if (isChatDownloaded && pathname.includes('chat'))
-              setIsOpen(prev => !prev)
+            if (pathname.includes('chat')) setIsOpen(prev => !prev)
           }}
           aria-expanded={isOpen}
           aria-haspopup="true"
           className={`flex h-[38px] items-center gap-x-2 px-3 py-2 rounded-3xl border text-sm transition
             ${
-              isChatDownloaded && pathname.includes('chat')
+              pathname.includes('chat')
                 ? 'bg-white border-gray-200 text-black cursor-pointer'
                 : 'border-gray-200 text-gray-400 cursor-not-allowed'
             }`}
         >
           Export
-          {!isChatDownloaded && pathname.includes('chat') ? (
+          {isChatDownloaded && pathname.includes('chat') ? (
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : (
             <Download className="h-4 w-4" />
