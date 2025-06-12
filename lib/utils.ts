@@ -11,7 +11,7 @@ export const API_URL =
 export const FEEDBACK_API =
   'https://wnpwxjhzvc.execute-api.us-east-1.amazonaws.com/dev/'
 export const SUGGESTION_API =
-  'https://kzyyi6go6lftmmpaecoy76imau0gwixz.lambda-url.us-east-1.on.aws/'
+  'https://gwmitkqkl6.execute-api.us-east-1.amazonaws.com/dev/'
 export const WEBSOCKET =
   'wss://7x4ndqse6e.execute-api.us-east-1.amazonaws.com/dev'
 export const PROJECT_NAME = process.env.NEXT_PUBLIC_PROJECT_NAME
