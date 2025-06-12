@@ -45,7 +45,7 @@ interface Question {
   chatId: string
 }
 
-export function DownloadChat({
+export function ExportDropdown({
   isStreaming,
   session,
   chatterid,
@@ -58,7 +58,6 @@ export function DownloadChat({
   chatMessages?: any
   newMessageId: any
 }) {
-  const pathname = usePathname()
   const [isBtnClicked, setIsBtnClicked] = React.useState(false)
   const [isModalOpen, setIsModalOpen] = React.useState(false)
   const [inputValue, setInputValue] = React.useState('')
@@ -69,6 +68,10 @@ export function DownloadChat({
   const [customInput, setCustomInput] = useState('')
   const dropdownRef = useRef<HTMLDivElement>(null)
   const [isOpen, setIsOpen] = useState(false)
+  const [isChatDownloaded, setIsChatDownloaded] = useState(false)
+  const [DOCX, setDOCX] = useState('')
+  const [PPT, setPPT] = useState('')
+  const [DOCXName, setDOCXName] = useState('')
   const options = [
     'Workshop',
     'Country Discussion',
@@ -77,7 +80,8 @@ export function DownloadChat({
     'Internal Meeting',
     'Custom'
   ]
-
+  const pathname = usePathname()
+  const sessionId = pathname.split('/').pop()
   const getQuestionChatId = (question: string) => {
     const result: any = questions.find((item: any) => item.message === question)
     return result.chatId
@@ -120,7 +124,17 @@ export function DownloadChat({
     setIsModalOpen(false)
   }
 
-  console.log(process.env, '.env')
+  const payload = useMemo(
+    () => ({
+      headers: {
+        'User-Id': `${session?.user?.email}`
+      },
+      body: {
+        session_id: sessionId
+      }
+    }),
+    [session?.user?.email, sessionId]
+  )
 
   const downloadPPTFile = (PPT?: string, fileName?: string) => {
     try {
@@ -369,6 +383,33 @@ export function DownloadChat({
     setInputValue('')
   }
 
+  const exportOptions = useMemo(
+    () => [
+      {
+        label: 'Word',
+        icon: <FileText className="h-5 w-5 text-blue-600" />,
+        onClick: handleDocxFile,
+        disabled: false
+      },
+      {
+        label: 'PPT',
+        icon: <FileBarChart2 className="h-5 w-5 text-orange-500" />,
+        onClick: openModal,
+        disabled: false
+      },
+      {
+        label: 'PDF',
+        icon: <FileCheck className="h-5 w-5 text-[#C5203F]" />,
+        disabled: true
+      },
+      {
+        label: 'Mail',
+        icon: <Mail className="h-5 w-5 text-[#C5203F]" />,
+        disabled: true
+      }
+    ],
+    [downloadDocxFile, downloadPPTFile]
+  )
   return (
     <div className="flex gap-4">
       <div className="relative" ref={dropdownRef}>
@@ -394,7 +435,7 @@ export function DownloadChat({
           )}
         </button>
 
-        {isOpen && !disabled && (
+        {isOpen && (
           <div className="absolute right-0 mt-1 w-60 p-2 origin-top-right rounded-lg bg-white shadow-lg ring-1 ring-gray-200 ring-opacity-5 z-[999]">
             <div className="py-1">
               {exportOptions.map((option, index) => (

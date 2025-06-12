@@ -25,7 +25,7 @@ import {
   PiDatabaseDuotone
 } from 'react-icons/pi'
 import { Bell } from 'lucide-react'
-import ExportDropdown from './gilead/export-dropdwon'
+import { ExportDropdown } from './gilead/export-dropdown'
 import { KeywordsDropdown } from './gilead/keywords-dropdown'
 import { UrlDropdown } from './gilead/url-dropdown'
 import ReasoningFactor from './gilead/reasoning-factor'
@@ -97,7 +97,7 @@ export async function Header() {
           <ReasoningFactor disabled={false} />
           <UrlDropdown disabled />
           <KeywordsDropdown disabled />
-          <ExportDropdown disabled={false} session={session} />
+          <ExportDropdown session={session} />
           <button className="flex items-center cursor-not-allowed opacity-50 justify-center w-[38px] h-[38px] bg-white border border-gray-200 rounded-full">
             <Bell className="h-4 w-4" />
           </button>
