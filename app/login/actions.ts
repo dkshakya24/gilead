@@ -41,6 +41,13 @@ const users = [
     password: 'Admin@chryselys123',
     name: 'Deepak',
     salt: 'jkl'
+  },
+  {
+    id: '6',
+    email: 'chitra.narasimhachari@gilead.com',
+    password: 'Admin@gilead123',
+    name: 'Chitra',
+    salt: 'qbc'
   }
   // Add more users as needed
 ]
