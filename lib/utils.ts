@@ -15,7 +15,7 @@ export const WEBSOCKET =
   'wss://7x4ndqse6e.execute-api.us-east-1.amazonaws.com/dev'
 export const PROJECT_NAME = process.env.NEXT_PUBLIC_PROJECT_NAME
 export const PPT_GENERATE_API =
-  ' https://jnjldv2wrroq4d2yvxst5p7kki0basvl.lambda-url.us-east-1.on.aws/'
+  'https://jnjldv2wrroq4d2yvxst5p7kki0basvl.lambda-url.us-east-1.on.aws/'
 export const PPT_DOWNLOAD_API =
   'https://11vzxy3g5g.execute-api.us-east-1.amazonaws.com/dev/gilead_download_ppt_chat'
 // export const AUTH_MICROSOFT_ENTRA_ID_ID =

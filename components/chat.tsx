@@ -49,7 +49,8 @@ export interface ChatMessage {
 export function Chat({ id, className, session, initialMessages }: ChatProps) {
   const router = useRouter()
   const path = usePathname()
-  const { reasoning } = useStore()
+  const { reasoning, chatMessages, setChatMessages, chatId, setChatId } =
+    useStore()
   const {
     messages,
     sendMessage,
@@ -64,7 +65,6 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
     responseTime
   } = useWebSocket(WEBSOCKET as string)
   const [input, setInput] = useState('')
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([])
   const [newchatboxId, setNewchatboxId] = useState<string>('')
   const [isLoading, setIsLoading] = useState(false)
   const [selectedStudies, setSelectedStudies] = useState<string[]>([])
@@ -284,8 +284,6 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
   }
 
   const handleSend = () => {
-    // if (!message) return
-    // setIsLoading(true)
     emptyMessages()
     const userMessage: ChatMessage = {
       sender: 'user',
@@ -315,6 +313,7 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
       userMessages = [...chatMessages, userMessage]
     }
     setChatMessages(userMessages)
+    setChatId(chat_id)
     sendMessage(payload)
     setInput('')
     console.log(payload, 'payloadddd')
