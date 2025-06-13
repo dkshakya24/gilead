@@ -37,6 +37,14 @@ export function ChatList({
   }
   console.log(messages, 'messages22223')
 
+  // Find the last bot message index
+  const lastBotMessageIndex = messages.reduce((lastIndex, message, index) => {
+    if (message.sender === 'receiver' || message.sender === 'bot') {
+      return index
+    }
+    return lastIndex
+  }, -1)
+
   return (
     <div className="relative mx-auto md:max-w-3xl lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl px-4 pb-[200px] md:pb-0">
       {!isShared && !session ? (
@@ -79,6 +87,7 @@ export function ChatList({
               setInput={setInput}
               createdTime={message.createdTime}
               responseTime={message.responseTime}
+              isLastMessage={index === lastBotMessageIndex}
             >
               {message.message}
             </BotMessage>
@@ -97,6 +106,7 @@ export function ChatList({
                     setInput={setInput}
                     responseTime={message.responseTime}
                     createdTime={message.createdTime}
+                    isLastMessage={index === lastBotMessageIndex}
                   >
                     {message.message}
                   </BotMessage>
