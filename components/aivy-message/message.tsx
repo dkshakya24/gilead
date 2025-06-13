@@ -63,7 +63,8 @@ export function BotMessage({
   citations,
   session,
   setInput,
-  responseTime
+  responseTime,
+  isLastMessage
 }: {
   children: string
   className?: string
@@ -75,6 +76,7 @@ export function BotMessage({
   createdTime?: any
   setInput?: (msg: string) => void
   responseTime?: string
+  isLastMessage?: boolean
 }) {
   const [sourceLoading, setSourceLoading] = useState(true)
   const [selectedImage, setSelectedImage] = useState(null)
@@ -585,7 +587,7 @@ export function BotMessage({
               />
             </>
           ) : null}
-          {!isStreaming && chatId ? (
+          {!isStreaming && chatId && isLastMessage ? (
             <div className="mt-4 hidden md:block">
               <Separator className="my-4" />
               <div className="flex items-center gap-2 mb-4">
