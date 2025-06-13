@@ -23,7 +23,7 @@ interface AppState {
 export const useStore = create<AppState>(set => ({
   isStreaming: false,
   setIsStreaming: isStreaming => set({ isStreaming }),
-  reasoning: 'High',
+  reasoning: 'Low',
   setReasoning: reasoning => set({ reasoning }),
   chatMessages: [],
   setChatMessages: messages => set({ chatMessages: messages }),

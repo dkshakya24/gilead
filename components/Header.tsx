@@ -94,7 +94,7 @@ export async function Header() {
       </div>
       <div className="flex items-center justify-end gap-4 flex-1 md:gap-6">
         <nav className="hidden md:flex items-center space-x-4">
-          <ReasoningFactor disabled={false} />
+          <ReasoningFactor />
           <UrlDropdown disabled />
           <KeywordsDropdown disabled />
           <ExportDropdown session={session} />

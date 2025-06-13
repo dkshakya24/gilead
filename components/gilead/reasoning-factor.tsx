@@ -14,16 +14,12 @@ export default function ReasoningFactor() {
 
   return (
     <div className="flex items-center space-x-2">
-      <Label
-        htmlFor="reasoning-factor"
-        className="cursor-pointer"
-        onClick={() => handleToggle(reasoning === 'Low')}
-      >
+      <Label htmlFor="reasoning-factor" className="cursor-pointer">
         Reasoning Factor
       </Label>
       <Switch
         id="reasoning-factor"
-        checked={reasoning === 'Low'}
+        checked={reasoning === 'High'}
         onCheckedChange={handleToggle}
       />
     </div>
