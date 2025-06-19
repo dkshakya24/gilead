@@ -279,7 +279,7 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
     action: 'sendmessage',
     sessionId: id ? id : newchatboxId,
     query: input,
-    userId: session?.user.email,
+    userId: session?.user?.email,
     reasoning: reasoning
   }
 

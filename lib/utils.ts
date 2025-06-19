@@ -26,6 +26,10 @@ export const PPT_DOWNLOAD_API =
 // export const AUTH_MICROSOFT_ENTRA_ID_ISSUER =
 //   process.env.NEXT_PUBLIC_AUTH_MICROSOFT_ENTRA_ID_ISSUER
 
+export const OKTA_CLIENT_ID = process.env.NEXT_PUBLIC_OKTA_CLIENT_ID
+export const OKTA_CLIENT_SECRET = process.env.NEXT_PUBLIC_OKTA_CLIENT_SECRET
+export const OKTA_ISSUER = process.env.NEXT_PUBLIC_OKTA_ISSUER
+
 export async function fetcher<JSON = any>(
   input: RequestInfo,
   init?: RequestInit

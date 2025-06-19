@@ -2,7 +2,13 @@ import NextAuth from 'next-auth'
 import Credentials from 'next-auth/providers/credentials'
 import { z } from 'zod'
 import { getUser } from './app/login/actions'
+import OktaProvider from 'next-auth/providers/okta'
+import { OKTA_CLIENT_ID, OKTA_CLIENT_SECRET, OKTA_ISSUER } from './lib/utils'
 
+console.log('OKTA ENV', {
+  clientId: process.env.NEXT_PUBLIC_OKTA_CLIENT_ID,
+  issuer: process.env.NEXT_PUBLIC_OKTA_ISSUER
+})
 // Define the table name and primary key
 export const { handlers, auth, signIn, signOut } = NextAuth({
   secret: process.env.AUTH_SECRET,
@@ -36,6 +42,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         return null
       }
+    }),
+    OktaProvider({
+      clientId: OKTA_CLIENT_ID,
+      clientSecret: OKTA_CLIENT_SECRET,
+      issuer: OKTA_ISSUER
     })
     // MicrosoftEntraID({
     //   clientId: AUTH_MICROSOFT_ENTRA_ID_ID,

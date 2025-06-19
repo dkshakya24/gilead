@@ -12,14 +12,15 @@ import Image from 'next/image'
 import { InputField } from './ui/input-field'
 import { Checkbox } from './ui/checkbox'
 import { Button } from './ui/new-button'
+import { signIn } from 'next-auth/react'
 
 export default function LoginForm() {
   const router = useRouter()
   const [state, formAction] = useFormState(authenticate, undefined)
 
-  // const handleLogin = async () => {
-  //   await signIn("microsoft-entra-id", { callbackUrl: "/" });
-  // };
+  const handleLogin = async () => {
+    await signIn('okta', { callbackUrl: '/' })
+  }
 
   useEffect(() => {
     if (state) {
@@ -89,6 +90,7 @@ export default function LoginForm() {
         <Button variant="outline">SSO Login</Button>
         <Button
           variant="outline"
+          onClick={handleLogin}
           leftIcon={
             <Image
               src="/microsoft_logo.svg"
@@ -98,7 +100,7 @@ export default function LoginForm() {
             />
           }
         >
-          Microsoft
+          Okta
         </Button>
       </div>
     </>
