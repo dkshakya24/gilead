@@ -133,31 +133,6 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
   const [info, setInfo] = useState<string>('')
   const [eveningInsight, setInsight] = useState(false)
 
-  const isUserAllowedForEveningInsights = (email: string | undefined) => {
-    if (!email) return false
-
-    const allowedEmails = [
-      'melina.heller-false-speiser@merckgroup.com',
-      'seval.sonmez@emdserono.com',
-      'myriam.hnatkow@merckgroup.com',
-      'irana.kolev@emdserono.com',
-      'suraj.moorthy@emdserono.com',
-      'chetak.buaria@merckgroup.com',
-      'kiran-narasimha.rao@external.merckgroup.com',
-      'prakash.sm@chryselys.com',
-      'jyotsna.mulgund@emdserono.com',
-      'deepak.kumar@chryselys.com',
-      'ramakrishna.kodam@chryselys.com',
-      'subhranjit.sahoo@chryselys.com',
-      'renuka.sai@chryselys.com',
-      'anirudha.n@chryselys.com',
-      'avinash.tiwari@chryselys.com',
-      'pavithra.p@chryselys.com'
-    ]
-
-    return allowedEmails.includes(email.toLowerCase())
-  }
-
   const handleannotationClicked = () => {
     setIsBtnClicked(true)
     handleAnnotations()

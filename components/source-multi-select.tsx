@@ -51,17 +51,6 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
       value: 'SCCHN',
       description: ''
     }
-    // {
-    //   label: 'TGCT',
-    //   value: 'TGCT',
-    //   description: ''
-    // },
-    // {
-    //   label: 'MERCK INTERNAL AGENDA',
-    //   value: 'Agenda',
-    //   description:
-    //     'Currently, we have 44 abstracts pertaining to Erbutix within CRC & SCHNN data, and 25 relating to Bavencio under Bladder cancer'
-    // }
   ])
   const [selectedOption, setSelectedOption] = useState<string>('')
   const [isOpen, setIsOpen] = useState(false)

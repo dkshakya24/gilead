@@ -12,15 +12,10 @@ import { Input } from '@/components/ui/input'
 interface ChatHistoryProps {
   userId?: string
 }
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger
-} from '@/components/ui/tooltip'
+
 import ChatHistoryHeader from './chathistory-header'
 
-export async function ChatHistory({ userId }: ChatHistoryProps) {
-  const session = await auth()
+export function ChatHistory({ userId }: ChatHistoryProps) {
   return (
     <div className="flex flex-col h-full">
       <ChatHistoryHeader userId={userId} />
