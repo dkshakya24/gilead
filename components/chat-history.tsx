@@ -20,7 +20,6 @@ import {
 import ChatHistoryHeader from './chathistory-header'
 
 export async function ChatHistory({ userId }: ChatHistoryProps) {
-  const session = await auth()
   return (
     <div className="flex flex-col h-full">
       <ChatHistoryHeader userId={userId} />
