@@ -1,4 +1,4 @@
-import logoicon from '@/public/LandingPageImage.png'
+import logoicon from '@/public/prompt-anime.gif'
 import Image from 'next/image'
 
 import { Session } from '@/lib/types'

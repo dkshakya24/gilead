@@ -25,6 +25,8 @@ import { Separator } from '../ui/separator'
 import { FaArrowRightLong, FaUserGroup } from 'react-icons/fa6'
 import { usePathname } from 'next/navigation'
 import { Calendar, GroupIcon, Pin, TicketsPlaneIcon, User } from 'lucide-react'
+import { useCopyToClipboard } from '@/lib/hooks/use-copy-to-clipboard'
+import { IconCopy, IconCheck, IconDownload } from '../ui/icons'
 
 interface UserMessageProps {
   children: string
@@ -98,6 +100,9 @@ export function BotMessage({
   const [selectedMessage, setSelectedMessage] = useState<string | null>(null)
   const pathname = usePathname()
   const currentChatId = pathname.split('/').pop()
+  const { isCopied, copyToClipboard } = useCopyToClipboard({ timeout: 2000 })
+  const [isDownloaded, setIsDownloaded] = useState(false)
+
   const handleMouseUpEvent = (event: MouseEvent) => {
     const selection = window.getSelection()
     if (!selection) {
@@ -300,6 +305,21 @@ export function BotMessage({
     console.log('Submitting feedback for:', selectedText, ranges)
   }
 
+  // Download handler for .txt file
+  const handleDownload = () => {
+    const blob = new Blob([children], { type: 'text/plain' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `gilead-response-${chatId || 'message'}.txt`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+    setIsDownloaded(true)
+    setTimeout(() => setIsDownloaded(false), 2000)
+  }
+
   return (
     <div
       className={cn(
@@ -307,6 +327,27 @@ export function BotMessage({
         className
       )}
     >
+      {/* Copy & Download Buttons Row */}
+      <div className="flex gap-2 items-center mb-1 ml-auto">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => copyToClipboard(children)}
+          className="hover:bg-gray-100"
+        >
+          {isCopied ? <IconCheck className="text-green-600" /> : <IconCopy />}
+          <span className="sr-only">Copy message</span>
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleDownload}
+          className="hover:bg-gray-100"
+        >
+          <IconDownload className={isDownloaded ? 'text-blue-600' : ''} />
+          <span className="sr-only">Download message</span>
+        </Button>
+      </div>
       {chatId && (
         <div className="flex gap-x-2 items-center w-full mb-2">
           {' '}
