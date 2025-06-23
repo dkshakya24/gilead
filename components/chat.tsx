@@ -312,7 +312,7 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
   } = useScrollAnchor()
 
   return (
-    <div className="group w-full overflow-auto pl-0 transition-all duration-300 ease-in-out peer-[[data-state=open]]:lg:pl-[300px] peer-[[data-state=open]]:xl:pl-[340px]">
+    <div className="group w-full overflow-auto pl-0 transition-all duration-300 ease-in-out peer-[[data-state=open]]:lg:pl-[300px] peer-[[data-state=open]]:xl:pl-[340px] bg-[#fefcfe]">
       <div className="flex flex-col h-[calc(100vh-4rem)] w-full justify-center">
         {chatMessages.length ? (
           <div className="flex-1 w-full h-full overflow-y-auto flex justify-center items-start">
