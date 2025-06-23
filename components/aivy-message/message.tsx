@@ -27,7 +27,11 @@ import { usePathname } from 'next/navigation'
 import { Calendar, GroupIcon, Pin, TicketsPlaneIcon, User } from 'lucide-react'
 import { useCopyToClipboard } from '@/lib/hooks/use-copy-to-clipboard'
 import { IconCopy, IconCheck, IconDownload } from '../ui/icons'
-
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger
+} from '@/components/ui/tooltip'
 interface UserMessageProps {
   children: string
   createdTime?: string
@@ -327,34 +331,52 @@ export function BotMessage({
         className
       )}
     >
-      {/* Copy & Download Buttons Row */}
-      <div className="flex gap-2 items-center mb-1 ml-auto">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => copyToClipboard(children)}
-          className="hover:bg-gray-100"
-        >
-          {isCopied ? <IconCheck className="text-green-600" /> : <IconCopy />}
-          <span className="sr-only">Copy message</span>
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={handleDownload}
-          className="hover:bg-gray-100"
-        >
-          <IconDownload className={isDownloaded ? 'text-blue-600' : ''} />
-          <span className="sr-only">Download message</span>
-        </Button>
-      </div>
       {chatId && (
-        <div className="flex gap-x-2 items-center w-full mb-2">
-          {' '}
-          <Image src={logoicon1} alt="Gilead Logo" sizes="icon" />
-          <span className="text-xs text-gray-500">{createdTime}</span>
-          <div className="text-xs text-gray-500 ml-2">
-            Response Time: {responseTime ? `${responseTime}` : 'Calculating...'}
+        <div className="w-full flex gap-3">
+          <div className="flex gap-x-2 items-center mb-2">
+            {' '}
+            <Image src={logoicon1} alt="Gilead Logo" sizes="icon" />
+            <span className="text-xs text-gray-500">{createdTime}</span>
+            <div className="text-xs text-gray-500 ml-2">
+              Response Time:{' '}
+              {responseTime ? `${responseTime}` : 'Calculating...'}
+            </div>
+          </div>
+          <div className="flex gap-2 items-center mb-1">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => copyToClipboard(children)}
+                  className="hover:bg-gray-100"
+                >
+                  {isCopied ? (
+                    <IconCheck className="text-green-600" />
+                  ) : (
+                    <IconCopy />
+                  )}
+                  <span className="sr-only">Copy message</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Copy Response</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleDownload}
+                  className="hover:bg-gray-100"
+                >
+                  <IconDownload
+                    className={isDownloaded ? 'text-blue-600' : ''}
+                  />
+                  <span className="sr-only">Download message</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Download Message</TooltipContent>
+            </Tooltip>
           </div>
         </div>
       )}
