@@ -54,6 +54,10 @@ export function SidebarItem({
   if (!chat?.Session_id) return null
 
   const handleChatClick = (chatId: string) => {
+    if (pathname === `/arc/chat/${chatId}`) {
+      // Already on this chat, do nothing
+      return
+    }
     setChatMessages([]) // Clear existing messages before switching chats
     router.push(`/arc/chat/${chatId}`) // Dynamic route with chat ID
     setIsStreaming(false)
