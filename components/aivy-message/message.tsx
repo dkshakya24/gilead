@@ -24,9 +24,23 @@ import { spinner } from './spinner'
 import { Separator } from '../ui/separator'
 import { FaArrowRightLong, FaUserGroup } from 'react-icons/fa6'
 import { usePathname } from 'next/navigation'
-import { Calendar, GroupIcon, Pin, TicketsPlaneIcon, User } from 'lucide-react'
+import {
+  Calendar,
+  GroupIcon,
+  Pin,
+  TicketsPlaneIcon,
+  User,
+  Volume1Icon,
+  VolumeOffIcon
+} from 'lucide-react'
 import { useCopyToClipboard } from '@/lib/hooks/use-copy-to-clipboard'
-import { IconCopy, IconCheck, IconDownload } from '../ui/icons'
+import {
+  IconCopy,
+  IconCheck,
+  IconDownload,
+  IconSpeaker,
+  IconSpeakerStop
+} from '../ui/icons'
 import {
   Tooltip,
   TooltipContent,
@@ -106,6 +120,7 @@ export function BotMessage({
   const currentChatId = pathname.split('/').pop()
   const { isCopied, copyToClipboard } = useCopyToClipboard({ timeout: 2000 })
   const [isDownloaded, setIsDownloaded] = useState(false)
+  const [isSpeaking, setIsSpeaking] = useState(false)
 
   const handleMouseUpEvent = (event: MouseEvent) => {
     const selection = window.getSelection()
@@ -324,6 +339,40 @@ export function BotMessage({
     setTimeout(() => setIsDownloaded(false), 2000)
   }
 
+  // Text-to-Speech handler
+  const handleSpeak = () => {
+    if (messageRef.current) {
+      if (isSpeaking) {
+        window.speechSynthesis.cancel()
+        setIsSpeaking(false)
+      } else {
+        const utterance = new window.SpeechSynthesisUtterance(
+          messageRef.current.innerText
+        )
+        utterance.lang = 'en-US'
+
+        // Add all speech event handlers
+        utterance.onstart = () => setIsSpeaking(true)
+        utterance.onend = () => setIsSpeaking(false)
+        utterance.onerror = () => setIsSpeaking(false)
+        utterance.onpause = () => setIsSpeaking(false)
+        utterance.onresume = () => setIsSpeaking(true)
+
+        // Cancel any existing speech first
+        window.speechSynthesis.cancel()
+        window.speechSynthesis.speak(utterance)
+      }
+    }
+  }
+
+  // Cancel speech and reset state when component unmounts
+  useEffect(() => {
+    return () => {
+      window.speechSynthesis.cancel()
+      setIsSpeaking(false)
+    }
+  }, [])
+
   return (
     <div
       className={cn(
@@ -342,41 +391,48 @@ export function BotMessage({
               {responseTime ? `${responseTime}` : 'Calculating...'}
             </div>
           </div>
-          <div className="flex gap-2 items-center mb-1">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => copyToClipboard(children)}
-                  className="hover:bg-gray-100"
-                >
-                  {isCopied ? (
-                    <IconCheck className="text-green-600" />
-                  ) : (
-                    <IconCopy />
-                  )}
-                  <span className="sr-only">Copy message</span>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Copy Response</TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleDownload}
-                  className="hover:bg-gray-100"
-                >
-                  <IconDownload
-                    className={isDownloaded ? 'text-blue-600' : ''}
-                  />
-                  <span className="sr-only">Download message</span>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Download Message</TooltipContent>
-            </Tooltip>
+          <div className="flex gap-2 items-center mb-1 ml-auto">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => {
+                if (messageRef.current) {
+                  copyToClipboard(messageRef.current.innerText)
+                }
+              }}
+              className="hover:bg-gray-100"
+            >
+              {isCopied ? (
+                <IconCheck className="text-green-600" />
+              ) : (
+                <IconCopy />
+              )}
+              <span className="sr-only">Copy message</span>
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleDownload}
+              className="hover:bg-gray-100"
+            >
+              <IconDownload className={isDownloaded ? 'text-blue-600' : ''} />
+              <span className="sr-only">Download message</span>
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleSpeak}
+              className="hover:bg-gray-100"
+            >
+              {isSpeaking ? (
+                <VolumeOffIcon className="text-blue-600" />
+              ) : (
+                <Volume1Icon />
+              )}
+              <span className="sr-only">
+                {isSpeaking ? 'Stop speaking' : 'Speak message'}
+              </span>
+            </Button>
           </div>
         </div>
       )}
