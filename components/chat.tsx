@@ -181,7 +181,7 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
       if (initialMessages?.length > 0 && initialMessages[0].Data) {
         setDataKey(initialMessages[0].Data)
       }
-      setChatMessages([...chatMessages, ...chathistory])
+      setChatMessages(chathistory)
       console.log(chathistory, 'chathistory')
     } else if (
       initialMessages?.error ===
@@ -195,7 +195,7 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
     } else if (initialMessages === undefined) {
       console.log('kasdhasdrouter1')
     }
-  }, [path])
+  }, [path, initialMessages])
   useEffect(() => {
     if (path === '/arc' && !newchatboxId) {
       let isMounted = true
