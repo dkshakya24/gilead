@@ -20,6 +20,7 @@ import { cn } from '@/lib/utils'
 import { useRouter } from 'next/navigation'
 import { format } from 'date-fns'
 import { useWebSocketStore } from '@/lib/store/websocket-store'
+import { useStore } from '@/lib/store/useStore'
 
 interface SidebarItemProps {
   index: number
@@ -37,6 +38,7 @@ export function SidebarItem({
   const router = useRouter()
   const pathname = usePathname()
   const { setIsStreaming } = useWebSocketStore()
+  const { setChatMessages } = useStore()
   const isActive = pathname === `/arc/chat/${chat.Session_id}`
   // const [newChatId, setNewChatId] = useLocalStorage('newChatId', null)
   const shouldAnimate = index === 0 && isActive
@@ -52,6 +54,7 @@ export function SidebarItem({
   if (!chat?.Session_id) return null
 
   const handleChatClick = (chatId: string) => {
+    setChatMessages([]) // Clear existing messages before switching chats
     router.push(`/arc/chat/${chatId}`) // Dynamic route with chat ID
     setIsStreaming(false)
   }
