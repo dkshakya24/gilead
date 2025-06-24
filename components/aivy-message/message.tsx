@@ -391,49 +391,6 @@ export function BotMessage({
               {responseTime ? `${responseTime}` : 'Calculating...'}
             </div>
           </div>
-          <div className="flex gap-2 items-center mb-1 ml-auto">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => {
-                if (messageRef.current) {
-                  copyToClipboard(messageRef.current.innerText)
-                }
-              }}
-              className="hover:bg-gray-100"
-            >
-              {isCopied ? (
-                <IconCheck className="text-green-600" />
-              ) : (
-                <IconCopy />
-              )}
-              <span className="sr-only">Copy message</span>
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleDownload}
-              className="hover:bg-gray-100"
-            >
-              <IconDownload className={isDownloaded ? 'text-blue-600' : ''} />
-              <span className="sr-only">Download message</span>
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleSpeak}
-              className="hover:bg-gray-100"
-            >
-              {isSpeaking ? (
-                <VolumeOffIcon className="text-blue-600" />
-              ) : (
-                <Volume1Icon />
-              )}
-              <span className="sr-only">
-                {isSpeaking ? 'Stop speaking' : 'Speak message'}
-              </span>
-            </Button>
-          </div>
         </div>
       )}
 
@@ -768,6 +725,70 @@ export function BotMessage({
           ) : null}
         </div>
       </div>
+      {chatId && (
+        <div className="w-full flex gap-3">
+          <div className="flex gap-2 items-center my-2">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => {
+                    if (messageRef.current) {
+                      copyToClipboard(messageRef.current.innerText)
+                    }
+                  }}
+                  className="hover:bg-gray-100"
+                >
+                  {isCopied ? (
+                    <IconCheck className="text-green-600" />
+                  ) : (
+                    <IconCopy />
+                  )}
+                  <span className="sr-only">Copy message</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">Copy text</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleDownload}
+                  className="hover:bg-gray-100"
+                >
+                  <IconDownload
+                    className={isDownloaded ? 'text-blue-600' : ''}
+                  />
+                  <span className="sr-only">Download message</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">Download message</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleSpeak}
+                  className="hover:bg-gray-100"
+                >
+                  {isSpeaking ? (
+                    <VolumeOffIcon className="text-primary h-4 w-4" />
+                  ) : (
+                    <Volume1Icon className="text-gray-600 h-4 w-4" />
+                  )}
+                  <span className="sr-only">
+                    {isSpeaking ? 'Stop speaking' : 'Speak message'}
+                  </span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">Read aloud</TooltipContent>
+            </Tooltip>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
