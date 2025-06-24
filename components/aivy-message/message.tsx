@@ -326,17 +326,20 @@ export function BotMessage({
 
   // Download handler for .txt file
   const handleDownload = () => {
-    const blob = new Blob([children], { type: 'text/plain' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `gilead-response-${chatId || 'message'}.txt`
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
-    setIsDownloaded(true)
-    setTimeout(() => setIsDownloaded(false), 2000)
+    if (messageRef.current) {
+      const formattedText = messageRef.current.innerText
+      const blob = new Blob([formattedText], { type: 'text/plain' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `gilead-response-${chatId || 'message'}.txt`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+      setIsDownloaded(true)
+      setTimeout(() => setIsDownloaded(false), 2000)
+    }
   }
 
   // Text-to-Speech handler
