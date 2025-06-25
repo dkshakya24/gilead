@@ -11,7 +11,11 @@ import {
 } from '@/components/aivy-message/message'
 
 export interface ChatList {
-  messages: UIState
+  messages: (UIState[number] & {
+    onRetry?: (reason: string) => void
+    isRetried?: boolean
+    retryReason?: string
+  })[]
   session?: Session
   isShared: boolean
   isLoading: boolean
@@ -19,6 +23,11 @@ export interface ChatList {
   animation?: boolean
   ragStreaming?: boolean
   setInput?: (msg: string) => void
+  handleRetry?: (
+    msgIndex: number,
+    userMessage: string,
+    chatId: string
+  ) => (reason: string) => void
   // streamingMessages: { message: string }[]
 }
 
@@ -30,7 +39,8 @@ export function ChatList({
   isStreaming,
   setInput,
   animation,
-  ragStreaming
+  ragStreaming,
+  handleRetry
 }: ChatList) {
   if (!messages.length && !isLoading) {
     return null
@@ -71,52 +81,76 @@ export function ChatList({
         </>
       ) : null}
 
-      {messages.map((message, index) => (
-        <div key={index}>
-          {message.sender === 'user' ? (
-            <UserMessage createdTime={message.createdTime}>
-              {message.message}
-            </UserMessage>
-          ) : message.sender === 'receiver' ? (
-            <BotMessage
-              chatId={message.chatId}
-              isStreaming={isStreaming}
-              sourceData={message.sourceData}
-              citations={message.citations}
-              session={session}
-              setInput={setInput}
-              createdTime={message.createdTime}
-              responseTime={message.responseTime}
-              isLastMessage={index === lastBotMessageIndex}
-            >
-              {message.message}
-            </BotMessage>
-          ) : (
-            message.sender === 'bot' && (
-              <>
-                {message.message.length === 0 && animation ? (
-                  <SpinnerMessage />
-                ) : (
-                  <BotMessage
-                    chatId={message.chatId}
-                    isStreaming={isStreaming}
-                    sourceData={message.sourceData}
-                    citations={message.citations}
-                    session={session}
-                    setInput={setInput}
-                    responseTime={message.responseTime}
-                    createdTime={message.createdTime}
-                    isLastMessage={index === lastBotMessageIndex}
-                  >
-                    {message.message}
-                  </BotMessage>
-                )}
-              </>
-            )
-          )}
-          {index < messages.length - 1 && <br className="my-4" />}
-        </div>
-      ))}
+      {messages.map((message, index) => {
+        let onRetryHandler = message.onRetry
+        if (
+          handleRetry &&
+          (message.sender === 'receiver' || message.sender === 'bot') &&
+          message.chatId
+        ) {
+          // Find the previous user message for this bot/receiver message
+          let userMessage = ''
+          for (let i = index - 1; i >= 0; i--) {
+            if (messages[i].sender === 'user') {
+              userMessage = messages[i].message
+              break
+            }
+          }
+          onRetryHandler = handleRetry(index, userMessage, message.chatId)
+        }
+        return (
+          <div key={index}>
+            {message.sender === 'user' ? (
+              <UserMessage createdTime={message.createdTime}>
+                {message.message}
+              </UserMessage>
+            ) : message.sender === 'receiver' ? (
+              <BotMessage
+                chatId={message.chatId}
+                isStreaming={isStreaming}
+                sourceData={message.sourceData}
+                citations={message.citations}
+                session={session}
+                setInput={setInput}
+                createdTime={message.createdTime}
+                responseTime={message.responseTime}
+                isLastMessage={index === lastBotMessageIndex}
+                onRetry={onRetryHandler}
+                isRetried={message.isRetried}
+                retryReason={message.retryReason}
+              >
+                {message.message}
+              </BotMessage>
+            ) : (
+              message.sender === 'bot' && (
+                <>
+                  {message.message.length === 0 && animation ? (
+                    <SpinnerMessage />
+                  ) : (
+                    <BotMessage
+                      chatId={message.chatId}
+                      isStreaming={isStreaming}
+                      sourceData={message.sourceData}
+                      citations={message.citations}
+                      session={session}
+                      setInput={setInput}
+                      responseTime={message.responseTime}
+                      createdTime={message.createdTime}
+                      isLastMessage={index === lastBotMessageIndex}
+                      onRetry={onRetryHandler}
+                      isRetried={message.isRetried}
+                      retryReason={message.retryReason}
+                    >
+                      {message.message}
+                    </BotMessage>
+                  )}
+                </>
+              )
+            )}
+            {index < messages.length - 1 && <br className="my-4" />}
+          </div>
+        )
+      })}
       {!ragStreaming && !animation ? <MessageLoader2 /> : null}
       {!isStreaming && isLoading && (
         <>

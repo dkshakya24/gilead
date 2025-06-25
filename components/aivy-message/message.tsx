@@ -40,13 +40,16 @@ import {
   IconDownload,
   IconSpeaker,
   IconSpeakerStop,
-  IconMail
+  IconMail,
+  IconRefresh
 } from '../ui/icons'
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger
 } from '@/components/ui/tooltip'
+import CustomModal from '../ui/CustomModal'
+
 interface UserMessageProps {
   children: string
   createdTime?: string
@@ -85,7 +88,10 @@ export function BotMessage({
   session,
   setInput,
   responseTime,
-  isLastMessage
+  isLastMessage,
+  isRetried = false,
+  onRetry,
+  retryReason
 }: {
   children: string
   className?: string
@@ -98,6 +104,9 @@ export function BotMessage({
   setInput?: (msg: string) => void
   responseTime?: string
   isLastMessage?: boolean
+  isRetried?: boolean
+  onRetry?: (reason: string) => void
+  retryReason?: string
 }) {
   const [sourceLoading, setSourceLoading] = useState(true)
   const [selectedImage, setSelectedImage] = useState(null)
@@ -122,6 +131,8 @@ export function BotMessage({
   const { isCopied, copyToClipboard } = useCopyToClipboard({ timeout: 2000 })
   const [isDownloaded, setIsDownloaded] = useState(false)
   const [isSpeaking, setIsSpeaking] = useState(false)
+  const [isRetryModalOpen, setIsRetryModalOpen] = useState(false)
+  const [retryReasonInput, setRetryReasonInput] = useState('')
 
   const handleMouseUpEvent = (event: MouseEvent) => {
     const selection = window.getSelection()
@@ -404,6 +415,12 @@ export function BotMessage({
           chatId && 'border border-gray-200'
         )}
       >
+        {/* Retried Tag */}
+        {isRetried && (
+          <span className="inline-block bg-yellow-200 text-yellow-800 text-xs font-semibold px-2 py-1 rounded mb-2">
+            Retried
+          </span>
+        )}
         <div
           ref={messageRef}
           className="relative ml-0 md:ml-4 flex-1 space-y-2 overflow-hidden px-0 md:px-1 group/item transition-all duration-300 ease-in-out w-full"
@@ -775,6 +792,20 @@ export function BotMessage({
                 <Button
                   variant="ghost"
                   size="icon"
+                  onClick={() => setIsRetryModalOpen(true)}
+                  className="hover:bg-gray-100"
+                >
+                  <IconRefresh />
+                  <span className="sr-only">Retry message</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">Retry message</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
                   onClick={() => {
                     // Send the rendered HTML (not markdown or plain text) in the email draft
                     if (messageRef.current) {
@@ -817,6 +848,41 @@ export function BotMessage({
           </div>
         </div>
       )}
+      {/* Retry Modal */}
+      <CustomModal
+        isModalOpen={isRetryModalOpen}
+        closeModal={() => setIsRetryModalOpen(false)}
+      >
+        <div className="p-4 w-full max-w-md">
+          <h2 className="text-lg font-semibold mb-2">Retry Response</h2>
+          <label className="block mb-2 text-sm">Reason for retrying:</label>
+          <textarea
+            className="w-full border rounded p-2 mb-4"
+            rows={3}
+            value={retryReasonInput}
+            onChange={e => setRetryReasonInput(e.target.value)}
+            placeholder="Please provide a reason for retrying this response."
+          />
+          <div className="flex justify-end gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setIsRetryModalOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                if (onRetry) onRetry(retryReasonInput)
+                setIsRetryModalOpen(false)
+                setRetryReasonInput('')
+              }}
+              disabled={!retryReasonInput.trim()}
+            >
+              Submit
+            </Button>
+          </div>
+        </div>
+      </CustomModal>
     </div>
   )
 }

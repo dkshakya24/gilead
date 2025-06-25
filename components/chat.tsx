@@ -44,6 +44,9 @@ export interface ChatMessage {
   responseTime?: any
   citations?: any
   createdTime?: string
+  isRetried?: boolean
+  retryReason?: string
+  onRetry?: (reason: string) => void
 }
 
 export function Chat({ id, className, session, initialMessages }: ChatProps) {
@@ -74,6 +77,8 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
   const [autoScrollInterval, setAutoScrollInterval] =
     useState<NodeJS.Timeout | null>(null)
   const [dataKey, setDataKey] = useState<string[]>([])
+  const [retryingChatId, setRetryingChatId] = useState<string | null>(null)
+  const [retryReason, setRetryReason] = useState<string>('')
 
   const carouselRef = useRef<HTMLDivElement>(null)
   console.log(initialMessages, 'initialMessages')
@@ -311,6 +316,92 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
     scrollToTop
   } = useScrollAnchor()
 
+  const handleRetry =
+    (_msgIndex: number, userMessage: string, chatId: string) =>
+    (reason: string) => {
+      setRetryingChatId(chatId)
+      setRetryReason(reason)
+      // Remove the existing response with the same chatId
+      const filteredMessages = chatMessages.filter(
+        msg =>
+          !(msg.sender === 'receiver' || msg.sender === 'bot') ||
+          msg.chatId !== chatId
+      )
+      // Add a streaming bot message placeholder at the same position
+      const idx = chatMessages.findIndex(
+        msg =>
+          (msg.sender === 'receiver' || msg.sender === 'bot') &&
+          msg.chatId === chatId
+      )
+      const streamingBotMessage: ChatMessage = {
+        sender: 'receiver',
+        message: '',
+        chatId: chatId,
+        isRetried: true,
+        retryReason: reason,
+        responseTime: '',
+        createdTime: ''
+      }
+      let newMessages
+      if (idx !== -1) {
+        newMessages = [
+          ...filteredMessages.slice(0, idx),
+          streamingBotMessage,
+          ...filteredMessages.slice(idx)
+        ]
+      } else {
+        newMessages = [...filteredMessages, streamingBotMessage]
+      }
+      setChatMessages(newMessages)
+      const payload = {
+        action: 'sendmessage',
+        sessionId: id ? id : newchatboxId,
+        query: userMessage,
+        userId: session?.user.email,
+        reasoning: reasoning,
+        retryReason: reason,
+        retryChatId: chatId
+      }
+      emptyMessages()
+      sendMessage(payload)
+      console.log(payload, 'retry clickedone')
+    }
+
+  useEffect(() => {
+    if (messages.length > 0 && !isStreaming && chat_id) {
+      const idx = chatMessages.findIndex(
+        msg =>
+          (msg.sender === 'receiver' || msg.sender === 'bot') &&
+          msg.chatId === chat_id
+      )
+      const newBotMessage: ChatMessage = {
+        sender: 'bot',
+        message: messages.map((item: any) => item.message).join(''),
+        chatId: chat_id,
+        isRetried: retryingChatId === chat_id,
+        retryReason: retryReason,
+        responseTime: responseTime,
+        createdTime: new Date().toLocaleString('en-US', {
+          day: '2-digit',
+          month: 'short',
+          hour: 'numeric',
+          minute: '2-digit',
+          hour12: true
+        })
+      }
+      let updated
+      if (idx !== -1) {
+        updated = [...chatMessages]
+        updated[idx] = { ...updated[idx], ...newBotMessage }
+      } else {
+        updated = [...chatMessages, newBotMessage]
+      }
+      setChatMessages(updated)
+      setRetryingChatId(null)
+      setRetryReason('')
+    }
+  }, [messages, isStreaming, chat_id])
+
   return (
     <div className="group w-full overflow-auto pl-0 transition-all duration-300 ease-in-out peer-[[data-state=open]]:lg:pl-[300px] peer-[[data-state=open]]:xl:pl-[340px] bg-[#fefcfe]">
       <div className="flex flex-col h-[calc(100vh-4rem)] w-full justify-center">
@@ -365,6 +456,7 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
                   animation={animation}
                   setInput={setInput}
                   ragStreaming={ragStreaming}
+                  handleRetry={handleRetry}
                 />
               </div>
             </div>
