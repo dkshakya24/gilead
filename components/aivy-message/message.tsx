@@ -39,7 +39,8 @@ import {
   IconCheck,
   IconDownload,
   IconSpeaker,
-  IconSpeakerStop
+  IconSpeakerStop,
+  IconMail
 } from '../ui/icons'
 import {
   Tooltip,
@@ -768,6 +769,30 @@ export function BotMessage({
                 </Button>
               </TooltipTrigger>
               <TooltipContent side="bottom">Download message</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => {
+                    // Send the rendered HTML (not markdown or plain text) in the email draft
+                    if (messageRef.current) {
+                      const subject = encodeURIComponent('Gilead Response')
+                      const body = encodeURIComponent(
+                        messageRef.current.innerHTML
+                      )
+                      // Use 'body' and set content-type to html (most clients will render it)
+                      window.open(`mailto:?subject=${subject}&body=${body}`)
+                    }
+                  }}
+                  className="hover:bg-gray-100"
+                >
+                  <IconMail />
+                  <span className="sr-only">Email message</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">Email message</TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
