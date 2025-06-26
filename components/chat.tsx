@@ -248,22 +248,9 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
         hour12: true
       })
     }
-    let userMessages: any = []
-    if (messages.length > 0) {
-      userMessages = [
-        ...chatMessages,
-        {
-          sender: 'bot',
-          message: messages.map(item => item.message).join(''),
-          chatId: chat_id,
-          sourceData: sourceData,
-          citations: citationsData
-        },
-        userMessage
-      ]
-    } else {
-      userMessages = [...chatMessages, userMessage]
-    }
+
+    // Only add the user message, let the useEffect handle bot responses
+    const userMessages = [...chatMessages, userMessage]
     setChatMessages(userMessages)
     setChatId(chat_id)
     sendMessage(payload)
