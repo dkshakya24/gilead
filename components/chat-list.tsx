@@ -9,6 +9,7 @@ import {
   BotMessage,
   MessageLoader2
 } from '@/components/aivy-message/message'
+import { useEffect, useRef } from 'react'
 
 export interface ChatList {
   messages: (UIState[number] & {
@@ -42,6 +43,21 @@ export function ChatList({
   ragStreaming,
   handleRetry
 }: ChatList) {
+  const chatListRef = useRef<HTMLDivElement>(null)
+
+  // Auto-scroll to bottom when a retry occurs
+  useEffect(() => {
+    const hasRetriedMessage = messages.some(message => message.isRetried)
+    if (hasRetriedMessage && chatListRef.current) {
+      setTimeout(() => {
+        chatListRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'end'
+        })
+      }, 100) // Small delay to ensure DOM is updated
+    }
+  }, [messages])
+
   if (!messages.length && !isLoading) {
     return null
   }
@@ -162,6 +178,9 @@ export function ChatList({
           <SpinnerMessage />
         </>
       )}
+
+      {/* Scroll target for auto-scroll functionality */}
+      <div ref={chatListRef} className="h-0" />
     </div>
   )
 }

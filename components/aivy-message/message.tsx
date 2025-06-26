@@ -809,12 +809,15 @@ export function BotMessage({
                   size="icon"
                   onClick={() => setIsRetryModalOpen(true)}
                   className="hover:bg-gray-100"
+                  disabled={isStreaming}
                 >
-                  <IconRefresh />
+                  <IconRefresh className={isStreaming ? 'text-gray-400' : ''} />
                   <span className="sr-only">Retry message</span>
                 </Button>
               </TooltipTrigger>
-              <TooltipContent side="bottom">Retry message</TooltipContent>
+              <TooltipContent side="bottom">
+                {isStreaming ? 'Cannot retry while streaming' : 'Retry message'}
+              </TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>

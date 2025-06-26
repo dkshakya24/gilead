@@ -333,22 +333,10 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
         return true
       })
 
-      // Create a streaming placeholder message
-      const streamingBotMessage: ChatMessage = {
-        sender: 'receiver',
-        message: '',
-        chatId: chatId,
-        isRetried: true,
-        retryReason: reason,
-        responseTime: '',
-        createdTime: ''
-      }
-
-      // Add both the user message and streaming placeholder at the end
+      // Add only the user message back (no placeholder for retry)
       const newMessages = [
         ...filteredMessages,
-        ...(correspondingUserMessage ? [correspondingUserMessage] : []),
-        streamingBotMessage
+        ...(correspondingUserMessage ? [correspondingUserMessage] : [])
       ]
 
       setChatMessages(newMessages)
@@ -359,8 +347,8 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
         query: userMessage,
         userId: session?.user.email,
         reasoning: reasoning,
-        retryReason: reason,
-        retryChatId: chatId
+        reetry_reason: reason,
+        messageId: chatId
       }
       emptyMessages()
       sendMessage(payload)
@@ -390,8 +378,6 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
         sender: 'bot',
         message: messages.map((item: any) => item.message).join(''),
         chatId: chat_id,
-        isRetried: retryingChatId === chat_id,
-        retryReason: retryReason,
         responseTime: responseTime,
         createdTime: new Date().toLocaleString('en-US', {
           day: '2-digit',
