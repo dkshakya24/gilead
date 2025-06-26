@@ -49,6 +49,7 @@ import {
   TooltipTrigger
 } from '@/components/ui/tooltip'
 import CustomModal from '../ui/CustomModal'
+import { useWebSocketStore } from '@/lib/store/websocket-store'
 
 interface UserMessageProps {
   children: string
@@ -147,7 +148,7 @@ export function BotMessage({
   const [isSpeaking, setIsSpeaking] = useState(false)
   const [isRetryModalOpen, setIsRetryModalOpen] = useState(false)
   const [retryReasonInput, setRetryReasonInput] = useState('')
-
+  const { isSuggestions } = useWebSocketStore()
   const handleMouseUpEvent = (event: MouseEvent) => {
     const selection = window.getSelection()
     if (!selection) {
@@ -239,7 +240,7 @@ export function BotMessage({
     }
   }, [])
   useEffect(() => {
-    if (!isStreaming && chatId && currentChatId) {
+    if (!isStreaming && chatId && currentChatId && isSuggestions) {
       setTimeout(() => {
         getPromptMessages(currentChatId)
       }, 2000)
@@ -698,7 +699,7 @@ export function BotMessage({
               />
             </>
           ) : null}
-          {!isStreaming && chatId && isLastMessage ? (
+          {!isStreaming && chatId && isLastMessage && isSuggestions ? (
             <div className="mt-4 hidden md:block">
               <Separator className="my-4" />
               <div className="flex items-center gap-2 mb-4">

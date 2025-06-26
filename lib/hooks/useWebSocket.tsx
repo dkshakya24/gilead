@@ -13,6 +13,7 @@ interface WebSocketHook {
   citationsData: any
   responseTime: any
   ragStreaming?: boolean
+  isSuggestions: boolean
 }
 
 const useWebSocket = (url: string): WebSocketHook => {
@@ -24,7 +25,8 @@ const useWebSocket = (url: string): WebSocketHook => {
   const [citationsData, setCitationsData] = useState<any>([])
   const [animation, setAnimation] = useState(false)
   const [responseTime, setResponseTime] = useState<string>()
-  const { setIsStreaming, setRagStreaming } = useWebSocketStore()
+  const { setIsStreaming, setRagStreaming, setIsSuggestions } =
+    useWebSocketStore()
 
   const emptyMessages = () => {
     setMessages([])
@@ -79,6 +81,7 @@ const useWebSocket = (url: string): WebSocketHook => {
       setSourceData(data.sources)
       setCitationsData(data.specific_citations)
       setResponseTime(data.responseTime)
+      setIsSuggestions(data.suggestions ?? true)
       console.log(data, 'datadata')
     }
   }
@@ -102,7 +105,8 @@ const useWebSocket = (url: string): WebSocketHook => {
     responseTime,
     animation,
     ragStreaming: useWebSocketStore(state => state.ragStreaming),
-    isStreaming: useWebSocketStore(state => state.isStreaming)
+    isStreaming: useWebSocketStore(state => state.isStreaming),
+    isSuggestions: useWebSocketStore(state => state.isSuggestions)
   }
 }
 
