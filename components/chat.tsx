@@ -135,9 +135,6 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
       console.error('Error submitting feedback:', error)
     }
   }
-  const [info, setInfo] = useState<string>('')
-  const [eveningInsight, setInsight] = useState(false)
-
   const handleannotationClicked = () => {
     setIsBtnClicked(true)
     handleAnnotations()
@@ -201,6 +198,7 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
       console.log('kasdhasdrouter1')
     }
   }, [path, initialMessages])
+
   useEffect(() => {
     if (path === '/arc' && !newchatboxId) {
       let isMounted = true
@@ -228,32 +226,6 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
       }
     }
   }, [path, newchatboxId])
-
-  const updateSelectedStudies = () => {
-    // localStorage.setItem('studies', JSON.stringify(['UC']))
-    const study = localStorage.getItem('studies')
-    if (study) {
-      const parsedData = JSON.parse(study)
-      console.log(Array.isArray(parsedData), 'parsedData')
-
-      if (Array.isArray(parsedData)) {
-        setSelectedStudies(parsedData)
-      }
-    } else {
-      // Default to "UC"
-      setSelectedStudies([''])
-      localStorage.setItem('studies', JSON.stringify(['']))
-    }
-  }
-
-  useEffect(() => {
-    updateSelectedStudies()
-    window.addEventListener('storageUpdate', updateSelectedStudies)
-
-    return () => {
-      window.removeEventListener('storageUpdate', updateSelectedStudies)
-    }
-  }, [path, chatMessages, isStreaming, animation, input])
 
   const payload = {
     action: 'sendmessage',
