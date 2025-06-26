@@ -44,6 +44,9 @@ export interface ChatMessage {
   responseTime?: any
   citations?: any
   createdTime?: string
+  isRetried?: boolean
+  retryReason?: string
+  onRetry?: (reason: string) => void
 }
 
 export function Chat({ id, className, session, initialMessages }: ChatProps) {
@@ -74,6 +77,8 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
   const [autoScrollInterval, setAutoScrollInterval] =
     useState<NodeJS.Timeout | null>(null)
   const [dataKey, setDataKey] = useState<string[]>([])
+  const [retryingChatId, setRetryingChatId] = useState<string | null>(null)
+  const [retryReason, setRetryReason] = useState<string>('')
 
   const carouselRef = useRef<HTMLDivElement>(null)
   console.log(initialMessages, 'initialMessages')
@@ -130,9 +135,6 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
       console.error('Error submitting feedback:', error)
     }
   }
-  const [info, setInfo] = useState<string>('')
-  const [eveningInsight, setInsight] = useState(false)
-
   const handleannotationClicked = () => {
     setIsBtnClicked(true)
     handleAnnotations()
@@ -196,6 +198,7 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
       console.log('kasdhasdrouter1')
     }
   }, [path, initialMessages])
+
   useEffect(() => {
     if (path === '/arc' && !newchatboxId) {
       let isMounted = true
@@ -223,32 +226,6 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
       }
     }
   }, [path, newchatboxId])
-
-  const updateSelectedStudies = () => {
-    // localStorage.setItem('studies', JSON.stringify(['UC']))
-    const study = localStorage.getItem('studies')
-    if (study) {
-      const parsedData = JSON.parse(study)
-      console.log(Array.isArray(parsedData), 'parsedData')
-
-      if (Array.isArray(parsedData)) {
-        setSelectedStudies(parsedData)
-      }
-    } else {
-      // Default to "UC"
-      setSelectedStudies([''])
-      localStorage.setItem('studies', JSON.stringify(['']))
-    }
-  }
-
-  useEffect(() => {
-    updateSelectedStudies()
-    window.addEventListener('storageUpdate', updateSelectedStudies)
-
-    return () => {
-      window.removeEventListener('storageUpdate', updateSelectedStudies)
-    }
-  }, [path, chatMessages, isStreaming, animation, input])
 
   const payload = {
     action: 'sendmessage',
@@ -311,6 +288,132 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
     scrollToTop
   } = useScrollAnchor()
 
+  const handleRetry =
+    (_msgIndex: number, userMessage: string, chatId: string) =>
+    (reason: string) => {
+      setRetryingChatId(chatId)
+      setRetryReason(reason)
+
+      // Find the original bot message and its corresponding user message
+      const originalBotMessageIndex = chatMessages.findIndex(
+        msg =>
+          (msg.sender === 'receiver' || msg.sender === 'bot') &&
+          msg.chatId === chatId
+      )
+
+      // Find the user message that corresponds to this bot message
+      let correspondingUserMessage = null
+      let userMessageIndex = -1
+
+      if (originalBotMessageIndex !== -1) {
+        // Look backwards from the bot message to find the user message
+        for (let i = originalBotMessageIndex - 1; i >= 0; i--) {
+          if (chatMessages[i].sender === 'user') {
+            correspondingUserMessage = {
+              ...chatMessages[i],
+              isRetried: true,
+              retryReason: reason
+            }
+            userMessageIndex = i
+            break
+          }
+        }
+      }
+
+      // Remove both the original bot message and its corresponding user message
+      const filteredMessages = chatMessages.filter((msg, index) => {
+        // Remove the original bot message
+        if (index === originalBotMessageIndex) {
+          return false
+        }
+        // Remove the corresponding user message if found
+        if (index === userMessageIndex) {
+          return false
+        }
+        return true
+      })
+
+      // Add only the user message back (no placeholder for retry)
+      const newMessages = [
+        ...filteredMessages,
+        ...(correspondingUserMessage ? [correspondingUserMessage] : [])
+      ]
+
+      setChatMessages(newMessages)
+
+      const payload = {
+        action: 'sendmessage',
+        sessionId: id ? id : newchatboxId,
+        query: userMessage,
+        userId: session?.user.email,
+        reasoning: reasoning,
+        retry_reason: reason,
+        messageId: chatId
+      }
+      emptyMessages()
+      sendMessage(payload)
+      console.log(payload, 'retry clickedone')
+    }
+
+  useEffect(() => {
+    if (messages.length > 0 && !isStreaming && chat_id) {
+      // Check if we already have a message with this chat_id to prevent duplicates
+      const existingMessage = chatMessages.find(
+        msg =>
+          msg.chatId === chat_id &&
+          (msg.sender === 'receiver' || msg.sender === 'bot')
+      )
+
+      // If we already have a complete message for this chat_id, don't add another
+      if (existingMessage && existingMessage.message.length > 0) {
+        return
+      }
+
+      const idx = chatMessages.findIndex(
+        msg =>
+          (msg.sender === 'receiver' || msg.sender === 'bot') &&
+          msg.chatId === chat_id
+      )
+      const newBotMessage: ChatMessage = {
+        sender: 'bot',
+        message: messages.map((item: any) => item.message).join(''),
+        chatId: chat_id,
+        responseTime: responseTime,
+        createdTime: new Date().toLocaleString('en-US', {
+          day: '2-digit',
+          month: 'short',
+          hour: 'numeric',
+          minute: '2-digit',
+          hour12: true
+        })
+      }
+      let updated
+      if (idx !== -1) {
+        // Update existing message (for retry scenarios)
+        updated = [...chatMessages]
+        updated[idx] = { ...updated[idx], ...newBotMessage }
+      } else {
+        // Add new message only if it doesn't already exist
+        if (!existingMessage) {
+          updated = [...chatMessages, newBotMessage]
+        } else {
+          updated = chatMessages
+        }
+      }
+      setChatMessages(updated)
+      setRetryingChatId(null)
+      setRetryReason('')
+    }
+  }, [
+    messages,
+    isStreaming,
+    chat_id,
+    chatMessages,
+    retryingChatId,
+    retryReason,
+    responseTime
+  ])
+
   return (
     <div className="group w-full overflow-auto pl-0 transition-all duration-300 ease-in-out peer-[[data-state=open]]:lg:pl-[300px] peer-[[data-state=open]]:xl:pl-[340px] bg-[#fefcfe]">
       <div className="flex flex-col h-[calc(100vh-4rem)] w-full justify-center">
@@ -340,24 +443,30 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
               {/* Chat List */}
               <div className="flex-1 w-full px-4 py-6 overflow-y-auto">
                 <ChatList
-                  messages={[
-                    ...chatMessages,
-                    {
-                      sender: 'bot',
-                      message: messages.map(item => item.message).join(''),
-                      chatId: chat_id,
-                      sourceData: sourceData,
-                      citations: citationsData,
-                      responseTime: responseTime,
-                      createdTime: new Date().toLocaleString('en-US', {
-                        day: '2-digit',
-                        month: 'short',
-                        hour: 'numeric',
-                        minute: '2-digit',
-                        hour12: true
-                      })
-                    }
-                  ]}
+                  messages={
+                    isStreaming && messages.length > 0
+                      ? [
+                          ...chatMessages,
+                          {
+                            sender: 'bot',
+                            message: messages
+                              .map(item => item.message)
+                              .join(''),
+                            chatId: chat_id,
+                            sourceData: sourceData,
+                            citations: citationsData,
+                            responseTime: responseTime,
+                            createdTime: new Date().toLocaleString('en-US', {
+                              day: '2-digit',
+                              month: 'short',
+                              hour: 'numeric',
+                              minute: '2-digit',
+                              hour12: true
+                            })
+                          }
+                        ]
+                      : chatMessages
+                  }
                   isShared={false}
                   session={session}
                   isLoading={isLoading}
@@ -365,6 +474,7 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
                   animation={animation}
                   setInput={setInput}
                   ragStreaming={ragStreaming}
+                  handleRetry={handleRetry}
                 />
               </div>
             </div>
