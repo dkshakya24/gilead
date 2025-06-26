@@ -347,7 +347,7 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
         query: userMessage,
         userId: session?.user.email,
         reasoning: reasoning,
-        reetry_reason: reason,
+        retry_reason: reason,
         messageId: chatId
       }
       emptyMessages()
