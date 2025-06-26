@@ -7,6 +7,8 @@ interface ChatMessage {
   responseTime?: any
   citations?: any
   createdTime?: string
+  isRetried?: boolean
+  retryReason?: string
 }
 
 interface AppState {

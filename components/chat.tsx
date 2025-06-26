@@ -293,18 +293,47 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
     (reason: string) => {
       setRetryingChatId(chatId)
       setRetryReason(reason)
-      // Remove the existing response with the same chatId
-      const filteredMessages = chatMessages.filter(
-        msg =>
-          !(msg.sender === 'receiver' || msg.sender === 'bot') ||
-          msg.chatId !== chatId
-      )
-      // Add a streaming bot message placeholder at the same position
-      const idx = chatMessages.findIndex(
+
+      // Find the original bot message and its corresponding user message
+      const originalBotMessageIndex = chatMessages.findIndex(
         msg =>
           (msg.sender === 'receiver' || msg.sender === 'bot') &&
           msg.chatId === chatId
       )
+
+      // Find the user message that corresponds to this bot message
+      let correspondingUserMessage = null
+      let userMessageIndex = -1
+
+      if (originalBotMessageIndex !== -1) {
+        // Look backwards from the bot message to find the user message
+        for (let i = originalBotMessageIndex - 1; i >= 0; i--) {
+          if (chatMessages[i].sender === 'user') {
+            correspondingUserMessage = {
+              ...chatMessages[i],
+              isRetried: true,
+              retryReason: reason
+            }
+            userMessageIndex = i
+            break
+          }
+        }
+      }
+
+      // Remove both the original bot message and its corresponding user message
+      const filteredMessages = chatMessages.filter((msg, index) => {
+        // Remove the original bot message
+        if (index === originalBotMessageIndex) {
+          return false
+        }
+        // Remove the corresponding user message if found
+        if (index === userMessageIndex) {
+          return false
+        }
+        return true
+      })
+
+      // Create a streaming placeholder message
       const streamingBotMessage: ChatMessage = {
         sender: 'receiver',
         message: '',
@@ -314,17 +343,16 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
         responseTime: '',
         createdTime: ''
       }
-      let newMessages
-      if (idx !== -1) {
-        newMessages = [
-          ...filteredMessages.slice(0, idx),
-          streamingBotMessage,
-          ...filteredMessages.slice(idx)
-        ]
-      } else {
-        newMessages = [...filteredMessages, streamingBotMessage]
-      }
+
+      // Add both the user message and streaming placeholder at the end
+      const newMessages = [
+        ...filteredMessages,
+        ...(correspondingUserMessage ? [correspondingUserMessage] : []),
+        streamingBotMessage
+      ]
+
       setChatMessages(newMessages)
+
       const payload = {
         action: 'sendmessage',
         sessionId: id ? id : newchatboxId,
@@ -341,6 +369,18 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
 
   useEffect(() => {
     if (messages.length > 0 && !isStreaming && chat_id) {
+      // Check if we already have a message with this chat_id to prevent duplicates
+      const existingMessage = chatMessages.find(
+        msg =>
+          msg.chatId === chat_id &&
+          (msg.sender === 'receiver' || msg.sender === 'bot')
+      )
+
+      // If we already have a complete message for this chat_id, don't add another
+      if (existingMessage && existingMessage.message.length > 0) {
+        return
+      }
+
       const idx = chatMessages.findIndex(
         msg =>
           (msg.sender === 'receiver' || msg.sender === 'bot') &&
@@ -363,16 +403,30 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
       }
       let updated
       if (idx !== -1) {
+        // Update existing message (for retry scenarios)
         updated = [...chatMessages]
         updated[idx] = { ...updated[idx], ...newBotMessage }
       } else {
-        updated = [...chatMessages, newBotMessage]
+        // Add new message only if it doesn't already exist
+        if (!existingMessage) {
+          updated = [...chatMessages, newBotMessage]
+        } else {
+          updated = chatMessages
+        }
       }
       setChatMessages(updated)
       setRetryingChatId(null)
       setRetryReason('')
     }
-  }, [messages, isStreaming, chat_id])
+  }, [
+    messages,
+    isStreaming,
+    chat_id,
+    chatMessages,
+    retryingChatId,
+    retryReason,
+    responseTime
+  ])
 
   return (
     <div className="group w-full overflow-auto pl-0 transition-all duration-300 ease-in-out peer-[[data-state=open]]:lg:pl-[300px] peer-[[data-state=open]]:xl:pl-[340px] bg-[#fefcfe]">
@@ -403,24 +457,30 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
               {/* Chat List */}
               <div className="flex-1 w-full px-4 py-6 overflow-y-auto">
                 <ChatList
-                  messages={[
-                    ...chatMessages,
-                    {
-                      sender: 'bot',
-                      message: messages.map(item => item.message).join(''),
-                      chatId: chat_id,
-                      sourceData: sourceData,
-                      citations: citationsData,
-                      responseTime: responseTime,
-                      createdTime: new Date().toLocaleString('en-US', {
-                        day: '2-digit',
-                        month: 'short',
-                        hour: 'numeric',
-                        minute: '2-digit',
-                        hour12: true
-                      })
-                    }
-                  ]}
+                  messages={
+                    isStreaming && messages.length > 0
+                      ? [
+                          ...chatMessages,
+                          {
+                            sender: 'bot',
+                            message: messages
+                              .map(item => item.message)
+                              .join(''),
+                            chatId: chat_id,
+                            sourceData: sourceData,
+                            citations: citationsData,
+                            responseTime: responseTime,
+                            createdTime: new Date().toLocaleString('en-US', {
+                              day: '2-digit',
+                              month: 'short',
+                              hour: 'numeric',
+                              minute: '2-digit',
+                              hour12: true
+                            })
+                          }
+                        ]
+                      : chatMessages
+                  }
                   isShared={false}
                   session={session}
                   isLoading={isLoading}

@@ -101,7 +101,11 @@ export function ChatList({
         return (
           <div key={index}>
             {message.sender === 'user' ? (
-              <UserMessage createdTime={message.createdTime}>
+              <UserMessage
+                createdTime={message.createdTime}
+                isRetried={message.isRetried}
+                retryReason={message.retryReason}
+              >
                 {message.message}
               </UserMessage>
             ) : message.sender === 'receiver' ? (
@@ -151,8 +155,8 @@ export function ChatList({
           </div>
         )
       })}
-      {!ragStreaming && !animation ? <MessageLoader2 /> : null}
-      {!isStreaming && isLoading && (
+      {/* {!ragStreaming && !animation ? <MessageLoader2 /> : null} */}
+      {animation && (
         <>
           {/* <Separator className="my-4" /> */}
           <SpinnerMessage />

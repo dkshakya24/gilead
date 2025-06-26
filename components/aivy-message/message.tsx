@@ -53,11 +53,15 @@ import CustomModal from '../ui/CustomModal'
 interface UserMessageProps {
   children: string
   createdTime?: string
+  isRetried?: boolean
+  retryReason?: string
 }
 
 export const UserMessage: React.FC<UserMessageProps> = ({
   children,
-  createdTime
+  createdTime,
+  isRetried = false,
+  retryReason
 }) => {
   return (
     <div
@@ -67,11 +71,21 @@ export const UserMessage: React.FC<UserMessageProps> = ({
     >
       <div className="flex gap-x-2 items-center mb-2">
         <span className="text-xs text-gray-500">{createdTime}</span>
+        {isRetried && (
+          <span className="inline-block bg-yellow-200 text-yellow-800 text-xs font-semibold px-2 py-1 rounded">
+            Retried
+          </span>
+        )}
       </div>
       <div className="rounded-2xl px-5 py-3 gap-y-[6px] bg-[#DAE1E7] text-[#323F49] rounded-tr-none">
         <div className="text-[#4A5E6D] text-sm leading-relaxed  whitespace-pre-wrap">
           {children}
         </div>
+        {isRetried && retryReason && (
+          <div className="text-xs text-yellow-700 mt-2 italic">
+            Retry reason: {retryReason}
+          </div>
+        )}
       </div>
     </div>
   )
