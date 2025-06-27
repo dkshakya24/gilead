@@ -165,6 +165,12 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
                 .replace(',', '')
             })
           } else if (item.role === 'assistant') {
+            // Extract retried answers if they exist
+            const retriedAnswers =
+              item.retried_answers?.map((retry: any) => retry.answer) || []
+            const isRetried =
+              item.retried_answers && item.retried_answers.length > 0
+
             chathistory.push({
               sender: 'receiver',
               message: item.content,
@@ -178,7 +184,9 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
                   minute: '2-digit',
                   hour12: true
                 })
-                .replace(',', '')
+                .replace(',', ''),
+              retried: isRetried,
+              retriedAnswers: retriedAnswers
             })
           }
         })
