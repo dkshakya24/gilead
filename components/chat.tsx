@@ -47,6 +47,15 @@ export interface ChatMessage {
   isRetried?: boolean
   retryReason?: string
   onRetry?: (reason: string) => void
+  retryHistory?: {
+    version: number
+    message: string
+    responseTime?: string
+    createdTime: string
+    retryReason: string
+    citations?: any
+  }[]
+  currentVersion?: number
 }
 
 export function Chat({ id, className, session, initialMessages }: ChatProps) {
@@ -79,6 +88,10 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
   const [dataKey, setDataKey] = useState<string[]>([])
   const [retryingChatId, setRetryingChatId] = useState<string | null>(null)
   const [retryReason, setRetryReason] = useState<string>('')
+  const [retryHistory, setRetryHistory] = useState<{ [chatId: string]: any[] }>(
+    {}
+  )
+  const processedMessagesRef = useRef<Set<string>>(new Set())
 
   const carouselRef = useRef<HTMLDivElement>(null)
   console.log(initialMessages, 'initialMessages')
@@ -281,52 +294,90 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
       setRetryingChatId(chatId)
       setRetryReason(reason)
 
-      // Find the original bot message and its corresponding user message
+      // Find the original bot message
       const originalBotMessageIndex = chatMessages.findIndex(
         msg =>
           (msg.sender === 'receiver' || msg.sender === 'bot') &&
           msg.chatId === chatId
       )
 
-      // Find the user message that corresponds to this bot message
-      let correspondingUserMessage = null
-      let userMessageIndex = -1
-
       if (originalBotMessageIndex !== -1) {
-        // Look backwards from the bot message to find the user message
-        for (let i = originalBotMessageIndex - 1; i >= 0; i--) {
-          if (chatMessages[i].sender === 'user') {
-            correspondingUserMessage = {
-              ...chatMessages[i],
-              isRetried: true,
-              retryReason: reason
-            }
-            userMessageIndex = i
-            break
+        const originalMessage = chatMessages[originalBotMessageIndex]
+
+        // Get current version and calculate new version
+        const currentVersion = originalMessage.currentVersion || 1
+        const newVersion = currentVersion + 1
+
+        console.log('Retry triggered:', {
+          chatId,
+          currentVersion,
+          newVersion,
+          reason,
+          existingHistory: originalMessage.retryHistory?.length || 0
+        })
+
+        // Get existing history
+        const existingHistory = originalMessage.retryHistory || []
+        let updatedHistory = [...existingHistory]
+
+        // If this is the first retry, store the current message as version 1
+        if (existingHistory.length === 0) {
+          const originalEntry = {
+            version: 1,
+            message: originalMessage.message,
+            responseTime: originalMessage.responseTime,
+            createdTime:
+              originalMessage.createdTime ||
+              new Date().toLocaleString('en-US', {
+                day: '2-digit',
+                month: 'short',
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true
+              }),
+            retryReason: 'Original response',
+            citations: originalMessage.citations
           }
+          updatedHistory.push(originalEntry)
         }
+
+        // Store the current message as the latest retry version
+        const retryEntry = {
+          version: newVersion,
+          message: originalMessage.message,
+          responseTime: originalMessage.responseTime,
+          createdTime:
+            originalMessage.createdTime ||
+            new Date().toLocaleString('en-US', {
+              day: '2-digit',
+              month: 'short',
+              hour: 'numeric',
+              minute: '2-digit',
+              hour12: true
+            }),
+          retryReason: reason,
+          citations: originalMessage.citations
+        }
+
+        // Update retry history
+        const existingGlobalHistory = retryHistory[chatId] || []
+        setRetryHistory(prev => ({
+          ...prev,
+          [chatId]: [...existingGlobalHistory, retryEntry]
+        }))
+
+        // Update the original message to mark it as retried and update version
+        const updatedMessages = [...chatMessages]
+        updatedMessages[originalBotMessageIndex] = {
+          ...originalMessage,
+          isRetried: true,
+          retryReason: reason,
+          currentVersion: newVersion,
+          retryHistory: [...updatedHistory, retryEntry]
+        }
+
+        setChatMessages(updatedMessages)
       }
-
-      // Remove both the original bot message and its corresponding user message
-      const filteredMessages = chatMessages.filter((msg, index) => {
-        // Remove the original bot message
-        if (index === originalBotMessageIndex) {
-          return false
-        }
-        // Remove the corresponding user message if found
-        if (index === userMessageIndex) {
-          return false
-        }
-        return true
-      })
-
-      // Add only the user message back (no placeholder for retry)
-      const newMessages = [
-        ...filteredMessages,
-        ...(correspondingUserMessage ? [correspondingUserMessage] : [])
-      ]
-
-      setChatMessages(newMessages)
 
       const payload = {
         action: 'sendmessage',
@@ -342,8 +393,76 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
       console.log(payload, 'retry clickedone')
     }
 
+  const switchToRetryVersion = (chatId: string, version: number) => {
+    const messageIndex = chatMessages.findIndex(
+      msg =>
+        (msg.sender === 'receiver' || msg.sender === 'bot') &&
+        msg.chatId === chatId
+    )
+
+    if (messageIndex !== -1) {
+      const message = chatMessages[messageIndex]
+      const history = message.retryHistory || []
+
+      if (version === 1) {
+        // Switch to original version - find the original version in history
+        const originalVersion = history.find(h => h.version === 1)
+        if (originalVersion) {
+          const updatedMessages = [...chatMessages]
+          updatedMessages[messageIndex] = {
+            ...message,
+            message: originalVersion.message,
+            responseTime: originalVersion.responseTime,
+            createdTime: originalVersion.createdTime,
+            citations: originalVersion.citations,
+            currentVersion: 1
+          }
+          setChatMessages(updatedMessages)
+        }
+      } else if (version === message.currentVersion) {
+        // Switch to latest version - use current message content
+        const updatedMessages = [...chatMessages]
+        updatedMessages[messageIndex] = {
+          ...message,
+          currentVersion: version
+        }
+        setChatMessages(updatedMessages)
+      } else {
+        // Switch to a specific retry version
+        const targetVersion = history.find(h => h.version === version)
+
+        if (targetVersion) {
+          const updatedMessages = [...chatMessages]
+          updatedMessages[messageIndex] = {
+            ...message,
+            message: targetVersion.message,
+            responseTime: targetVersion.responseTime,
+            createdTime: targetVersion.createdTime,
+            citations: targetVersion.citations,
+            currentVersion: version
+          }
+          setChatMessages(updatedMessages)
+        }
+      }
+    }
+  }
+
   useEffect(() => {
     if (messages.length > 0 && !isStreaming && chat_id) {
+      // Prevent infinite loops by checking if we've already processed this message
+      const messageKey = `${chat_id}-${messages.map((item: any) => item.message).join('')}`
+      if (processedMessagesRef.current.has(messageKey)) {
+        return
+      }
+
+      // Additional safety check to prevent processing empty messages
+      const messageContent = messages.map((item: any) => item.message).join('')
+      if (!messageContent.trim()) {
+        return
+      }
+
+      processedMessagesRef.current.add(messageKey)
+
       // Check if we already have a message with this chat_id to prevent duplicates
       const existingMessage = chatMessages.find(
         msg =>
@@ -351,16 +470,12 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
           (msg.sender === 'receiver' || msg.sender === 'bot')
       )
 
-      // If we already have a complete message for this chat_id, don't add another
-      if (existingMessage && existingMessage.message.length > 0) {
-        return
-      }
-
       const idx = chatMessages.findIndex(
         msg =>
           (msg.sender === 'receiver' || msg.sender === 'bot') &&
           msg.chatId === chat_id
       )
+
       const newBotMessage: ChatMessage = {
         sender: 'bot',
         message: messages.map((item: any) => item.message).join(''),
@@ -372,13 +487,67 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
           hour: 'numeric',
           minute: '2-digit',
           hour12: true
-        })
+        }),
+        currentVersion: 1
       }
+
       let updated
       if (idx !== -1) {
         // Update existing message (for retry scenarios)
         updated = [...chatMessages]
-        updated[idx] = { ...updated[idx], ...newBotMessage }
+        const existingMessage = updated[idx]
+
+        // If this is a retry, update the message content and version
+        if (retryingChatId === chat_id) {
+          const newVersion = (existingMessage.currentVersion || 1) + 1
+
+          console.log('Processing retry response:', {
+            chatId: chat_id,
+            newVersion,
+            retryReason,
+            messageLength: newBotMessage.message.length
+          })
+
+          // Add the new retry response to history
+          const newRetryEntry = {
+            version: newVersion,
+            message: newBotMessage.message,
+            responseTime: newBotMessage.responseTime || '',
+            createdTime: newBotMessage.createdTime,
+            retryReason: retryReason,
+            citations: citationsData
+          }
+
+          const updatedHistory = [
+            ...(existingMessage.retryHistory || []),
+            newRetryEntry
+          ]
+
+          updated[idx] = {
+            ...existingMessage,
+            message: newBotMessage.message,
+            responseTime: newBotMessage.responseTime,
+            createdTime: newBotMessage.createdTime,
+            citations: citationsData,
+            currentVersion: newVersion,
+            isRetried: true,
+            retryReason: retryReason,
+            retryHistory: updatedHistory as {
+              version: number
+              message: string
+              responseTime?: string
+              createdTime: string
+              retryReason: string
+              citations?: any
+            }[]
+          }
+        } else {
+          // Regular update
+          updated[idx] = {
+            ...existingMessage,
+            ...newBotMessage
+          }
+        }
       } else {
         // Add new message only if it doesn't already exist
         if (!existingMessage) {
@@ -395,11 +564,23 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
     messages,
     isStreaming,
     chat_id,
-    chatMessages,
     retryingChatId,
     retryReason,
-    responseTime
+    responseTime,
+    citationsData
   ])
+
+  useEffect(() => {
+    // Clear processed messages when chat changes
+    processedMessagesRef.current.clear()
+  }, [chat_id])
+
+  useEffect(() => {
+    // Clear processed messages when streaming starts
+    if (isStreaming) {
+      processedMessagesRef.current.clear()
+    }
+  }, [isStreaming])
 
   return (
     <div className="group w-full overflow-auto pl-0 transition-all duration-300 ease-in-out peer-[[data-state=open]]:lg:pl-[300px] peer-[[data-state=open]]:xl:pl-[340px] bg-[#fefcfe]">
@@ -462,6 +643,7 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
                   setInput={setInput}
                   ragStreaming={ragStreaming}
                   handleRetry={handleRetry}
+                  switchToRetryVersion={switchToRetryVersion}
                 />
               </div>
             </div>

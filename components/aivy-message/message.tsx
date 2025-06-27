@@ -106,7 +106,10 @@ export function BotMessage({
   isLastMessage,
   isRetried = false,
   onRetry,
-  retryReason
+  retryReason,
+  retryHistory,
+  currentVersion,
+  switchToRetryVersion
 }: {
   children: string
   className?: string
@@ -122,6 +125,16 @@ export function BotMessage({
   isRetried?: boolean
   onRetry?: (reason: string) => void
   retryReason?: string
+  retryHistory?: {
+    version: number
+    message: string
+    responseTime?: string
+    createdTime: string
+    retryReason: string
+    citations?: any
+  }[]
+  currentVersion?: number
+  switchToRetryVersion?: (chatId: string, version: number) => void
 }) {
   const [sourceLoading, setSourceLoading] = useState(true)
   const [selectedImage, setSelectedImage] = useState(null)
@@ -432,9 +445,125 @@ export function BotMessage({
       >
         {/* Retried Tag */}
         {isRetried && (
-          <span className="inline-block bg-yellow-200 text-yellow-800 text-xs font-semibold px-2 py-1 rounded mb-2">
-            Retried
-          </span>
+          <div className="flex items-center gap-2 mb-2">
+            <span className="inline-block bg-yellow-200 text-yellow-800 text-xs font-semibold px-2 py-1 rounded">
+              Retried
+            </span>
+            {currentVersion && currentVersion > 1 && (
+              <span className="inline-block bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded">
+                v{currentVersion}
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* Retry Version Selector */}
+        {retryHistory && retryHistory.length > 0 && !isStreaming && (
+          <div className="mb-3 p-3 bg-gray-50 rounded-lg border">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-sm font-medium text-gray-700">
+                Response Versions:
+              </span>
+              <span className="text-xs text-gray-500">
+                (Click to view different versions)
+              </span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {/* Original version (version 1) */}
+              <button
+                onClick={() => switchToRetryVersion?.(chatId || '', 1)}
+                className={`px-3 py-1 text-xs font-medium rounded-full transition-colors ${
+                  currentVersion === 1
+                    ? 'bg-primary text-white shadow-sm'
+                    : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-100 hover:border-gray-400'
+                }`}
+              >
+                Original
+              </button>
+
+              {/* Retry versions */}
+              {retryHistory
+                .filter(retry => retry.version > 1)
+                .map((retry, index) => (
+                  <button
+                    key={retry.version}
+                    onClick={() =>
+                      switchToRetryVersion?.(chatId || '', retry.version)
+                    }
+                    className={`px-3 py-1 text-xs font-medium rounded-full transition-colors ${
+                      currentVersion === retry.version
+                        ? 'bg-primary text-white shadow-sm'
+                        : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-100 hover:border-gray-400'
+                    }`}
+                    title={`Retry ${retry.version}: ${retry.retryReason}`}
+                  >
+                    Retry {retry.version}
+                  </button>
+                ))}
+
+              {/* Current version (latest) */}
+              {currentVersion && currentVersion > 1 && (
+                <button
+                  onClick={() =>
+                    switchToRetryVersion?.(chatId || '', currentVersion)
+                  }
+                  className="px-3 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800 border border-green-300 shadow-sm"
+                  title="Latest version"
+                >
+                  Latest
+                </button>
+              )}
+            </div>
+            {currentVersion && currentVersion > 1 && (
+              <div className="mt-2 text-xs text-gray-600 bg-white p-2 rounded border">
+                <span className="font-medium">Currently viewing:</span> Version{' '}
+                {currentVersion}
+                {retryHistory.find(r => r.version === currentVersion) && (
+                  <div className="mt-1 text-gray-500">
+                    <span className="font-medium">Reason:</span>{' '}
+                    {
+                      retryHistory.find(r => r.version === currentVersion)
+                        ?.retryReason
+                    }
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Retry History Summary */}
+        {retryHistory && retryHistory.length > 1 && !isStreaming && (
+          <div className="mb-3 p-2 bg-blue-50 rounded border border-blue-200">
+            <div className="text-xs text-blue-700 mb-2">
+              <span className="font-medium">Retry History:</span>{' '}
+              {retryHistory.length} versions available
+            </div>
+            <div className="space-y-1">
+              {retryHistory.map((retry, index) => (
+                <div
+                  key={retry.version}
+                  className="flex items-center gap-2 text-xs"
+                >
+                  <span
+                    className={`w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-medium ${
+                      currentVersion === retry.version
+                        ? 'bg-primary'
+                        : 'bg-gray-400'
+                    }`}
+                  >
+                    {retry.version}
+                  </span>
+                  <span className="text-gray-600 flex-1 truncate">
+                    {retry.retryReason}
+                  </span>
+                  {currentVersion === retry.version && (
+                    <span className="text-green-600 font-medium">Current</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
         )}
         <div
           ref={messageRef}

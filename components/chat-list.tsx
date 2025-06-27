@@ -16,6 +16,15 @@ export interface ChatList {
     onRetry?: (reason: string) => void
     isRetried?: boolean
     retryReason?: string
+    retryHistory?: {
+      version: number
+      message: string
+      responseTime?: string
+      createdTime: string
+      retryReason: string
+      citations?: any
+    }[]
+    currentVersion?: number
   })[]
   session?: Session
   isShared: boolean
@@ -29,6 +38,7 @@ export interface ChatList {
     userMessage: string,
     chatId: string
   ) => (reason: string) => void
+  switchToRetryVersion?: (chatId: string, version: number) => void
   // streamingMessages: { message: string }[]
 }
 
@@ -41,7 +51,8 @@ export function ChatList({
   setInput,
   animation,
   ragStreaming,
-  handleRetry
+  handleRetry,
+  switchToRetryVersion
 }: ChatList) {
   const chatListRef = useRef<HTMLDivElement>(null)
 
@@ -138,6 +149,9 @@ export function ChatList({
                 onRetry={onRetryHandler}
                 isRetried={message.isRetried}
                 retryReason={message.retryReason}
+                retryHistory={message.retryHistory}
+                currentVersion={message.currentVersion}
+                switchToRetryVersion={switchToRetryVersion}
               >
                 {message.message}
               </BotMessage>
@@ -160,6 +174,9 @@ export function ChatList({
                       onRetry={onRetryHandler}
                       isRetried={message.isRetried}
                       retryReason={message.retryReason}
+                      retryHistory={message.retryHistory}
+                      currentVersion={message.currentVersion}
+                      switchToRetryVersion={switchToRetryVersion}
                     >
                       {message.message}
                     </BotMessage>

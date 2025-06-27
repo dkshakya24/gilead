@@ -9,6 +9,15 @@ interface ChatMessage {
   createdTime?: string
   isRetried?: boolean
   retryReason?: string
+  retryHistory?: {
+    version: number
+    message: string
+    responseTime?: string
+    createdTime: string
+    retryReason: string
+    citations?: any
+  }[]
+  currentVersion?: number
 }
 
 interface AppState {
