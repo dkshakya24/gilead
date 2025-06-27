@@ -17,7 +17,7 @@ export interface ChatList {
     isRetried?: boolean
     retryReason?: string
     retried?: boolean
-    retriedAnswers?: string[]
+    retriedAnswers?: Array<{ retry_reason: string; answer: string }> | string[]
   })[]
   session?: Session
   isShared: boolean

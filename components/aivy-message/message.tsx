@@ -125,7 +125,7 @@ export function BotMessage({
   onRetry?: (reason: string) => void
   retryReason?: string
   retried?: boolean
-  retriedAnswers?: string[]
+  retriedAnswers?: Array<{ retry_reason: string; answer: string }> | string[]
 }) {
   const [sourceLoading, setSourceLoading] = useState(true)
   const [selectedImage, setSelectedImage] = useState(null)
@@ -420,10 +420,33 @@ export function BotMessage({
       if (selectedAnswerIndex === 0) {
         return children // Current answer
       } else {
-        return retriedAnswers[selectedAnswerIndex - 1] // Retried answer (index - 1 because 0 is current)
+        const retriedAnswer = retriedAnswers[selectedAnswerIndex - 1]
+        // Handle both object and string formats
+        if (typeof retriedAnswer === 'object' && retriedAnswer.answer) {
+          return retriedAnswer.answer
+        } else if (typeof retriedAnswer === 'string') {
+          return retriedAnswer
+        }
+        return children
       }
     }
     return children
+  }
+
+  // Get retry reason for the selected answer
+  const getRetryReason = () => {
+    if (
+      retried &&
+      retriedAnswers &&
+      retriedAnswers.length > 0 &&
+      selectedAnswerIndex > 0
+    ) {
+      const retriedAnswer = retriedAnswers[selectedAnswerIndex - 1]
+      if (typeof retriedAnswer === 'object' && retriedAnswer.retry_reason) {
+        return retriedAnswer.retry_reason
+      }
+    }
+    return null
   }
 
   return (
@@ -502,8 +525,8 @@ export function BotMessage({
 
         {/* Answer Version Indicator */}
         {retried && retriedAnswers && retriedAnswers.length > 0 && (
-          <div className="mb-3 p-2 bg-gray-50 rounded-lg border border-gray-200">
-            <div className="flex items-center gap-2">
+          <div className="mb-3">
+            {/* <div className="flex items-center gap-2 mb-2">
               <div
                 className={cn(
                   'w-2 h-2 rounded-full',
@@ -515,7 +538,24 @@ export function BotMessage({
                   ? 'Current Answer'
                   : `Previous Answer ${selectedAnswerIndex}`}
               </p>
-            </div>
+            </div> */}
+
+            {/* Retry Reason Display */}
+            {getRetryReason() && (
+              <div className="mt-2 p-2 bg-orange-50 border border-orange-200 rounded-md">
+                <div className="flex items-start gap-2">
+                  <div className="w-1 h-1 rounded-full bg-orange-500 mt-2 flex-shrink-0"></div>
+                  <div>
+                    <p className="text-xs font-medium text-orange-800 mb-1">
+                      Retry Reason:
+                    </p>
+                    <p className="text-xs text-orange-700 italic">
+                      {getRetryReason()}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
 

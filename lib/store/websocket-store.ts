@@ -9,8 +9,10 @@ interface WebSocketState {
   setIsSuggestions: (value: boolean) => void
   retried: boolean
   setRetried: (value: boolean) => void
-  retriedAnswers: string[]
-  setRetriedAnswers: (answers: string[]) => void
+  retriedAnswers?: Array<{ retry_reason: string; answer: string }> | string[]
+  setRetriedAnswers: (
+    answers: Array<{ retry_reason: string; answer: string }> | string[]
+  ) => void
 }
 
 export const useWebSocketStore = create<WebSocketState>(set => ({

@@ -378,7 +378,7 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
           hour12: true
         }),
         retried: retried,
-        retriedAnswers: retriedAnswers
+        retriedAnswers: retriedAnswers as string[] | undefined
       }
       let updated
       if (idx !== -1) {

@@ -15,7 +15,7 @@ interface WebSocketHook {
   ragStreaming?: boolean
   isSuggestions: boolean
   retried: boolean
-  retriedAnswers: string[]
+  retriedAnswers?: Array<{ retry_reason: string; answer: string }> | string[]
 }
 
 const useWebSocket = (url: string): WebSocketHook => {
@@ -93,7 +93,16 @@ const useWebSocket = (url: string): WebSocketHook => {
       // Handle retry data
       if (!animation) {
         setRetried(true)
-        setRetriedAnswers(['answer1', 'answer2'])
+        setRetriedAnswers([
+          {
+            retry_reason: 'User felt answer was vague',
+            answer: 'answer1'
+          },
+          {
+            retry_reason: 'User requested a more concise explanation',
+            answer: 'answer2'
+          }
+        ])
       } else {
         setRetried(false)
         setRetriedAnswers([])
