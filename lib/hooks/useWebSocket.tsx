@@ -92,17 +92,8 @@ const useWebSocket = (url: string): WebSocketHook => {
 
       // Handle retry data
       if (!animation) {
-        setRetried(true)
-        setRetriedAnswers([
-          {
-            retry_reason: 'User felt answer was vague',
-            answer: 'answer1'
-          },
-          {
-            retry_reason: 'User requested a more concise explanation',
-            answer: 'answer2'
-          }
-        ])
+        setRetried(data.retried)
+        setRetriedAnswers(data.retried_answers)
       } else {
         setRetried(false)
         setRetriedAnswers([])

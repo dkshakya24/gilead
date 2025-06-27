@@ -168,9 +168,6 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
             // Extract retried answers if they exist
             const retriedAnswers =
               item.retried_answers?.map((retry: any) => retry.answer) || []
-            const isRetried =
-              item.retried_answers && item.retried_answers.length > 0
-
             chathistory.push({
               sender: 'receiver',
               message: item.content,
@@ -185,7 +182,7 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
                   hour12: true
                 })
                 .replace(',', ''),
-              retried: isRetried,
+              retried: chat.retried || false,
               retriedAnswers: retriedAnswers
             })
           }
