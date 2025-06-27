@@ -14,6 +14,8 @@ interface WebSocketHook {
   responseTime: any
   ragStreaming?: boolean
   isSuggestions: boolean
+  retried: boolean
+  retriedAnswers: string[]
 }
 
 const useWebSocket = (url: string): WebSocketHook => {
@@ -25,8 +27,13 @@ const useWebSocket = (url: string): WebSocketHook => {
   const [citationsData, setCitationsData] = useState<any>([])
   const [animation, setAnimation] = useState(false)
   const [responseTime, setResponseTime] = useState<string>()
-  const { setIsStreaming, setRagStreaming, setIsSuggestions } =
-    useWebSocketStore()
+  const {
+    setIsStreaming,
+    setRagStreaming,
+    setIsSuggestions,
+    setRetried,
+    setRetriedAnswers
+  } = useWebSocketStore()
 
   const emptyMessages = () => {
     setMessages([])
@@ -82,6 +89,16 @@ const useWebSocket = (url: string): WebSocketHook => {
       setCitationsData(data.specific_citations)
       setResponseTime(data.responseTime)
       setIsSuggestions(data.suggestions ?? true)
+
+      // Handle retry data
+      if (!animation) {
+        setRetried(true)
+        setRetriedAnswers(['answer1', 'answer2'])
+      } else {
+        setRetried(false)
+        setRetriedAnswers([])
+      }
+
       console.log(data, 'datadata')
     }
   }
@@ -106,7 +123,9 @@ const useWebSocket = (url: string): WebSocketHook => {
     animation,
     ragStreaming: useWebSocketStore(state => state.ragStreaming),
     isStreaming: useWebSocketStore(state => state.isStreaming),
-    isSuggestions: useWebSocketStore(state => state.isSuggestions)
+    isSuggestions: useWebSocketStore(state => state.isSuggestions),
+    retried: useWebSocketStore(state => state.retried),
+    retriedAnswers: useWebSocketStore(state => state.retriedAnswers)
   }
 }
 

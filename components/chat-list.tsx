@@ -16,6 +16,8 @@ export interface ChatList {
     onRetry?: (reason: string) => void
     isRetried?: boolean
     retryReason?: string
+    retried?: boolean
+    retriedAnswers?: string[]
   })[]
   session?: Session
   isShared: boolean
@@ -138,6 +140,8 @@ export function ChatList({
                 onRetry={onRetryHandler}
                 isRetried={message.isRetried}
                 retryReason={message.retryReason}
+                retried={message.retried}
+                retriedAnswers={message.retriedAnswers}
               >
                 {message.message}
               </BotMessage>
@@ -160,6 +164,8 @@ export function ChatList({
                       onRetry={onRetryHandler}
                       isRetried={message.isRetried}
                       retryReason={message.retryReason}
+                      retried={message.retried}
+                      retriedAnswers={message.retriedAnswers}
                     >
                       {message.message}
                     </BotMessage>

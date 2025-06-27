@@ -106,7 +106,9 @@ export function BotMessage({
   isLastMessage,
   isRetried = false,
   onRetry,
-  retryReason
+  retryReason,
+  retried = false,
+  retriedAnswers = []
 }: {
   children: string
   className?: string
@@ -122,6 +124,8 @@ export function BotMessage({
   isRetried?: boolean
   onRetry?: (reason: string) => void
   retryReason?: string
+  retried?: boolean
+  retriedAnswers?: string[]
 }) {
   const [sourceLoading, setSourceLoading] = useState(true)
   const [selectedImage, setSelectedImage] = useState(null)
@@ -149,6 +153,8 @@ export function BotMessage({
   const [isRetryModalOpen, setIsRetryModalOpen] = useState(false)
   const [retryReasonInput, setRetryReasonInput] = useState('')
   const { isSuggestions } = useWebSocketStore()
+  const [selectedAnswerIndex, setSelectedAnswerIndex] = useState(0)
+
   const handleMouseUpEvent = (event: MouseEvent) => {
     const selection = window.getSelection()
     if (!selection) {
@@ -403,6 +409,23 @@ export function BotMessage({
     }
   }, [])
 
+  // Function to handle answer switching
+  const handleAnswerSwitch = (index: number) => {
+    setSelectedAnswerIndex(index)
+  }
+
+  // Get the current answer content based on selected index
+  const getCurrentAnswerContent = () => {
+    if (retried && retriedAnswers && retriedAnswers.length > 0) {
+      if (selectedAnswerIndex === 0) {
+        return children // Current answer
+      } else {
+        return retriedAnswers[selectedAnswerIndex - 1] // Retried answer (index - 1 because 0 is current)
+      }
+    }
+    return children
+  }
+
   return (
     <div
       className={cn(
@@ -412,14 +435,54 @@ export function BotMessage({
     >
       {chatId && (
         <div className="w-full flex gap-3">
-          <div className="flex gap-x-2 items-center mb-2">
-            {' '}
-            <Image src={logoicon1} alt="Gilead Logo" sizes="icon" />
-            <span className="text-xs text-gray-500">{createdTime}</span>
-            <div className="text-xs text-gray-500 ml-2">
-              Response Time:{' '}
-              {responseTime ? `${responseTime}` : 'Calculating...'}
+          <div className="flex gap-x-2 items-center mb-2 w-full justify-between">
+            <div className="flex items-center gap-x-2">
+              <Image src={logoicon1} alt="Gilead Logo" sizes="icon" />
+              <span className="text-xs text-gray-500">{createdTime}</span>
+              <div className="text-xs text-gray-500 ml-2">
+                Response Time:{' '}
+                {responseTime ? `${responseTime}` : 'Calculating...'}
+              </div>
             </div>
+
+            {/* Answer Version Buttons */}
+            {retried && retriedAnswers && retriedAnswers.length > 0 && (
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-gray-500">Versions:</span>
+                <div className="flex gap-1">
+                  {/* Current Answer Button */}
+                  <button
+                    onClick={() => handleAnswerSwitch(0)}
+                    className={cn(
+                      'w-8 h-8 rounded-full text-xs font-medium transition-all duration-200 flex items-center justify-center',
+                      selectedAnswerIndex === 0
+                        ? 'bg-secondary text-white shadow-md'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    )}
+                    title="Current Answer"
+                  >
+                    C
+                  </button>
+
+                  {/* Retried Answers Buttons */}
+                  {retriedAnswers.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => handleAnswerSwitch(index + 1)}
+                      className={cn(
+                        'w-8 h-8 rounded-full text-xs font-medium transition-all duration-200 flex items-center justify-center',
+                        selectedAnswerIndex === index + 1
+                          ? 'bg-orange-500 text-white shadow-md'
+                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      )}
+                      title={`Previous Answer ${index + 1}`}
+                    >
+                      {index + 1}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -436,6 +499,26 @@ export function BotMessage({
             Retried
           </span>
         )}
+
+        {/* Answer Version Indicator */}
+        {retried && retriedAnswers && retriedAnswers.length > 0 && (
+          <div className="mb-3 p-2 bg-gray-50 rounded-lg border border-gray-200">
+            <div className="flex items-center gap-2">
+              <div
+                className={cn(
+                  'w-2 h-2 rounded-full',
+                  selectedAnswerIndex === 0 ? 'bg-secondary' : 'bg-orange-500'
+                )}
+              ></div>
+              <p className="text-sm font-medium text-gray-700">
+                {selectedAnswerIndex === 0
+                  ? 'Current Answer'
+                  : `Previous Answer ${selectedAnswerIndex}`}
+              </p>
+            </div>
+          </div>
+        )}
+
         <div
           ref={messageRef}
           className="relative ml-0 md:ml-4 flex-1 space-y-2 overflow-hidden px-0 md:px-1 group/item transition-all duration-300 ease-in-out w-full"
@@ -523,7 +606,7 @@ export function BotMessage({
               }
             }}
           >
-            {children}
+            {getCurrentAnswerContent()}
           </MemoizedReactMarkdown>
 
           {/* Tooltip */}

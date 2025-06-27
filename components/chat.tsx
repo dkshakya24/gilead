@@ -47,6 +47,8 @@ export interface ChatMessage {
   isRetried?: boolean
   retryReason?: string
   onRetry?: (reason: string) => void
+  retried?: boolean
+  retriedAnswers?: string[]
 }
 
 export function Chat({ id, className, session, initialMessages }: ChatProps) {
@@ -65,7 +67,9 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
     citationsData,
     animation,
     ragStreaming,
-    responseTime
+    responseTime,
+    retried,
+    retriedAnswers
   } = useWebSocket(WEBSOCKET as string)
   const [input, setInput] = useState('')
   const [newchatboxId, setNewchatboxId] = useState<string>('')
@@ -372,7 +376,9 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
           hour: 'numeric',
           minute: '2-digit',
           hour12: true
-        })
+        }),
+        retried: retried,
+        retriedAnswers: retriedAnswers
       }
       let updated
       if (idx !== -1) {
@@ -398,7 +404,9 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
     chatMessages,
     retryingChatId,
     retryReason,
-    responseTime
+    responseTime,
+    retried,
+    retriedAnswers
   ])
 
   return (
@@ -449,7 +457,9 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
                               hour: 'numeric',
                               minute: '2-digit',
                               hour12: true
-                            })
+                            }),
+                            retried: retried,
+                            retriedAnswers: retriedAnswers
                           }
                         ]
                       : chatMessages
