@@ -47,6 +47,8 @@ export interface ChatMessage {
   isRetried?: boolean
   retryReason?: string
   onRetry?: (reason: string) => void
+  retried?: boolean
+  retriedAnswers?: string[]
 }
 
 export function Chat({ id, className, session, initialMessages }: ChatProps) {
@@ -65,7 +67,9 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
     citationsData,
     animation,
     ragStreaming,
-    responseTime
+    responseTime,
+    retried,
+    retriedAnswers
   } = useWebSocket(WEBSOCKET as string)
   const [input, setInput] = useState('')
   const [newchatboxId, setNewchatboxId] = useState<string>('')
@@ -161,6 +165,9 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
                 .replace(',', '')
             })
           } else if (item.role === 'assistant') {
+            // Extract retried answers if they exist
+            const retriedAnswers =
+              item.retried_answers?.map((retry: any) => retry.answer) || []
             chathistory.push({
               sender: 'receiver',
               message: item.content,
@@ -174,7 +181,9 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
                   minute: '2-digit',
                   hour12: true
                 })
-                .replace(',', '')
+                .replace(',', ''),
+              retried: chat.retried || false,
+              retriedAnswers: retriedAnswers
             })
           }
         })
@@ -372,7 +381,9 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
           hour: 'numeric',
           minute: '2-digit',
           hour12: true
-        })
+        }),
+        retried: retried,
+        retriedAnswers: retriedAnswers as string[] | undefined
       }
       let updated
       if (idx !== -1) {
@@ -398,7 +409,9 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
     chatMessages,
     retryingChatId,
     retryReason,
-    responseTime
+    responseTime,
+    retried,
+    retriedAnswers
   ])
 
   return (
@@ -449,7 +462,9 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
                               hour: 'numeric',
                               minute: '2-digit',
                               hour12: true
-                            })
+                            }),
+                            retried: retried,
+                            retriedAnswers: retriedAnswers
                           }
                         ]
                       : chatMessages

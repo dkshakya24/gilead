@@ -41,14 +41,14 @@ import {
   IconSpeaker,
   IconSpeakerStop,
   IconMail,
-  IconRefresh
+  IconRefresh,
+  IconClose
 } from '../ui/icons'
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger
 } from '@/components/ui/tooltip'
-import CustomModal from '../ui/CustomModal'
 import { useWebSocketStore } from '@/lib/store/websocket-store'
 
 interface UserMessageProps {
@@ -106,7 +106,9 @@ export function BotMessage({
   isLastMessage,
   isRetried = false,
   onRetry,
-  retryReason
+  retryReason,
+  retried = false,
+  retriedAnswers = []
 }: {
   children: string
   className?: string
@@ -122,6 +124,8 @@ export function BotMessage({
   isRetried?: boolean
   onRetry?: (reason: string) => void
   retryReason?: string
+  retried?: boolean
+  retriedAnswers?: Array<{ retry_reason: string; answer: string }> | string[]
 }) {
   const [sourceLoading, setSourceLoading] = useState(true)
   const [selectedImage, setSelectedImage] = useState(null)
@@ -146,9 +150,11 @@ export function BotMessage({
   const { isCopied, copyToClipboard } = useCopyToClipboard({ timeout: 2000 })
   const [isDownloaded, setIsDownloaded] = useState(false)
   const [isSpeaking, setIsSpeaking] = useState(false)
-  const [isRetryModalOpen, setIsRetryModalOpen] = useState(false)
   const [retryReasonInput, setRetryReasonInput] = useState('')
+  const [showRetryInput, setShowRetryInput] = useState(false)
   const { isSuggestions } = useWebSocketStore()
+  const [selectedAnswerIndex, setSelectedAnswerIndex] = useState(0)
+
   const handleMouseUpEvent = (event: MouseEvent) => {
     const selection = window.getSelection()
     if (!selection) {
@@ -403,6 +409,46 @@ export function BotMessage({
     }
   }, [])
 
+  // Function to handle answer switching
+  const handleAnswerSwitch = (index: number) => {
+    setSelectedAnswerIndex(index)
+  }
+
+  // Get the current answer content based on selected index
+  const getCurrentAnswerContent = () => {
+    if (retried && retriedAnswers && retriedAnswers.length > 0) {
+      if (selectedAnswerIndex === 0) {
+        return children // Current answer
+      } else {
+        const retriedAnswer = retriedAnswers[selectedAnswerIndex - 1]
+        // Handle both object and string formats
+        if (typeof retriedAnswer === 'object' && retriedAnswer.answer) {
+          return retriedAnswer.answer
+        } else if (typeof retriedAnswer === 'string') {
+          return retriedAnswer
+        }
+        return children
+      }
+    }
+    return children
+  }
+
+  // Get retry reason for the selected answer
+  const getRetryReason = () => {
+    if (
+      retried &&
+      retriedAnswers &&
+      retriedAnswers.length > 0 &&
+      selectedAnswerIndex > 0
+    ) {
+      const retriedAnswer = retriedAnswers[selectedAnswerIndex - 1]
+      if (typeof retriedAnswer === 'object' && retriedAnswer.retry_reason) {
+        return retriedAnswer.retry_reason
+      }
+    }
+    return null
+  }
+
   return (
     <div
       className={cn(
@@ -412,14 +458,54 @@ export function BotMessage({
     >
       {chatId && (
         <div className="w-full flex gap-3">
-          <div className="flex gap-x-2 items-center mb-2">
-            {' '}
-            <Image src={logoicon1} alt="Gilead Logo" sizes="icon" />
-            <span className="text-xs text-gray-500">{createdTime}</span>
-            <div className="text-xs text-gray-500 ml-2">
-              Response Time:{' '}
-              {responseTime ? `${responseTime}` : 'Calculating...'}
+          <div className="flex gap-x-2 items-center mb-2 w-full justify-between">
+            <div className="flex items-center gap-x-2">
+              <Image src={logoicon1} alt="Gilead Logo" sizes="icon" />
+              <span className="text-xs text-gray-500">{createdTime}</span>
+              <div className="text-xs text-gray-500 ml-2">
+                Response Time:{' '}
+                {responseTime ? `${responseTime}` : 'Calculating...'}
+              </div>
             </div>
+
+            {/* Answer Version Buttons */}
+            {retried && retriedAnswers && retriedAnswers.length > 0 && (
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-gray-500">Versions:</span>
+                <div className="flex gap-1">
+                  {/* Current Answer Button */}
+                  <button
+                    onClick={() => handleAnswerSwitch(0)}
+                    className={cn(
+                      'w-8 h-8 rounded-full text-xs font-medium transition-all duration-200 flex items-center justify-center',
+                      selectedAnswerIndex === 0
+                        ? 'bg-secondary text-white shadow-md'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    )}
+                    title="Current Answer"
+                  >
+                    C
+                  </button>
+
+                  {/* Retried Answers Buttons */}
+                  {retriedAnswers.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => handleAnswerSwitch(index + 1)}
+                      className={cn(
+                        'w-8 h-8 rounded-full text-xs font-medium transition-all duration-200 flex items-center justify-center',
+                        selectedAnswerIndex === index + 1
+                          ? 'bg-orange-500 text-white shadow-md'
+                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      )}
+                      title={`Previous Answer ${index + 1}`}
+                    >
+                      {index + 1}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -436,6 +522,43 @@ export function BotMessage({
             Retried
           </span>
         )}
+
+        {/* Answer Version Indicator */}
+        {retried && retriedAnswers && retriedAnswers.length > 0 && (
+          <div className="mb-3">
+            {/* <div className="flex items-center gap-2 mb-2">
+              <div
+                className={cn(
+                  'w-2 h-2 rounded-full',
+                  selectedAnswerIndex === 0 ? 'bg-secondary' : 'bg-orange-500'
+                )}
+              ></div>
+              <p className="text-sm font-medium text-gray-700">
+                {selectedAnswerIndex === 0
+                  ? 'Current Answer'
+                  : `Previous Answer ${selectedAnswerIndex}`}
+              </p>
+            </div> */}
+
+            {/* Retry Reason Display */}
+            {getRetryReason() && (
+              <div className="mt-2 p-2 bg-orange-50 border border-orange-200 rounded-md">
+                <div className="flex items-start gap-2">
+                  <div className="w-1 h-1 rounded-full bg-orange-500 mt-2 flex-shrink-0"></div>
+                  <div>
+                    <p className="text-xs font-medium text-orange-800 mb-1">
+                      Retry Reason:
+                    </p>
+                    <p className="text-xs text-orange-700 italic">
+                      {getRetryReason()}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         <div
           ref={messageRef}
           className="relative ml-0 md:ml-4 flex-1 space-y-2 overflow-hidden px-0 md:px-1 group/item transition-all duration-300 ease-in-out w-full"
@@ -523,7 +646,7 @@ export function BotMessage({
               }
             }}
           >
-            {children}
+            {getCurrentAnswerContent()}
           </MemoizedReactMarkdown>
 
           {/* Tooltip */}
@@ -807,7 +930,14 @@ export function BotMessage({
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => setIsRetryModalOpen(true)}
+                  onClick={() => {
+                    if (showRetryInput) {
+                      setShowRetryInput(false)
+                      setRetryReasonInput('')
+                    } else {
+                      setShowRetryInput(true)
+                    }
+                  }}
                   className="hover:bg-gray-100"
                   disabled={isStreaming}
                 >
@@ -819,6 +949,48 @@ export function BotMessage({
                 {isStreaming ? 'Cannot retry while streaming' : 'Retry message'}
               </TooltipContent>
             </Tooltip>
+            {showRetryInput && (
+              <div className="flex items-center gap-1 ml-2 min-w-[200px]">
+                <input
+                  type="text"
+                  value={retryReasonInput}
+                  onChange={e => setRetryReasonInput(e.target.value)}
+                  placeholder="Retry reason..."
+                  className="w-32 h-8 px-2 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-secondary"
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' && retryReasonInput.trim()) {
+                      if (onRetry) onRetry(retryReasonInput)
+                      setShowRetryInput(false)
+                      setRetryReasonInput('')
+                    }
+                  }}
+                />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => {
+                    if (onRetry) onRetry(retryReasonInput)
+                    setShowRetryInput(false)
+                    setRetryReasonInput('')
+                  }}
+                  disabled={!retryReasonInput.trim()}
+                  className="h-8 w-8 hover:bg-green-100"
+                >
+                  <IconCheck className="text-green-600 h-3 w-3" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => {
+                    setShowRetryInput(false)
+                    setRetryReasonInput('')
+                  }}
+                  className="h-8 w-8 hover:bg-red-100"
+                >
+                  <IconClose className="text-red-600 h-3 w-3" />
+                </Button>
+              </div>
+            )}
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
@@ -866,41 +1038,6 @@ export function BotMessage({
           </div>
         </div>
       )}
-      {/* Retry Modal */}
-      <CustomModal
-        isModalOpen={isRetryModalOpen}
-        closeModal={() => setIsRetryModalOpen(false)}
-      >
-        <div className="p-4 w-full max-w-md">
-          <h2 className="text-lg font-semibold mb-2">Retry Response</h2>
-          <label className="block mb-2 text-sm">Reason for retrying:</label>
-          <textarea
-            className="w-full border rounded p-2 mb-4"
-            rows={3}
-            value={retryReasonInput}
-            onChange={e => setRetryReasonInput(e.target.value)}
-            placeholder="Please provide a reason for retrying this response."
-          />
-          <div className="flex justify-end gap-2">
-            <Button
-              variant="outline"
-              onClick={() => setIsRetryModalOpen(false)}
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={() => {
-                if (onRetry) onRetry(retryReasonInput)
-                setIsRetryModalOpen(false)
-                setRetryReasonInput('')
-              }}
-              disabled={!retryReasonInput.trim()}
-            >
-              Submit
-            </Button>
-          </div>
-        </div>
-      </CustomModal>
     </div>
   )
 }
@@ -941,7 +1078,7 @@ export function SystemMessage({ children }: { children: React.ReactNode }) {
 
 export function SpinnerMessage() {
   return (
-    <div className="group relative flex items-center md:-ml-1">
+    <div className="group relative flex items-center md:-ml-1 mt-3">
       <div className="flex size-[40px] shrink-0 select-none items-center justify-center rounded-full p-2 border bg-white text-primary-foreground shadow-sm">
         <Image src={logoicon1} alt="icon" />
       </div>
