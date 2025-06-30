@@ -41,14 +41,14 @@ import {
   IconSpeaker,
   IconSpeakerStop,
   IconMail,
-  IconRefresh
+  IconRefresh,
+  IconClose
 } from '../ui/icons'
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger
 } from '@/components/ui/tooltip'
-import CustomModal from '../ui/CustomModal'
 import { useWebSocketStore } from '@/lib/store/websocket-store'
 
 interface UserMessageProps {
@@ -150,8 +150,8 @@ export function BotMessage({
   const { isCopied, copyToClipboard } = useCopyToClipboard({ timeout: 2000 })
   const [isDownloaded, setIsDownloaded] = useState(false)
   const [isSpeaking, setIsSpeaking] = useState(false)
-  const [isRetryModalOpen, setIsRetryModalOpen] = useState(false)
   const [retryReasonInput, setRetryReasonInput] = useState('')
+  const [showRetryInput, setShowRetryInput] = useState(false)
   const { isSuggestions } = useWebSocketStore()
   const [selectedAnswerIndex, setSelectedAnswerIndex] = useState(0)
 
@@ -930,7 +930,14 @@ export function BotMessage({
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => setIsRetryModalOpen(true)}
+                  onClick={() => {
+                    if (showRetryInput) {
+                      setShowRetryInput(false)
+                      setRetryReasonInput('')
+                    } else {
+                      setShowRetryInput(true)
+                    }
+                  }}
                   className="hover:bg-gray-100"
                   disabled={isStreaming}
                 >
@@ -942,6 +949,48 @@ export function BotMessage({
                 {isStreaming ? 'Cannot retry while streaming' : 'Retry message'}
               </TooltipContent>
             </Tooltip>
+            {showRetryInput && (
+              <div className="flex items-center gap-1 ml-2 min-w-[200px]">
+                <input
+                  type="text"
+                  value={retryReasonInput}
+                  onChange={e => setRetryReasonInput(e.target.value)}
+                  placeholder="Retry reason..."
+                  className="w-32 h-8 px-2 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-secondary"
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' && retryReasonInput.trim()) {
+                      if (onRetry) onRetry(retryReasonInput)
+                      setShowRetryInput(false)
+                      setRetryReasonInput('')
+                    }
+                  }}
+                />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => {
+                    if (onRetry) onRetry(retryReasonInput)
+                    setShowRetryInput(false)
+                    setRetryReasonInput('')
+                  }}
+                  disabled={!retryReasonInput.trim()}
+                  className="h-8 w-8 hover:bg-green-100"
+                >
+                  <IconCheck className="text-green-600 h-3 w-3" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => {
+                    setShowRetryInput(false)
+                    setRetryReasonInput('')
+                  }}
+                  className="h-8 w-8 hover:bg-red-100"
+                >
+                  <IconClose className="text-red-600 h-3 w-3" />
+                </Button>
+              </div>
+            )}
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
@@ -989,41 +1038,6 @@ export function BotMessage({
           </div>
         </div>
       )}
-      {/* Retry Modal */}
-      <CustomModal
-        isModalOpen={isRetryModalOpen}
-        closeModal={() => setIsRetryModalOpen(false)}
-      >
-        <div className="p-4 w-full max-w-md">
-          <h2 className="text-lg font-semibold mb-2">Retry Response</h2>
-          <label className="block mb-2 text-sm">Reason for retrying:</label>
-          <textarea
-            className="w-full border rounded p-2 mb-4"
-            rows={3}
-            value={retryReasonInput}
-            onChange={e => setRetryReasonInput(e.target.value)}
-            placeholder="Please provide a reason for retrying this response."
-          />
-          <div className="flex justify-end gap-2">
-            <Button
-              variant="outline"
-              onClick={() => setIsRetryModalOpen(false)}
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={() => {
-                if (onRetry) onRetry(retryReasonInput)
-                setIsRetryModalOpen(false)
-                setRetryReasonInput('')
-              }}
-              disabled={!retryReasonInput.trim()}
-            >
-              Submit
-            </Button>
-          </div>
-        </div>
-      </CustomModal>
     </div>
   )
 }
@@ -1064,7 +1078,7 @@ export function SystemMessage({ children }: { children: React.ReactNode }) {
 
 export function SpinnerMessage() {
   return (
-    <div className="group relative flex items-center md:-ml-1">
+    <div className="group relative flex items-center md:-ml-1 mt-3">
       <div className="flex size-[40px] shrink-0 select-none items-center justify-center rounded-full p-2 border bg-white text-primary-foreground shadow-sm">
         <Image src={logoicon1} alt="icon" />
       </div>
