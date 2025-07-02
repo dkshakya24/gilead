@@ -2,7 +2,7 @@
 
 import { ClearHistory } from '@/components/clear-history'
 import { SidebarItems } from '@/components/sidebar-items'
-import { cache, useEffect, useState } from 'react'
+import { cache, useEffect, useState, useCallback, useRef } from 'react'
 import { API_URL, PROJECT_NAME } from '@/lib/utils'
 import { usePathname, useRouter } from 'next/navigation'
 import Shimmer from './shimmer'
@@ -20,14 +20,27 @@ interface SidebarListProps {
   search?: string
 }
 
+// Cache to store chat history data
+const chatHistoryCache = new Map()
+
 export function SidebarList({ userId, search = '' }: SidebarListProps) {
   const [todaychats, setTodayChats] = useState([])
   const [otherchats, setOtherChats] = useState([])
   const [loading, setLoading] = useState(true)
   const path = usePathname()
+  const hasInitialized = useRef(false)
   // console.log('pathssss', path.length, todaychats)
 
-  const fetchChatHistory = async () => {
+  const fetchChatHistory = useCallback(async () => {
+    // Check if we already have cached data for this user
+    if (chatHistoryCache.has(userId)) {
+      const cachedData = chatHistoryCache.get(userId)
+      setTodayChats(cachedData.today || [])
+      setOtherChats(cachedData.others || [])
+      setLoading(false)
+      return
+    }
+
     try {
       const response = await fetch(
         `${API_URL}/get-chat-history?user_id=${userId}`,
@@ -36,20 +49,41 @@ export function SidebarList({ userId, search = '' }: SidebarListProps) {
         }
       )
       const data = await response.json()
-      setTodayChats(data?.today)
-      setOtherChats(data?.others)
+
+      // Cache the data
+      chatHistoryCache.set(userId, {
+        today: data?.today || [],
+        others: data?.others || []
+      })
+
+      setTodayChats(data?.today || [])
+      setOtherChats(data?.others || [])
       if (response.ok) {
         setLoading(false)
       }
     } catch (error) {
       console.error('Error fetching data:', error)
+      setLoading(false)
     }
-  }
+  }, [userId])
 
   const isStreaming = useWebSocketStore(state => state.isStreaming)
 
   useEffect(() => {
-    fetchChatHistory()
+    // Only fetch on first render or when userId changes
+    if (!hasInitialized.current && userId) {
+      hasInitialized.current = true
+      fetchChatHistory()
+    }
+  }, [userId]) // Remove fetchChatHistory and isStreaming from dependencies
+
+  // Refresh chat history when streaming starts (new chat begins)
+  useEffect(() => {
+    if (!isStreaming && userId) {
+      // Clear cache and refetch when new chat starts
+      chatHistoryCache.delete(userId)
+      fetchChatHistory()
+    }
   }, [isStreaming])
 
   const filterChats = (chats: any[]) =>

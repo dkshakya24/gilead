@@ -167,7 +167,18 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
           } else if (item.role === 'assistant') {
             // Extract retried answers if they exist
             const retriedAnswers =
-              item.retried_answers?.map((retry: any) => retry.answer) || []
+              item.retried_answers?.map((retry: any) => {
+                // Handle both object format with retry_reason and string format
+                if (typeof retry === 'object' && retry.answer) {
+                  return {
+                    answer: retry.answer,
+                    retry_reason: retry.retry_reason || null
+                  }
+                } else if (typeof retry === 'string') {
+                  return retry
+                }
+                return retry
+              }) || []
             chathistory.push({
               sender: 'receiver',
               message: item.content,
@@ -203,8 +214,11 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
         position: 'top-right',
         className: 'bottom-auto'
       })
-    } else if (initialMessages === undefined) {
-      console.log('kasdhasdrouter1')
+    } else if (initialMessages?.messages?.length === 0) {
+      toast.error('No Chat Found', {
+        position: 'top-right',
+        className: 'bottom-auto'
+      })
     }
   }, [path, initialMessages])
 

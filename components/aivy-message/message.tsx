@@ -82,11 +82,11 @@ export const UserMessage: React.FC<UserMessageProps> = ({
         <div className="text-[#4A5E6D] text-sm leading-relaxed  whitespace-pre-wrap">
           {children}
         </div>
-        {isRetried && retryReason && (
+        {/* {isRetried && retryReason && (
           <div className="text-xs text-yellow-700 mt-2 italic">
             Retry reason: {retryReason}
           </div>
-        )}
+        )} */}
       </div>
     </div>
   )
