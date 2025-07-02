@@ -214,8 +214,11 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
         position: 'top-right',
         className: 'bottom-auto'
       })
-    } else if (initialMessages === undefined) {
-      console.log('kasdhasdrouter1')
+    } else if (initialMessages?.messages?.length === 0) {
+      toast.error('No Chat Found', {
+        position: 'top-right',
+        className: 'bottom-auto'
+      })
     }
   }, [path, initialMessages])
 
