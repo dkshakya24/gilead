@@ -161,7 +161,7 @@ export function PromptForm({
             <KeywordsDropdown disabled />
             <button
               type="submit"
-              className="ml-auto rounded-full w-12 h-12 flex items-center justify-center bg-[#C7203A] text-white shadow-none border-none"
+              className="ml-auto rounded-full w-12 h-12 flex items-center justify-center bg-[#d49332] text-white shadow-none border-none"
             >
               <svg
                 className="w-6 h-6"

@@ -12,7 +12,7 @@ export function EmptyScreen({ session }: { session: Session }) {
           src={logoicon}
           alt="icon"
         />
-        <h1 className="text-[24px] font-medium text-center bg-gradient-to-r from-[#FF9892] to-[#870002] bg-clip-text text-transparent">
+        <h1 className="text-[24px] font-medium text-center bg-gradient-to-r from-[#d49332] to-[#870002] bg-clip-text text-transparent">
           Welcome to AIVY, {session?.user?.name} !
         </h1>
 
