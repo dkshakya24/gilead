@@ -12,7 +12,7 @@ export default function Page() {
         <div className="w-full max-w-[400px]">
           <div className="mb-6">
             <Image
-              src="/GileadLogo.svg"
+              src="/companylogo.svg"
               alt="Gilead Logo"
               width={120}
               height={30}
@@ -22,7 +22,7 @@ export default function Page() {
               className="text-xl mb-1 font-medium text-[#27272A]"
               style={{ fontFamily: 'Calibri, sans-serif' }}
             >
-              Welcome to GABI ARC
+              Welcome to AIVY
             </div>
             <p className="text-sm text-[#909090]">
               Stay ahead with AI-powered content aggregation and summarization

@@ -44,13 +44,13 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           variant === 'text' &&
             'text-crimson-600 hover:bg-gray-50 hover:text-crimson-700',
           variant === 'danger' &&
-            'bg-[#C5203F] text-white hover:bg-[#a81b36] focus:ring-[#C5203F]',
+            'bg-[#d49332] text-white hover:bg-[#a81b36] focus:ring-[#d49332]',
           variant === 'secondary' &&
             'bg-gray-200 text-gray-800 hover:bg-gray-300 focus:ring-gray-400',
           variant === 'gradient' &&
             'bg-gradient-to-r from-[#7E7AFF] to-[#9954D9] text-white hover:opacity-90',
           variant === 'outline-danger' &&
-            'border border-red-700 text-[#C5203F] hover:bg-red-50',
+            'border border-red-700 text-[#d49332] hover:bg-red-50',
           variant === 'ghost' &&
             'bg-transparent text-gray-700 hover:bg-gray-100 focus:ring-gray-300',
           variant === 'link' &&

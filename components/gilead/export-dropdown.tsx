@@ -370,12 +370,12 @@ export function ExportDropdown({ session }: { session?: any }) {
       },
       {
         label: 'PDF',
-        icon: <FileCheck className="h-5 w-5 text-[#C5203F]" />,
+        icon: <FileCheck className="h-5 w-5 text-[#d49332]" />,
         disabled: true
       },
       {
         label: 'Mail',
-        icon: <Mail className="h-5 w-5 text-[#C5203F]" />,
+        icon: <Mail className="h-5 w-5 text-[#d49332]" />,
         disabled: true
       }
     ],

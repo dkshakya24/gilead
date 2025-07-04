@@ -98,7 +98,7 @@ export function SidebarItem({
         )}
       >
         {isActive && (
-          <span className="absolute left-0 top-[8px] bottom-[8px] w-1 bg-[#C5203F] rounded-r"></span>
+          <span className="absolute left-0 top-[8px] bottom-[8px] w-1 bg-[#d49332] rounded-r"></span>
         )}
         <div
           className="relative max-h-5 flex-1 select-none overflow-hidden text-ellipsis break-all"

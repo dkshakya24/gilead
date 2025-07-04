@@ -15,9 +15,9 @@ import { SidebarMobile } from './sidebar-mobile'
 import { SidebarToggle } from './sidebar-toggle'
 import { ChatHistory } from './chat-history'
 import { Session } from '@/lib/types'
-import logo from '@/public/GileadLogo.svg'
+import logo from '@/public/companylogo.svg'
 import Image from 'next/image'
-import logoicon from '@/public/GileadLogo.svg'
+import logoicon from '@/public/companylogo.svg'
 // import SourceMultiSelect from './source-multi-select'
 import {
   PiHouseLineDuotone,
@@ -87,7 +87,7 @@ export async function Header() {
         <Link href="/" className="hover:opacity-80 transition-opacity">
           <Image
             src={logo}
-            alt="Gilead"
+            alt="Chryselys"
             className="max-w-[150px] max-h-[90px]"
           />
         </Link>

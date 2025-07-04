@@ -46,7 +46,7 @@ export default function ReasoningFactor({ disabled }: { disabled: boolean }) {
         disabled={disabled}
       >
         Reasoning Factor:
-        <span className="ml-2 text-[#C5203F] font-medium">{reasoning}</span>
+        <span className="ml-2 text-[#d49332] font-medium">{reasoning}</span>
         {reasoning === 'High' && (
           // <div className="relative group ml-2">
 
@@ -96,7 +96,7 @@ export default function ReasoningFactor({ disabled }: { disabled: boolean }) {
               key={option}
               className={`w-full text-left px-4 py-2 text-sm transition-colors ${
                 reasoning === option
-                  ? 'bg-gray-50 text-[#C5203F] font-medium'
+                  ? 'bg-gray-50 text-[#d49332] font-medium'
                   : 'text-gray-700 hover:bg-gray-100'
               }`}
               onClick={() => {

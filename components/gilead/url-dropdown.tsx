@@ -86,7 +86,7 @@ export function UrlDropdown({ disabled }: { disabled: boolean }) {
                   onClick={e => deleteUrl(url.id, e)}
                   className="flex items-center justify-center h-8 w-8 rounded-full bg-red-50 hover:bg-red-100"
                 >
-                  <Trash2 className="h-4 w-4 text-[#C5203F]" />
+                  <Trash2 className="h-4 w-4 text-[#d49332]" />
                 </button>
               </div>
             ))}

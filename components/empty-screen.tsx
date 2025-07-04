@@ -13,7 +13,7 @@ export function EmptyScreen({ session }: { session: Session }) {
           alt="icon"
         />
         <h1 className="text-[24px] font-medium text-center bg-gradient-to-r from-[#FF9892] to-[#870002] bg-clip-text text-transparent">
-          Welcome to GABI ARC, {session?.user?.name} !
+          Welcome to AIVY, {session?.user?.name} !
         </h1>
 
         <p className="text-[#666666] text-center text-[16px]">

@@ -1,8 +1,8 @@
 'use client'
 
 import { cn, SUGGESTION_API } from '@/lib/utils'
-import logoicon from '@/public/GileadLogo.svg'
-import logoicon1 from '@/public/GL.svg'
+import logoicon from '@/public/companylogo.svg'
+import logoicon1 from '@/public/aivy-icon.png'
 import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
 import { BsChatQuote, BsDownload } from 'react-icons/bs'
@@ -460,7 +460,12 @@ export function BotMessage({
         <div className="w-full flex gap-3">
           <div className="flex gap-x-2 items-center mb-2 w-full justify-between">
             <div className="flex items-center gap-x-2">
-              <Image src={logoicon1} alt="Gilead Logo" sizes="icon" />
+              <Image
+                src={logoicon1}
+                alt="Gilead Logo"
+                sizes="icon"
+                className="w-5 h-5"
+              />
               <span className="text-xs text-gray-500">{createdTime}</span>
               <div className="text-xs text-gray-500 ml-2">
                 Response Time:{' '}
