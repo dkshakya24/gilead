@@ -17,13 +17,20 @@ import {
   AlertDialogTitle
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
-import { IconShare, IconSpinner, IconTrash } from '@/components/ui/icons'
+import {
+  IconEdit,
+  IconShare,
+  IconSpinner,
+  IconTrash
+} from '@/components/ui/icons'
 import { ChatShareDialog } from '@/components/chat-share-dialog'
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger
 } from '@/components/ui/tooltip'
+import { Input } from './ui/input'
+import { Save, X } from 'lucide-react'
 
 interface SidebarActionsProps {
   chat: SideBarChat
@@ -31,22 +38,123 @@ interface SidebarActionsProps {
     Session_id: string
     // path: string
   }) => ServerActionResult<void>
+  editChat: (args: {
+    Session_id: string
+    header_name: string
+  }) => ServerActionResult<void>
+
   // shareChat: (id: string) => ServerActionResult<Chat>
 }
 
 export function SidebarActions({
   chat,
-  removeChat
+  removeChat,
+  editChat
   // shareChat
 }: SidebarActionsProps) {
   const router = useRouter()
   const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false)
   // const [shareDialogOpen, setShareDialogOpen] = React.useState(false)
   const [isRemovePending, startRemoveTransition] = React.useTransition()
+  const [editingId, setEditingId] = React.useState<string | null>(null)
+  const [editTitle, setEditTitle] = React.useState('')
+  const [isEditing, setIsEditing] = React.useState(false)
+
+  const saveEdit = async () => {
+    if (editTitle.trim() === '') return
+
+    try {
+      await editChat({ Session_id: chat.Session_id, header_name: editTitle })
+      setIsEditing(false)
+      setEditingId(null)
+      setEditTitle('')
+      toast.success('Chat title updated', {
+        position: 'top-right',
+        className: 'bottom-auto top-2'
+      })
+      router.refresh()
+    } catch (error) {
+      toast.error('Failed to update chat title', {
+        position: 'top-right',
+        className: 'bottom-auto'
+      })
+    }
+  }
+
+  const startEditing = () => {
+    setEditingId(chat.Session_id)
+    setEditTitle(chat.header_name)
+    setIsEditing(true)
+  }
+
+  const cancelEdit = () => {
+    setIsEditing(false)
+    setEditingId(null)
+    setEditTitle('')
+  }
 
   return (
     <>
-      <div className="">
+      <div className="flex items-center gap-0 w-full justify-end bg-primary rounded-lg p-1">
+        {isEditing ? (
+          <div
+            className={`flex items-center gap-0 bg-secondary w-full ${isEditing ? 'mt-[-10px]' : ''}`}
+          >
+            <Input
+              value={editTitle}
+              onChange={e => setEditTitle(e.target.value)}
+              className="flex-1 w-3/4 text-white"
+              autoFocus
+            />
+            <Button
+              onClick={saveEdit}
+              size="sm"
+              className="p-1"
+              variant="secondary"
+            >
+              <Save size={16} className="text-white" />
+            </Button>
+            <Button
+              onClick={cancelEdit}
+              size="sm"
+              className="p-1"
+              variant="secondary"
+            >
+              <X size={16} className="text-white" />
+            </Button>
+          </div>
+        ) : (
+          <>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className="size-7 p-0 group hover:bg-secondary !important"
+                  onClick={startEditing}
+                >
+                  <IconEdit className="!text-primary  group-hover:!text-white" />
+                  <span className="sr-only">Edit</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Edit chat</TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className="size-7 p-0 group hover:bg-secondary"
+                  disabled={isRemovePending}
+                  onClick={() => setDeleteDialogOpen(true)}
+                >
+                  <IconTrash className="!text-primary group-hover:!text-white" />
+                  <span className="sr-only">Delete</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Delete chat</TooltipContent>
+            </Tooltip>
+          </>
+        )}
         {/* <Tooltip>
           <TooltipTrigger asChild>
             <Button
@@ -59,20 +167,6 @@ export function SidebarActions({
             </Button>
           </TooltipTrigger>
           <TooltipContent>Share chat</TooltipContent>
-        </Tooltip> */}
-        {/* <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              className="size-7 p-0 hover:bg-secondary"
-              disabled={isRemovePending}
-              onClick={() => setDeleteDialogOpen(true)}
-            >
-              <IconTrash className="text-white" />
-              <span className="sr-only">Delete</span>
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>Delete chat</TooltipContent>
         </Tooltip> */}
       </div>
       {/* <ChatShareDialog
