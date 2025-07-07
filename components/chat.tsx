@@ -48,7 +48,9 @@ export interface ChatMessage {
   retryReason?: string
   onRetry?: (reason: string) => void
   retried?: boolean
-  retriedAnswers?: string[]
+  retriedAnswers?:
+    | Array<{ retry_reason: string; answer: string; responseTime?: string }>
+    | string[]
 }
 
 export function Chat({ id, className, session, initialMessages }: ChatProps) {
@@ -168,11 +170,12 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
             // Extract retried answers if they exist
             const retriedAnswers =
               item.retried_answers?.map((retry: any) => {
-                // Handle both object format with retry_reason and string format
+                // Handle both object format with retry_reason and responseTime, and string format
                 if (typeof retry === 'object' && retry.answer) {
                   return {
                     answer: retry.answer,
-                    retry_reason: retry.retry_reason || null
+                    retry_reason: retry.retry_reason || null,
+                    responseTime: retry.responseTime || null
                   }
                 } else if (typeof retry === 'string') {
                   return retry

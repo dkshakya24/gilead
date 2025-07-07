@@ -54,7 +54,46 @@ export async function getChat(id: string) {
     console.error('Error fetching data:', error)
   }
 }
-
+export async function editChat({
+  Session_id,
+  header_name
+}: {
+  Session_id: string
+  header_name: string
+}) {
+  const session = await auth()
+  if (!session) {
+    return {
+      error: 'Unauthorized'
+    }
+  }
+  const payload = {
+    action: 'edit_chatname',
+    user_id: session?.user?.email,
+    session_id: Session_id,
+    new_name: header_name
+  }
+  try {
+    const response = await fetch(
+      `https://6try2laitd.execute-api.us-east-1.amazonaws.com/dev/editchat`,
+      {
+        method: 'POST',
+        body: JSON.stringify(payload),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    )
+    if (response.ok) {
+      console.log('Chat title updated successfully', payload)
+    } else {
+      throw new Error('Failed to update chat title')
+    }
+  } catch (error) {
+    console.log('Failed to update chat title:', error)
+    throw error
+  }
+}
 export async function removeChat({ Session_id }: { Session_id: string }) {
   const session = await auth()
 
@@ -64,19 +103,23 @@ export async function removeChat({ Session_id }: { Session_id: string }) {
     }
   }
   const payload = {
-    headers: {
-      'User-Id': session?.user?.email || ''
-    },
-    body: {
-      chatter_id: Session_id
-    }
+    action: 'delete_chat',
+    user_id: session?.user?.email,
+    session_id: Session_id,
+    deletedBy: 'Test',
+    deletedReason: 'Deleted to test API'
   }
   try {
-    const response = await fetch(`${API_URL}/${PROJECT_NAME}_delete`, {
-      method: 'POST',
-
-      body: JSON.stringify(payload)
-    })
+    const response = await fetch(
+      `https://6try2laitd.execute-api.us-east-1.amazonaws.com/dev/deletechat`,
+      {
+        method: 'POST',
+        body: JSON.stringify(payload),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    )
 
     if (response.ok) {
       console.log('Deletion successfull') // Callback for successful deletion (optional)

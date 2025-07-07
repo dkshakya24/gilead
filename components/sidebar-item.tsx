@@ -65,7 +65,7 @@ export function SidebarItem({
 
   return (
     <motion.div
-      className={`relative ${accordian ? 'h-12' : 'h-10'} cursor-pointer`}
+      className={`relative ${accordian ? 'h-12' : 'h-10'} cursor-pointer group`}
       variants={{
         initial: {
           height: 0,
@@ -142,7 +142,11 @@ export function SidebarItem({
           {timeString}
         </span>
       </div>
-      {isActive && <div className="absolute right-2 top-1">{children}</div>}
+      {isActive && (
+        <div className="absolute right-2 top-1 hidden group-hover:block">
+          {children}
+        </div>
+      )}
     </motion.div>
   )
 }
