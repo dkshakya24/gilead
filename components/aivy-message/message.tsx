@@ -125,7 +125,9 @@ export function BotMessage({
   onRetry?: (reason: string) => void
   retryReason?: string
   retried?: boolean
-  retriedAnswers?: Array<{ retry_reason: string; answer: string }> | string[]
+  retriedAnswers?:
+    | Array<{ retry_reason: string; answer: string; responseTime?: string }>
+    | string[]
 }) {
   const [sourceLoading, setSourceLoading] = useState(true)
   const [selectedImage, setSelectedImage] = useState(null)
@@ -449,6 +451,24 @@ export function BotMessage({
     return null
   }
 
+  // Get response time for the selected answer
+  const getCurrentResponseTime = () => {
+    if (retried && retriedAnswers && retriedAnswers.length > 0) {
+      if (selectedAnswerIndex === 0) {
+        return responseTime // Current answer response time
+      } else {
+        const retriedAnswer = retriedAnswers[selectedAnswerIndex - 1]
+        // Handle both object and string formats
+        if (typeof retriedAnswer === 'object' && retriedAnswer.responseTime) {
+          return retriedAnswer.responseTime
+        }
+        // If no responseTime in retried answer, fall back to current responseTime
+        return responseTime
+      }
+    }
+    return responseTime
+  }
+
   return (
     <div
       className={cn(
@@ -464,7 +484,9 @@ export function BotMessage({
               <span className="text-xs text-gray-500">{createdTime}</span>
               <div className="text-xs text-gray-500 ml-2">
                 Response Time:{' '}
-                {responseTime ? `${responseTime}` : 'Calculating...'}
+                {getCurrentResponseTime()
+                  ? `${getCurrentResponseTime()}`
+                  : 'Calculating...'}
               </div>
             </div>
 
