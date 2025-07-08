@@ -985,7 +985,7 @@ Generated: ${createdTime || 'N/A'}
               value={retryReasonInput}
               onChange={e => setRetryReasonInput(e.target.value)}
               placeholder="Enter reason for retry..."
-              className="w-full p-2 border rounded"
+              className="w-full p-2 border rounded text-sm"
             />
             <div className="flex gap-2 mt-2">
               <Button
