@@ -57,8 +57,14 @@ export interface ChatMessage {
 export function Chat({ id, className, session, initialMessages }: ChatProps) {
   const router = useRouter()
   const path = usePathname()
-  const { reasoning, chatMessages, setChatMessages, chatId, setChatId } =
-    useStore()
+  const {
+    reasoning,
+    chatMessages,
+    setChatMessages,
+    chatId,
+    setChatId,
+    selectedUrls
+  } = useStore()
   const {
     messages,
     sendMessage,
@@ -256,12 +262,19 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
     }
   }, [path, newchatboxId])
 
+  // Get URL tracking state from localStorage
+  const isUrlEnabled =
+    typeof window !== 'undefined'
+      ? localStorage.getItem('urlEnabled') !== 'false'
+      : true
+
   const payload = {
     action: 'sendmessage',
     sessionId: id ? id : newchatboxId,
     query: input,
     userId: session?.user.email,
-    reasoning: reasoning
+    reasoning: reasoning,
+    urls: isUrlEnabled ? selectedUrls : []
   }
 
   const handleSend = () => {
@@ -364,7 +377,8 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
         userId: session?.user.email,
         reasoning: reasoning,
         retry_reason: reason,
-        messageId: chatId
+        messageId: chatId,
+        urls: isUrlEnabled ? selectedUrls : []
       }
       emptyMessages()
       sendMessage(payload)

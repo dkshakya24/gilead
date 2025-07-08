@@ -26,8 +26,7 @@ type UrlItem = {
 
 export function UrlDropdown({ disabled }: { disabled: boolean }) {
   const [isDropdownOpen, setIsDropdownOpen] = React.useState(false)
-  const { chatMessages } = useStore()
-  const [selectedUrls, setSelectedUrls] = React.useState<string[]>([])
+  const { chatMessages, selectedUrls, setSelectedUrls } = useStore()
   const { isCopied, copyToClipboard } = useCopyToClipboard({ timeout: 2000 })
   const [copiedUrl, setCopiedUrl] = React.useState<string | null>(null)
   const [isUrlEnabled, setIsUrlEnabled] = React.useState(() => {
@@ -42,7 +41,11 @@ export function UrlDropdown({ disabled }: { disabled: boolean }) {
   // Save to localStorage when changed
   React.useEffect(() => {
     localStorage.setItem('urlEnabled', isUrlEnabled.toString())
-  }, [isUrlEnabled])
+    // Clear selected URLs when URL tracking is disabled
+    if (!isUrlEnabled) {
+      setSelectedUrls([])
+    }
+  }, [isUrlEnabled, setSelectedUrls])
 
   // Extract URLs from chat messages
   const extractUrls = React.useMemo(() => {
@@ -74,9 +77,11 @@ export function UrlDropdown({ disabled }: { disabled: boolean }) {
     window.open(url, '_blank')
   }
 
-  const handleCheckbox = (id: string) => {
-    setSelectedUrls(prev =>
-      prev.includes(id) ? prev.filter(urlId => urlId !== id) : [...prev, id]
+  const handleCheckbox = (id: string, url: string) => {
+    setSelectedUrls(
+      selectedUrls.includes(url)
+        ? selectedUrls.filter(selectedUrl => selectedUrl !== url)
+        : [...selectedUrls, url]
     )
   }
 
@@ -146,8 +151,8 @@ export function UrlDropdown({ disabled }: { disabled: boolean }) {
                       <div className="flex items-center justify-center">
                         <input
                           type="checkbox"
-                          checked={selectedUrls.includes(url.id)}
-                          onChange={() => handleCheckbox(url.id)}
+                          checked={selectedUrls.includes(url.url)}
+                          onChange={() => handleCheckbox(url.id, url.url)}
                           className="h-4 w-4 rounded border-gray-300 cursor-pointer"
                         />
                       </div>
