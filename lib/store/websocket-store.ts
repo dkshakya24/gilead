@@ -13,6 +13,8 @@ interface WebSocketState {
   setRetriedAnswers: (
     answers: Array<{ retry_reason: string; answer: string }> | string[]
   ) => void
+  refreshChatHistory: boolean
+  setRefreshChatHistory: (value: boolean) => void
 }
 
 export const useWebSocketStore = create<WebSocketState>(set => ({
@@ -25,5 +27,7 @@ export const useWebSocketStore = create<WebSocketState>(set => ({
   retried: false,
   setRetried: value => set({ retried: value }),
   retriedAnswers: [],
-  setRetriedAnswers: answers => set({ retriedAnswers: answers })
+  setRetriedAnswers: answers => set({ retriedAnswers: answers }),
+  refreshChatHistory: false,
+  setRefreshChatHistory: value => set({ refreshChatHistory: value })
 }))

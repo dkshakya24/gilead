@@ -31,6 +31,7 @@ import {
 } from '@/components/ui/tooltip'
 import { Input } from './ui/input'
 import { Save, X } from 'lucide-react'
+import { useWebSocketStore } from '@/lib/store/websocket-store'
 
 interface SidebarActionsProps {
   chat: SideBarChat
@@ -53,6 +54,7 @@ export function SidebarActions({
   // shareChat
 }: SidebarActionsProps) {
   const router = useRouter()
+  const { setRefreshChatHistory } = useWebSocketStore()
   const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false)
   // const [shareDialogOpen, setShareDialogOpen] = React.useState(false)
   const [isRemovePending, startRemoveTransition] = React.useTransition()
@@ -72,6 +74,8 @@ export function SidebarActions({
         position: 'top-right',
         className: 'bottom-auto top-2'
       })
+      // Trigger chat history refresh
+      setRefreshChatHistory(true)
       router.refresh()
     } catch (error) {
       toast.error('Failed to update chat title', {
@@ -210,6 +214,8 @@ export function SidebarActions({
                     position: 'top-right',
                     className: 'bottom-auto top-2'
                   })
+                  // Trigger chat history refresh
+                  setRefreshChatHistory(true)
                   router.refresh()
                   router.push('/new')
                   // redirect('/')

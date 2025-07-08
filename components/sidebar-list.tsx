@@ -68,6 +68,12 @@ export function SidebarList({ userId, search = '' }: SidebarListProps) {
   }, [userId])
 
   const isStreaming = useWebSocketStore(state => state.isStreaming)
+  const refreshChatHistory = useWebSocketStore(
+    state => state.refreshChatHistory
+  )
+  const setRefreshChatHistory = useWebSocketStore(
+    state => state.setRefreshChatHistory
+  )
 
   useEffect(() => {
     // Only fetch on first render or when userId changes
@@ -85,6 +91,16 @@ export function SidebarList({ userId, search = '' }: SidebarListProps) {
       fetchChatHistory()
     }
   }, [isStreaming])
+
+  // Refresh chat history when edit is completed
+  useEffect(() => {
+    if (refreshChatHistory && userId) {
+      // Clear cache and refetch when chat is edited
+      chatHistoryCache.delete(userId)
+      fetchChatHistory()
+      setRefreshChatHistory(false) // Reset the trigger
+    }
+  }, [refreshChatHistory, userId, setRefreshChatHistory])
 
   const filterChats = (chats: any[]) =>
     chats?.filter(chat =>
