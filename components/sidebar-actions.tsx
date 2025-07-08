@@ -31,6 +31,7 @@ import {
 } from '@/components/ui/tooltip'
 import { Input } from './ui/input'
 import { Save, X } from 'lucide-react'
+import { useWebSocketStore } from '@/lib/store/websocket-store'
 
 interface SidebarActionsProps {
   chat: SideBarChat
@@ -53,6 +54,7 @@ export function SidebarActions({
   // shareChat
 }: SidebarActionsProps) {
   const router = useRouter()
+  const { setRefreshChatHistory } = useWebSocketStore()
   const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false)
   // const [shareDialogOpen, setShareDialogOpen] = React.useState(false)
   const [isRemovePending, startRemoveTransition] = React.useTransition()
@@ -72,6 +74,8 @@ export function SidebarActions({
         position: 'top-right',
         className: 'bottom-auto top-2'
       })
+      // Trigger chat history refresh
+      setRefreshChatHistory(true)
       router.refresh()
     } catch (error) {
       toast.error('Failed to update chat title', {
@@ -129,10 +133,10 @@ export function SidebarActions({
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="size-7 p-0 group hover:bg-secondary !important"
+                  className="size-7 p-0 group hover:bg-secondary"
                   onClick={startEditing}
                 >
-                  <IconEdit className="!text-primary  group-hover:!text-white" />
+                  <IconEdit className="text-white" />
                   <span className="sr-only">Edit</span>
                 </Button>
               </TooltipTrigger>
@@ -147,7 +151,7 @@ export function SidebarActions({
                   disabled={isRemovePending}
                   onClick={() => setDeleteDialogOpen(true)}
                 >
-                  <IconTrash className="!text-primary group-hover:!text-white" />
+                  <IconTrash className="text-white" />
                   <span className="sr-only">Delete</span>
                 </Button>
               </TooltipTrigger>
@@ -210,6 +214,8 @@ export function SidebarActions({
                     position: 'top-right',
                     className: 'bottom-auto top-2'
                   })
+                  // Trigger chat history refresh
+                  setRefreshChatHistory(true)
                   router.refresh()
                   router.push('/new')
                   // redirect('/')

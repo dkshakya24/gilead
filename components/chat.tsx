@@ -43,6 +43,7 @@ export interface ChatMessage {
   chatId?: string
   responseTime?: any
   citations?: any
+  sourceData?: any
   createdTime?: string
   isRetried?: boolean
   retryReason?: string
@@ -56,8 +57,14 @@ export interface ChatMessage {
 export function Chat({ id, className, session, initialMessages }: ChatProps) {
   const router = useRouter()
   const path = usePathname()
-  const { reasoning, chatMessages, setChatMessages, chatId, setChatId } =
-    useStore()
+  const {
+    reasoning,
+    chatMessages,
+    setChatMessages,
+    chatId,
+    setChatId,
+    selectedUrls
+  } = useStore()
   const {
     messages,
     sendMessage,
@@ -187,6 +194,8 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
               message: item.content,
               chatId: chat.message_id,
               responseTime: item.responseTime,
+              sourceData: item.sources || [],
+              citations: item.specific_citations || [],
               createdTime: new Date(item.created_time)
                 .toLocaleString('en-US', {
                   month: 'short',
@@ -253,12 +262,19 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
     }
   }, [path, newchatboxId])
 
+  // Get URL tracking state from localStorage
+  const isUrlEnabled =
+    typeof window !== 'undefined'
+      ? localStorage.getItem('urlEnabled') !== 'false'
+      : true
+
   const payload = {
     action: 'sendmessage',
     sessionId: id ? id : newchatboxId,
     query: input,
     userId: session?.user.email,
-    reasoning: reasoning
+    reasoning: reasoning,
+    urls: isUrlEnabled ? selectedUrls : []
   }
 
   const handleSend = () => {
@@ -361,7 +377,8 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
         userId: session?.user.email,
         reasoning: reasoning,
         retry_reason: reason,
-        messageId: chatId
+        messageId: chatId,
+        urls: isUrlEnabled ? selectedUrls : []
       }
       emptyMessages()
       sendMessage(payload)
@@ -433,9 +450,9 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
 
   return (
     <div className="group w-full overflow-auto pl-0 transition-all duration-300 ease-in-out peer-[[data-state=open]]:lg:pl-[300px] peer-[[data-state=open]]:xl:pl-[340px] bg-[#fefcfe]">
-      <div className="flex flex-col h-[calc(100vh-4rem)] w-full justify-center">
+      <div className="flex flex-col h-[calc(100vh-4rem)] w-full">
         {chatMessages.length ? (
-          <div className="flex-1 w-full h-full overflow-y-auto flex justify-center items-start">
+          <div className="flex-1 w-full h-full overflow-y-auto">
             <div className="w-full mx-auto mb-8 bg-white flex flex-col min-h-[70vh]">
               {/* Chat Header */}
               <div className="sticky top-0 z-10 left-0 right-0 h-[60px] bg-white flex items-center justify-between px-6">
