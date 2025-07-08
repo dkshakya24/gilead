@@ -22,6 +22,8 @@ interface AppState {
   setChatMessages: (messages: ChatMessage[]) => void
   chatId: string
   setChatId: (id: string) => void
+  selectedUrls: string[]
+  setSelectedUrls: (urls: string[]) => void
 }
 
 export const useStore = create<AppState>(set => ({
@@ -32,5 +34,7 @@ export const useStore = create<AppState>(set => ({
   chatMessages: [],
   setChatMessages: messages => set({ chatMessages: messages }),
   chatId: '',
-  setChatId: id => set({ chatId: id })
+  setChatId: id => set({ chatId: id }),
+  selectedUrls: [],
+  setSelectedUrls: urls => set({ selectedUrls: urls })
 }))

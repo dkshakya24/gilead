@@ -129,10 +129,10 @@ export function SidebarActions({
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="size-7 p-0 group hover:bg-secondary !important"
+                  className="size-7 p-0 group hover:bg-secondary"
                   onClick={startEditing}
                 >
-                  <IconEdit className="!text-primary  group-hover:!text-white" />
+                  <IconEdit className="text-white" />
                   <span className="sr-only">Edit</span>
                 </Button>
               </TooltipTrigger>
@@ -147,7 +147,7 @@ export function SidebarActions({
                   disabled={isRemovePending}
                   onClick={() => setDeleteDialogOpen(true)}
                 >
-                  <IconTrash className="!text-primary group-hover:!text-white" />
+                  <IconTrash className="text-white" />
                   <span className="sr-only">Delete</span>
                 </Button>
               </TooltipTrigger>
