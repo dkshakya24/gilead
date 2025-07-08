@@ -102,7 +102,7 @@ export function SidebarActions({
       <div className="flex items-center gap-0 w-full justify-end bg-primary rounded-lg">
         {isEditing ? (
           <div
-            className={`flex items-center gap-0 bg-secondary w-full ${isEditing ? 'mt-[0px]' : ''}`}
+            className={`flex items-center gap-0 bg-secondary w-full ${isEditing ? 'mt-[0px] rounded-sm p-1' : ''}`}
           >
             <Input
               value={editTitle}

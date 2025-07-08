@@ -142,7 +142,9 @@ export function SidebarItem({
           {timeString}
         </span>
       </div>
-      {isActive && <div className="absolute right-2 top-1">{children}</div>}
+      {isActive && (
+        <div className="absolute right-[8px] top-[1px]">{children}</div>
+      )}
     </motion.div>
   )
 }
