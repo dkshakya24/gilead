@@ -107,7 +107,7 @@ export function UrlDropdown({ disabled }: { disabled: boolean }) {
           className={`flex h-[38px] gap-x-2 items-center px-3 rounded-3xl py-2 border text-sm
             ${
               disabled || !isUrlEnabled
-                ? 'opacity-50 cursor-not-allowed border-gray-200'
+                ? 'opacity-100 border-gray-200'
                 : 'cursor-pointer bg-white border-gray-200'
             }`}
         >

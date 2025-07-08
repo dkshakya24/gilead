@@ -635,7 +635,7 @@ Generated: ${createdTime || 'N/A'}
         <div className="flex items-start">
           <div className="flex h-8 w-8 shrink-0 select-none items-center justify-center rounded-md border shadow-sm bg-background">
             <Image
-              src={logoicon}
+              src={logoicon1}
               alt="Gilead Logo"
               width={20}
               height={20}
