@@ -50,23 +50,32 @@ import {
   TooltipTrigger
 } from '@/components/ui/tooltip'
 import { useWebSocketStore } from '@/lib/store/websocket-store'
+import { SourcesPanel } from '@/components/gilead/sources-panel'
+import { Link2, ExternalLink } from 'lucide-react'
 
 interface UserMessageProps {
   children: string
   createdTime?: string
   isRetried?: boolean
   retryReason?: string
+  isLastMessage?: boolean
+  isStreaming?: boolean
 }
 
 export const UserMessage: React.FC<UserMessageProps> = ({
   children,
   createdTime,
   isRetried = false,
-  retryReason
+  retryReason,
+  isLastMessage = false,
+  isStreaming = false
 }) => {
   return (
     <div
-      className="group relative flex flex-col justify-end items-end w-full"
+      className={cn(
+        'group relative flex flex-col justify-end items-end w-full',
+        !isStreaming && isLastMessage && 'pr-[280px]'
+      )}
       role="article"
       aria-label="User Message"
     >
@@ -79,14 +88,9 @@ export const UserMessage: React.FC<UserMessageProps> = ({
         )}
       </div>
       <div className="rounded-2xl px-5 py-3 gap-y-[6px] bg-[#DAE1E7] text-[#323F49] rounded-tr-none">
-        <div className="text-[#4A5E6D] text-sm leading-relaxed  whitespace-pre-wrap">
+        <div className="text-[#4A5E6D] text-sm leading-relaxed whitespace-pre-wrap">
           {children}
         </div>
-        {/* {isRetried && retryReason && (
-          <div className="text-xs text-yellow-700 mt-2 italic">
-            Retry reason: {retryReason}
-          </div>
-        )} */}
       </div>
     </div>
   )
@@ -156,37 +160,112 @@ export function BotMessage({
   const [showRetryInput, setShowRetryInput] = useState(false)
   const { isSuggestions } = useWebSocketStore()
   const [selectedAnswerIndex, setSelectedAnswerIndex] = useState(0)
+  const [showAllSources, setShowAllSources] = useState(false)
 
-  const handleMouseUpEvent = (event: MouseEvent) => {
+  // Function to extract unique URLs from message content
+  const extractUrlsFromMessage = (message: string) => {
+    // Regular expression to match both markdown links and plain URLs
+    const markdownPattern = /\[([^\]]+)\]\((https?:\/\/[^\s\)]+)\)/g
+    const urlPattern = /(https?:\/\/[^\s<]+[^<.,:;"')\]\s])/g
+    const urlMap = new Map<
+      string,
+      { url: string; title: string; description: string }
+    >()
+
+    try {
+      // Extract markdown links
+      let match
+      while ((match = markdownPattern.exec(message)) !== null) {
+        const url = match[2]
+        if (!urlMap.has(url)) {
+          urlMap.set(url, {
+            url,
+            title: match[1],
+            description: `Referenced link from the conversation`
+          })
+        }
+      }
+
+      // Extract plain URLs
+      while ((match = urlPattern.exec(message)) !== null) {
+        const url = match[1]
+        if (!urlMap.has(url)) {
+          // Try to extract a title from the URL
+          const urlObj = new URL(url)
+          const pathSegments = urlObj.pathname.split('/').filter(Boolean)
+          const title =
+            pathSegments[pathSegments.length - 1]
+              ?.replace(/-/g, ' ')
+              ?.replace(/\.[^/.]+$/, '')
+              ?.split(' ')
+              ?.map(word => word.charAt(0).toUpperCase() + word.slice(1))
+              ?.join(' ') || 'Referenced Link'
+
+          urlMap.set(url, {
+            url,
+            title,
+            description: `Referenced from ${urlObj.hostname}`
+          })
+        }
+      }
+    } catch (error) {
+      console.error('Error extracting URLs:', error)
+    }
+
+    return Array.from(urlMap.values())
+  }
+
+  // Always extract URLs from message content
+  const extractedUrls = extractUrlsFromMessage(children)
+  const sources = extractedUrls
+  const hasMoreSources = sources.length > 3
+  const displayedSources = hasMoreSources ? sources.slice(0, 3) : sources
+
+  useEffect(() => {
+    console.log('Message content:', children)
+    console.log('Extracted URLs:', extractedUrls)
+  }, [children])
+
+  const handleMouseUpEvent = (event: any) => {
     const selection = window.getSelection()
-    if (!selection) {
+    if (!selection || selection.isCollapsed) {
       setTooltipVisible(false)
       return
     }
 
-    const { anchorNode, rangeCount } = selection
-    if (!rangeCount || !selection.toString()) {
+    const selectedText = selection.toString().trim()
+    if (!selectedText) {
       setTooltipVisible(false)
       return
     }
-    if (!anchorNode || !messageRef.current?.contains(anchorNode)) {
-      setTooltipVisible(false)
-      console.info('Anchor node is null or not in messageRef')
-      return
-    }
 
-    const ranges = []
-    for (let i = 0; i < rangeCount; i++) {
-      ranges.push(selection.getRangeAt(i))
-    }
+    const range = selection.getRangeAt(0)
+    const rect = range.getBoundingClientRect()
 
-    const selectedText = selection?.toString()
     setSelectedText(selectedText)
+    setStartOffset(range.startOffset)
+    setEndOffset(range.endOffset)
 
-    const mouseX = event.clientX
-    const mouseY = event.clientY
-    setTooltipPosition({ top: mouseY - 70, left: mouseX })
+    // Calculate tooltip position
+    const tooltipTop = rect.top - 40 // 40px above the selection
+    const tooltipLeft = rect.left + rect.width / 2 // Centered horizontally
+
+    setTooltipPosition({ top: tooltipTop, left: tooltipLeft })
     setTooltipVisible(true)
+
+    // Store selection details for feedback
+    setSelectionSelected({
+      selectedText,
+      selectedSpans: Array.from(
+        selection.getRangeAt(0).cloneContents().childNodes
+      )
+        .map(node => node.textContent)
+        .filter(Boolean),
+      ranges: {
+        start: range.startOffset,
+        end: range.endOffset
+      }
+    })
   }
 
   const revertSelection = (span: HTMLSpanElement, originalText: string) => {
@@ -468,87 +547,170 @@ export function BotMessage({
     }
     return responseTime
   }
+  // Add email handler function
+  const handleEmail = () => {
+    if (messageRef.current) {
+      try {
+        // Get the message content
+        const messageContent = messageRef.current.innerText
+
+        // Format the content with some context
+        const formattedContent = `
+GABI ARC Chat Response
+
+${messageContent}
+
+Response Time: ${responseTime || 'N/A'}
+Generated: ${createdTime || 'N/A'}
+        `.trim()
+
+        // Properly encode the subject and body for mailto
+        const subject = encodeURIComponent('GABI ARC')
+        const body = encodeURIComponent(formattedContent)
+
+        // Construct and open the mailto link
+        const mailtoLink = `mailto:?subject=${subject}&body=${body}`
+        window.open(mailtoLink, '_blank')
+      } catch (error) {
+        console.error('Error sending email:', error)
+      }
+    }
+  }
 
   return (
     <div
-      className={cn(
-        'group relative flex flex-col justify-start items-start transition-all duration-300 ease-in-out',
-        className
-      )}
+      className="group relative flex flex-col w-full max-w-[100vw]"
+      role="article"
+      aria-label="Assistant Message"
     >
-      {chatId && (
-        <div className="w-full flex gap-3">
-          <div className="flex gap-x-2 items-center mb-2 w-full justify-between">
-            <div className="flex items-center gap-x-2">
-              <Image src={logoicon1} alt="Gilead Logo" sizes="icon" />
-              <span className="text-xs text-gray-500">{createdTime}</span>
-              <div className="text-xs text-gray-500 ml-2">
-                Response Time:{' '}
-                {getCurrentResponseTime()
-                  ? `${getCurrentResponseTime()}`
-                  : 'Calculating...'}
-              </div>
-            </div>
-
-            {/* Answer Version Buttons */}
-            {retried && retriedAnswers && retriedAnswers.length > 0 && (
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-gray-500">Versions:</span>
-                <div className="flex gap-1">
-                  {/* Current Answer Button */}
-                  <button
-                    onClick={() => handleAnswerSwitch(0)}
-                    className={cn(
-                      'w-8 h-8 rounded-full text-xs font-medium transition-all duration-200 flex items-center justify-center',
-                      selectedAnswerIndex === 0
-                        ? 'bg-secondary text-white shadow-md'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    )}
-                    title="Current Answer"
-                  >
-                    C
-                  </button>
-
-                  {/* Retried Answers Buttons */}
-                  {retriedAnswers.map((_, index) => (
-                    <button
-                      key={index}
-                      onClick={() => handleAnswerSwitch(index + 1)}
-                      className={cn(
-                        'w-8 h-8 rounded-full text-xs font-medium transition-all duration-200 flex items-center justify-center',
-                        selectedAnswerIndex === index + 1
-                          ? 'bg-orange-500 text-white shadow-md'
-                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                      )}
-                      title={`Previous Answer ${index + 1}`}
-                    >
-                      {index + 1}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
+      {/* Feedback tooltip */}
+      {tooltipVisible && (
+        <div
+          style={{
+            position: 'fixed',
+            top: `${tooltipPosition.top}px`,
+            left: `${tooltipPosition.left}px`,
+            transform: 'translate(-50%, -100%)',
+            zIndex: 1000
+          }}
+          className="bg-white rounded-lg shadow-lg p-2 flex items-center gap-2"
+        >
+          <button
+            onClick={() => {
+              setIsFeedbackClicked(true)
+              setTooltipVisible(false)
+            }}
+            className="flex items-center gap-1 px-2 py-1 text-sm text-gray-700 hover:bg-gray-100 rounded"
+          >
+            <RiFeedbackLine className="w-4 h-4" />
+            Give Feedback
+          </button>
         </div>
+      )}
+
+      {/* Feedback form */}
+      {isFeedbackClicked && (
+        <FeedbackComponent
+          setIsFeedbackClicked={setIsFeedbackClicked}
+          selectedText={selectedText}
+          chatId={chatId}
+          session={session}
+          startOffset={startOffset}
+          endOffset={endOffset}
+          selectSpanElement={selectSpanElement}
+          revertSelection={(span, originalText) => {
+            if (span) {
+              span.textContent = originalText
+            }
+          }}
+        />
       )}
 
       <div
         className={cn(
-          'rounded-2xl px-5 py-3 gap-y-[6px] bg-white text-gray-800 rounded-tl-none w-full',
-          chatId && 'border border-gray-200'
+          'flex flex-col w-full max-w-screen-2xl mx-auto px-4',
+          !isStreaming && 'pr-[280px]'
         )}
       >
-        {/* Retried Tag */}
-        {isRetried && (
-          <span className="inline-block bg-yellow-200 text-yellow-800 text-xs font-semibold px-2 py-1 rounded mb-2">
-            Retried
-          </span>
-        )}
+        <div className="flex items-start">
+          <div className="flex h-8 w-8 shrink-0 select-none items-center justify-center rounded-md border shadow-sm bg-background">
+            <Image
+              src={logoicon}
+              alt="Gilead Logo"
+              width={20}
+              height={20}
+              className="rounded"
+            />
+          </div>
 
-        {/* Answer Version Indicator */}
-        {retried && retriedAnswers && retriedAnswers.length > 0 && (
-          <div className="mb-3">
-            {/* <div className="flex items-center gap-2 mb-2">
+          <div className="flex-1 ml-4 min-w-0">
+            <div className="flex gap-x-2 justify-between items-center mb-2">
+              <div className="flex items-center gap-x-2">
+                <span className="text-xs text-gray-500">{createdTime}</span>
+                {responseTime && (
+                  <div className="text-xs text-gray-500 ml-2">
+                    Response Time:{' '}
+                    {getCurrentResponseTime()
+                      ? `${getCurrentResponseTime()}`
+                      : 'Calculating...'}
+                  </div>
+                )}
+              </div>
+              {retried && retriedAnswers && retriedAnswers.length > 0 && (
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-gray-500">Versions:</span>
+                  <div className="flex gap-1">
+                    {/* Current Answer Button */}
+                    <button
+                      onClick={() => handleAnswerSwitch(0)}
+                      className={cn(
+                        'w-8 h-8 rounded-full text-xs font-medium transition-all duration-200 flex items-center justify-center',
+                        selectedAnswerIndex === 0
+                          ? 'bg-secondary text-white shadow-md'
+                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      )}
+                      title="Current Answer"
+                    >
+                      C
+                    </button>
+
+                    {/* Retried Answers Buttons */}
+                    {retriedAnswers.map((_, index) => (
+                      <button
+                        key={index}
+                        onClick={() => handleAnswerSwitch(index + 1)}
+                        className={cn(
+                          'w-8 h-8 rounded-full text-xs font-medium transition-all duration-200 flex items-center justify-center',
+                          selectedAnswerIndex === index + 1
+                            ? 'bg-orange-500 text-white shadow-md'
+                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        )}
+                        title={`Previous Answer ${index + 1}`}
+                      >
+                        {index + 1}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {isRetried && (
+                <span className="inline-block bg-yellow-200 text-yellow-800 text-xs font-semibold px-2 py-1 rounded">
+                  Retried
+                </span>
+              )}
+            </div>
+
+            <div className="flex gap-4 relative">
+              <div
+                className={cn(
+                  'flex-1 min-w-0 rounded-2xl px-5 py-3 gap-y-[6px] bg-[#F5F7F9] text-[#323F49] rounded-tl-none',
+                  className
+                )}
+              >
+                {/* Answer Version Indicator */}
+                {retried && retriedAnswers && retriedAnswers.length > 0 && (
+                  <div className="mb-3">
+                    {/* <div className="flex items-center gap-2 mb-2">
               <div
                 className={cn(
                   'w-2 h-2 rounded-full',
@@ -562,504 +724,306 @@ export function BotMessage({
               </p>
             </div> */}
 
-            {/* Retry Reason Display */}
-            {getRetryReason() && (
-              <div className="mt-2 p-2 bg-orange-50 border border-orange-200 rounded-md">
-                <div className="flex items-start gap-2">
-                  <div className="w-1 h-1 rounded-full bg-orange-500 mt-2 flex-shrink-0"></div>
-                  <div>
-                    <p className="text-xs font-medium text-orange-800 mb-1">
-                      Retry Reason:
-                    </p>
-                    <p className="text-xs text-orange-700 italic">
-                      {getRetryReason()}
-                    </p>
+                    {/* Retry Reason Display */}
+                    {getRetryReason() && (
+                      <div className="mt-2 p-2 bg-orange-50 border border-orange-200 rounded-md">
+                        <div className="flex items-start gap-2">
+                          <div className="w-1 h-1 rounded-full bg-orange-500 mt-2 flex-shrink-0"></div>
+                          <div>
+                            <p className="text-xs font-medium text-orange-800 mb-1">
+                              Retry Reason:
+                            </p>
+                            <p className="text-xs text-orange-700 italic">
+                              {getRetryReason()}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
+                )}
+                <div
+                  ref={messageRef}
+                  className="prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0"
+                >
+                  <MemoizedReactMarkdown
+                    className="prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0"
+                    remarkPlugins={[remarkGfm, remarkMath]}
+                    rehypePlugins={[rehypeRaw as any, rehypeSanitize]}
+                    components={{
+                      p({ children }) {
+                        return <p className="mb-2 last:mb-0">{children}</p>
+                      },
+                      h1({ children }) {
+                        return (
+                          <h1 className="text-xl my-2 mt-[10px]">{children}</h1>
+                        )
+                      },
+                      h2({ children }) {
+                        return (
+                          <h2 className="text-lg my-2 mt-[10px]">{children}</h2>
+                        )
+                      },
+                      h3({ children }) {
+                        return (
+                          <h3 className="text-base my-2 mt-[10px]">
+                            {children}
+                          </h3>
+                        )
+                      },
+                      ul({ children }) {
+                        return (
+                          <ul className="list-disc pl-4 my-2">{children}</ul>
+                        )
+                      },
+                      ol({ children }) {
+                        return (
+                          <ol className="list-decimal pl-4 my-2">{children}</ol>
+                        )
+                      },
+                      li({ children }) {
+                        return <li className="mb-1">{children}</li>
+                      },
+                      a({ children, href, ...props }) {
+                        return (
+                          <a
+                            className={
+                              href?.includes('#')
+                                ? 'text-xs inline-flex hover:text-white bg-gray-100 rounded-full justify-center items-center underline-none p-1 hover:bg-primary hover:opacity-1 mr-1'
+                                : 'text-xs inline-flex  justify-center items-center underline-none text-secondary font-bold'
+                            }
+                            onClick={() => {
+                              if (href) setHref(href)
+                              if (href?.includes('#')) {
+                                setIsCitationModalClicked(true)
+                              }
+                            }}
+                            href={href}
+                            target={href?.includes('#') ? '' : '_blank'}
+                            {...props}
+                          >
+                            {children}
+                          </a>
+                        )
+                      },
+                      table({ children }) {
+                        return (
+                          <div className="my-4 overflow-x-auto">
+                            <table className="min-w-full border-collapse border border-gray-300 bg-white shadow-sm rounded-lg">
+                              {children}
+                            </table>
+                          </div>
+                        )
+                      },
+                      thead({ children }) {
+                        return <thead className="bg-gray-50">{children}</thead>
+                      },
+                      th({ children }) {
+                        return (
+                          <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600 border-b border-gray-300">
+                            {children}
+                          </th>
+                        )
+                      },
+                      td({ children }) {
+                        return (
+                          <td className="px-6 py-4 text-sm text-gray-600 border-b border-gray-200 whitespace-normal">
+                            {children}
+                          </td>
+                        )
+                      },
+                      tr({ children }) {
+                        return (
+                          <tr className="hover:bg-gray-50 transition-colors">
+                            {children}
+                          </tr>
+                        )
+                      }
+                    }}
+                  >
+                    {getCurrentAnswerContent()}
+                  </MemoizedReactMarkdown>
                 </div>
+
+                {/* Message actions */}
+                <div className="flex items-center justify-end gap-2 mt-2">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={() => copyToClipboard(children)}
+                  >
+                    {isCopied ? (
+                      <IconCheck className="h-4 w-4" />
+                    ) : (
+                      <IconCopy className="h-4 w-4" />
+                    )}
+                    <span className="sr-only">Copy message</span>
+                  </Button>
+
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={handleDownload}
+                    disabled={isDownloaded}
+                  >
+                    {isDownloaded ? (
+                      <IconCheck className="h-4 w-4" />
+                    ) : (
+                      <IconDownload className="h-4 w-4" />
+                    )}
+                    <span className="sr-only">Download</span>
+                  </Button>
+
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={handleEmail}
+                      >
+                        <IconMail className="h-4 w-4" />
+                        <span className="sr-only">Email</span>
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Send via email</TooltipContent>
+                  </Tooltip>
+
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={handleSpeak}
+                  >
+                    {isSpeaking ? (
+                      <VolumeOffIcon className="text-primary h-4 w-4" />
+                    ) : (
+                      <Volume1Icon className="text-gray-600 h-4 w-4" />
+                    )}
+                    <span className="sr-only">
+                      {isSpeaking ? 'Stop speaking' : 'Speak message'}
+                    </span>
+                  </Button>
+
+                  {onRetry && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => setShowRetryInput(true)}
+                    >
+                      <IconRefresh className="h-4 w-4" />
+                      <span className="sr-only">Retry</span>
+                    </Button>
+                  )}
+                </div>
+
+                {/* Sources panel */}
+                {sources.length > 0 && (
+                  <div className="w-[280px] flex-shrink-0 absolute right-[-300px] top-0">
+                    <div className="space-y-2 border-l-2 border-primary/20 pl-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Link2 className="h-4 w-4" />
+                          <span>Referenced Links ({sources.length})</span>
+                        </div>
+                        {hasMoreSources && (
+                          <button
+                            onClick={() => setShowAllSources(prev => !prev)}
+                            className="text-xs text-primary hover:text-primary/80"
+                          >
+                            {showAllSources
+                              ? 'Show Less'
+                              : `Show All (${sources.length})`}
+                          </button>
+                        )}
+                      </div>
+                      <div className="space-y-2">
+                        {(showAllSources ? sources : displayedSources).map(
+                          (source, index) => (
+                            <div
+                              key={`${source.url}-${index}`}
+                              className="rounded-lg border bg-card p-2 hover:bg-accent/50 transition-colors"
+                            >
+                              <div className="flex items-start justify-between gap-2">
+                                <div className="space-y-1 flex-1">
+                                  <h3 className="font-medium text-sm line-clamp-1">
+                                    {source.title}
+                                  </h3>
+                                  <p className="text-xs text-muted-foreground line-clamp-2">
+                                    {source.description}
+                                  </p>
+                                </div>
+                                <a
+                                  href={source.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-primary hover:text-primary/80"
+                                >
+                                  <ExternalLink className="h-4 w-4" />
+                                </a>
+                              </div>
+                            </div>
+                          )
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
-            )}
+            </div>
+          </div>
+        </div>
+
+        {/* Retry input */}
+        {showRetryInput && onRetry && (
+          <div className="mt-4 max-w-2xl">
+            <input
+              type="text"
+              value={retryReasonInput}
+              onChange={e => setRetryReasonInput(e.target.value)}
+              placeholder="Enter reason for retry..."
+              className="w-full p-2 border rounded"
+            />
+            <div className="flex gap-2 mt-2">
+              <Button
+                onClick={() => {
+                  onRetry(retryReasonInput)
+                  setShowRetryInput(false)
+                  setRetryReasonInput('')
+                }}
+              >
+                Submit
+              </Button>
+              <Button variant="ghost" onClick={() => setShowRetryInput(false)}>
+                Cancel
+              </Button>
+            </div>
           </div>
         )}
 
-        <div
-          ref={messageRef}
-          className="relative ml-0 md:ml-4 flex-1 space-y-2 overflow-hidden px-0 md:px-1 group/item transition-all duration-300 ease-in-out w-full"
-        >
-          <MemoizedReactMarkdown
-            className="prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0 text-gray-600 w-full xl:max-w-[calc(100%-50px)] 2xl:max-w-[calc(100%-50px)]"
-            remarkPlugins={[remarkGfm, remarkMath]}
-            rehypePlugins={[rehypeRaw as any, rehypeSanitize]}
-            components={{
-              p({ children }) {
-                return <p className="mb-2 last:mb-0">{children}</p>
-              },
-              h1({ children }) {
-                return <h1 className="text-xl my-2 mt-[10px]">{children}</h1>
-              },
-              h2({ children }) {
-                return <h2 className="text-lg my-2 mt-[10px]">{children}</h2>
-              },
-              h3({ children }) {
-                return <h3 className="text-base my-2 mt-[10px]">{children}</h3>
-              },
-              ul({ children }) {
-                return <ul className="list-disc pl-4 my-2">{children}</ul>
-              },
-              ol({ children }) {
-                return <ol className="list-decimal pl-4 my-2">{children}</ol>
-              },
-              li({ children }) {
-                return <li className="mb-1">{children}</li>
-              },
-              a({ children, href, ...props }) {
-                return (
-                  <a
-                    className={
-                      href?.includes('#')
-                        ? 'text-xs inline-flex hover:text-white bg-gray-100 rounded-full justify-center items-center underline-none p-1 hover:bg-primary hover:opacity-1 mr-1'
-                        : 'text-xs inline-flex  justify-center items-center underline-none text-secondary font-bold'
-                    }
-                    onClick={() => {
-                      if (href) setHref(href)
-                      if (href?.includes('#')) {
-                        setIsCitationModalClicked(true)
-                      }
-                    }}
-                    href={href}
-                    target={href?.includes('#') ? '' : '_blank'}
-                    {...props}
-                  >
-                    {children}
-                  </a>
-                )
-              },
-              table({ children }) {
-                return (
-                  <div className="my-4 overflow-x-auto">
-                    <table className="min-w-full border-collapse border border-gray-300 bg-white shadow-sm rounded-lg">
-                      {children}
-                    </table>
-                  </div>
-                )
-              },
-              thead({ children }) {
-                return <thead className="bg-gray-50">{children}</thead>
-              },
-              th({ children }) {
-                return (
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600 border-b border-gray-300">
-                    {children}
-                  </th>
-                )
-              },
-              td({ children }) {
-                return (
-                  <td className="px-6 py-4 text-sm text-gray-600 border-b border-gray-200 whitespace-normal">
-                    {children}
-                  </td>
-                )
-              },
-              tr({ children }) {
-                return (
-                  <tr className="hover:bg-gray-50 transition-colors">
-                    {children}
-                  </tr>
-                )
-              }
-            }}
-          >
-            {getCurrentAnswerContent()}
-          </MemoizedReactMarkdown>
-
-          {/* Tooltip */}
-          {tooltipVisible && (
-            <div
-              // ref={tooltipRef}
-              className="fixed text-white p-2 rounded right-4 bottom-1/2"
-              style={{
-                top: tooltipPosition.top,
-                // left: tooltipPosition.left
-                // transform: 'translateX(0%)'
-                // top: 300,
-                left: tooltipPosition.left
-              }}
-            >
-              <Button onClick={handleFeedbackClick}>
-                {' '}
-                <RiFeedbackLine className="tex-sm w-4 h-4 text-white mr-2" />
-                Give Feedback
-              </Button>
-            </div>
-          )}
-
-          {/* sources section */}
-          <div className="">
-            <div className="flex items-center space-x-2">
-              {!isStreaming && citations?.length > 0 ? (
-                <SourcesDrawer sourceCall={handleSource}>
-                  <h1 className="pt-3 px-12 text-primary text-center font-bold text-xl underline underline-offset-8">
-                    Citations
-                  </h1>
-                  {sourceLoading ? (
-                    <div className="animate-pulse space-y-4 px-4 pt-10">
-                      {[...Array(10)].map((_, index) => (
-                        <div
-                          key={index}
-                          className="flex items-center space-x-4 w-full max-w-md"
-                        >
-                          <div className="bg-gray-300 rounded-full h-6 w-6" />
-                          <div className="flex-1 space-y-2 py-1">
-                            <div className="h-4 bg-gray-300 rounded w-3/4" />
-                            <div className="h-4 bg-gray-300 rounded" />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="p-2 md:p-3 md:px-10 pt-0 flex flex-1 flex-col overflow-hidden">
-                      <div className="flex-1 overflow-auto">
-                        <div className="w-full">
-                          <ol>
-                            {citations.map((item: any) => (
-                              <li
-                                key={item.source_id}
-                                className="border-gray-200 border-b-2 border p-2 md:p-4 mb-2 rounded-sm"
-                              >
-                                <div className="flex flex-col gap-2 px-1 md:px-2 justify-center w-full pb-2 md:pb-3">
-                                  <div className="flex flex-row md:flex-row gap-2 justify-between">
-                                    <p className="text-xs md:text-sm text-primary text-white text-center bg-secondary rounded-sm p-1 max-w-[200px]">
-                                      Citation ID: {item.source_id}
-                                    </p>
-                                    <a
-                                      href={item.img_url}
-                                      download={item.doc_name}
-                                      className="flex items-center text-xs md:text-sm text-white bg-secondary rounded-sm px-2"
-                                    >
-                                      <BsDownload className="text-lg md:text-xl text-white" />
-                                    </a>
-                                  </div>
-                                  <h2 className="text-xs md:text-sm flex gap-2 text-primary">
-                                    <i>
-                                      <b> Abstract Title -</b> {item.Title}
-                                    </i>
-                                  </h2>
-                                  <h2 className="text-xs md:text-sm flex flex-row justify-start gap-3 py-2">
-                                    {/* <span className="flex flex-row gap-2 items-center">
-                                    {' '}
-                                    <Calendar className="text-sm md:text-md text-primary" />
-                                    <i>{item.Date}</i>
-                                  </span>
-                                  <span className="flex flex-row gap-2 items-center">
-                                    {' '}
-                                    <Pin className="text-sm md:text-md text-primary" />
-                                    <i>{item.Place}</i>
-                                  </span> */}
-                                    <span className="flex flex-row gap-2 items-center text-gray-600">
-                                      <i>
-                                        <b> Presented By -</b>
-                                      </i>
-                                      <FaUserGroup className="text-sm text-primary" />
-                                      <i className="max-w-[300px] truncate">
-                                        {item.Presented_by}
-                                      </i>
-                                    </span>
-                                    {/* <q>
-                                    {' '}
-                                    <i>{item.quote}</i>
-                                  </q> */}
-                                  </h2>
-                                </div>
-                                <div className="w-full flex flex-col">
-                                  <div className="relative group mb-2 w-full h-[30vh] md:h-screen md:max-h-[50vh]">
-                                    <div>
-                                      <Image
-                                        className="w-full rounded-md border-gray shadow-md"
-                                        src={item.img_url}
-                                        alt={item.img_url}
-                                        layout="fill"
-                                        objectFit="contain"
-                                      />
-                                      <MdFullscreen
-                                        className="absolute top-2 bg-primary right-2 text-white block md:group-hover:block md:hidden rounded-full w-[30px] h-[30px] md:w-[35px] md:h-[35px] p-2"
-                                        onClick={() => {
-                                          setSelectedImage(item.img_url)
-                                        }}
-                                      />
-                                    </div>
-                                  </div>
-                                  <div className="w-full flex flex-row md:flex-row gap-2 justify-between items-start md:items-center py-1 md:py-2">
-                                    <p className="text-xs md:text-sm flex gap-2 break-all">
-                                      <GrDocumentImage className="text-lg md:text-xl text-primary flex-shrink-0" />
-                                      {item.doc_name}
-                                    </p>
-                                    <p className="text-xs md:text-sm text-primary text-white text-center bg-secondary rounded-sm px-2 py-1">
-                                      {item.page_num}
-                                    </p>
-                                  </div>
-                                </div>
-                              </li>
-                            ))}
-                          </ol>
-                        </div>
-                        <div>
-                          {selectedImage && (
-                            <div className="fixed inset-0 top-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-2 md:p-4">
-                              <div
-                                ref={citationModalRef}
-                                className="w-full md:max-w-[58%] flex flex-col relative bg-white rounded-md p-2 md:p-4 box-border overflow-y-auto h-[95vh] md:h-auto md:max-h-[95vh]"
-                              >
-                                <button
-                                  className="absolute top-2 right-2 z-10 flex items-center justify-center"
-                                  onClick={() => setSelectedImage(null)}
-                                >
-                                  <MdOutlineCloseFullscreen className="bg-primary text-white rounded-full p-1 w-8 h-8 md:w-10 md:h-10 transition-transform hover:scale-110" />
-                                </button>
-                                <div className="w-full h-full flex items-center justify-center">
-                                  <Image
-                                    className="w-full h-auto max-h-[85vh] object-contain object-center border border-gray-200 rounded-sm"
-                                    src={selectedImage}
-                                    alt="Citation image"
-                                    width={800}
-                                    height={800}
-                                    priority
-                                  />
-                                </div>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </SourcesDrawer>
-              ) : null}
+        {/* Suggested Questions */}
+        {isLastMessage && !isStreaming && promptMessages.length > 0 && (
+          <div className="mt-6">
+            <h3 className="text-sm font-medium text-gray-900 mb-3">
+              Suggested Questions
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              {promptMessages.map((message, index) => (
+                <button
+                  key={index}
+                  onClick={() => handleMessageClick(message)}
+                  className="inline-flex items-center px-3 py-1.5 bg-white border border-gray-300 rounded-full text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                >
+                  {message}
+                </button>
+              ))}
             </div>
           </div>
-          {isCitationModalClicked ? (
-            <>
-              <CitationComponent
-                hrefValue={href}
-                citations={citations}
-                setIsCitationModalClicked={setIsCitationModalClicked}
-              />
-            </>
-          ) : null}
-          {!isStreaming && chatId && isLastMessage && isSuggestions ? (
-            <div className="mt-4 hidden md:block">
-              <Separator className="my-4" />
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-2 h-2 rounded-full bg-secondary animate-pulse"></div>
-                <p className="text-sm font-medium text-gray-600">
-                  You may want to ask
-                </p>
-              </div>
-              {loading ? (
-                <div className="space-y-3">
-                  {Array.from({ length: 3 }).map((_, i) => (
-                    <div
-                      key={i}
-                      className="w-full h-12 rounded-lg shrink-0 animate-pulse bg-zinc-100 dark:bg-zinc-800"
-                    />
-                  ))}
-                </div>
-              ) : (
-                <div className="mt-4 space-y-3">
-                  {promptMessages.map((message, index) => (
-                    <div
-                      key={index}
-                      onClick={() => handleMessageClick(message)}
-                      className="group relative px-4 py-3 border border-gray-200 cursor-pointer rounded-lg shadow-sm hover:shadow-md transition-all duration-200 ease-in-out bg-white hover:bg-gray-50 hover:border-secondary/30"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1">
-                          <p className="text-sm text-gray-700 group-hover:text-gray-900 transition-colors duration-200">
-                            {message}
-                          </p>
-                        </div>
-                        <div className="ml-4 flex items-center">
-                          <div className="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center group-hover:bg-secondary/20 transition-colors duration-200">
-                            <FaArrowRightLong
-                              size={14}
-                              className="text-secondary group-hover:translate-x-0.5 transition-transform duration-200"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                      <div className="absolute inset-0 rounded-lg ring-1 ring-inset ring-secondary/0 group-hover:ring-secondary/20 transition-all duration-200"></div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          ) : null}
-          {isFeedbackClicked ? (
-            <FeedbackComponent
-              setIsFeedbackClicked={setIsFeedbackClicked}
-              chatId={chatId}
-              selectedText={selectedText}
-              startOffset={startOffset}
-              endOffset={endOffset}
-              session={session}
-              selectSpanElement={selectSpanElement}
-              revertSelection={revertSelection}
-            />
-          ) : null}
-        </div>
+        )}
       </div>
-      {chatId && (
-        <div className="w-full flex gap-3">
-          <div className="flex gap-2 items-center my-2">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => {
-                    if (messageRef.current) {
-                      copyToClipboard(messageRef.current.innerText)
-                    }
-                  }}
-                  className="hover:bg-gray-100"
-                >
-                  {isCopied ? (
-                    <IconCheck className="text-green-600" />
-                  ) : (
-                    <IconCopy />
-                  )}
-                  <span className="sr-only">Copy message</span>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom">Copy text</TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleDownload}
-                  className="hover:bg-gray-100"
-                >
-                  <IconDownload
-                    className={isDownloaded ? 'text-blue-600' : ''}
-                  />
-                  <span className="sr-only">Download message</span>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom">Download message</TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => {
-                    if (showRetryInput) {
-                      setShowRetryInput(false)
-                      setRetryReasonInput('')
-                    } else {
-                      setShowRetryInput(true)
-                    }
-                  }}
-                  className="hover:bg-gray-100"
-                  disabled={isStreaming}
-                >
-                  <IconRefresh className={isStreaming ? 'text-gray-400' : ''} />
-                  <span className="sr-only">Retry message</span>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom">
-                {isStreaming ? 'Cannot retry while streaming' : 'Retry message'}
-              </TooltipContent>
-            </Tooltip>
-            {showRetryInput && (
-              <div className="flex items-center gap-1 ml-2 min-w-[200px]">
-                <input
-                  type="text"
-                  value={retryReasonInput}
-                  onChange={e => setRetryReasonInput(e.target.value)}
-                  placeholder="Retry reason..."
-                  className="w-32 h-8 px-2 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-secondary"
-                  onKeyDown={e => {
-                    if (e.key === 'Enter' && retryReasonInput.trim()) {
-                      if (onRetry) onRetry(retryReasonInput)
-                      setShowRetryInput(false)
-                      setRetryReasonInput('')
-                    }
-                  }}
-                />
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => {
-                    if (onRetry) onRetry(retryReasonInput)
-                    setShowRetryInput(false)
-                    setRetryReasonInput('')
-                  }}
-                  disabled={!retryReasonInput.trim()}
-                  className="h-8 w-8 hover:bg-green-100"
-                >
-                  <IconCheck className="text-green-600 h-3 w-3" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => {
-                    setShowRetryInput(false)
-                    setRetryReasonInput('')
-                  }}
-                  className="h-8 w-8 hover:bg-red-100"
-                >
-                  <IconClose className="text-red-600 h-3 w-3" />
-                </Button>
-              </div>
-            )}
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => {
-                    // Send the rendered HTML (not markdown or plain text) in the email draft
-                    if (messageRef.current) {
-                      const subject = encodeURIComponent('Gilead Response')
-                      const body = encodeURIComponent(
-                        messageRef.current.innerHTML
-                      )
-                      // Use 'body' and set content-type to html (most clients will render it)
-                      window.open(`mailto:?subject=${subject}&body=${body}`)
-                    }
-                  }}
-                  className="hover:bg-gray-100"
-                >
-                  <IconMail />
-                  <span className="sr-only">Email message</span>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom">Email message</TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleSpeak}
-                  className="hover:bg-gray-100"
-                >
-                  {isSpeaking ? (
-                    <VolumeOffIcon className="text-primary h-4 w-4" />
-                  ) : (
-                    <Volume1Icon className="text-gray-600 h-4 w-4" />
-                  )}
-                  <span className="sr-only">
-                    {isSpeaking ? 'Stop speaking' : 'Speak message'}
-                  </span>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom">Read aloud</TooltipContent>
-            </Tooltip>
-          </div>
-        </div>
-      )}
     </div>
   )
 }
