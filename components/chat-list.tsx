@@ -74,7 +74,7 @@ export function ChatList({
   }, -1)
 
   return (
-    <div className="relative mx-auto md:max-w-3xl lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl px-4 pb-[200px] md:pb-0">
+    <div className="relative mx-auto w-full px-4 pb-[200px] md:pb-0">
       {!isShared && !session ? (
         <>
           <div className="group relative mb-4 flex items-start md:-ml-10">
