@@ -917,6 +917,48 @@ Generated: ${createdTime || 'N/A'}
                       <span className="sr-only">Retry</span>
                     </Button>
                   )}
+                  {showRetryInput && (
+                    <div className="flex items-center gap-1 ml-2 min-w-[200px]">
+                      <input
+                        type="text"
+                        value={retryReasonInput}
+                        onChange={e => setRetryReasonInput(e.target.value)}
+                        placeholder="Retry reason..."
+                        className="w-32 h-8 px-2 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-secondary"
+                        onKeyDown={e => {
+                          if (e.key === 'Enter' && retryReasonInput.trim()) {
+                            if (onRetry) onRetry(retryReasonInput)
+                            setShowRetryInput(false)
+                            setRetryReasonInput('')
+                          }
+                        }}
+                      />
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => {
+                          if (onRetry) onRetry(retryReasonInput)
+                          setShowRetryInput(false)
+                          setRetryReasonInput('')
+                        }}
+                        disabled={!retryReasonInput.trim()}
+                        className="h-8 w-8 hover:bg-green-100"
+                      >
+                        <IconCheck className="text-green-600 h-3 w-3" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => {
+                          setShowRetryInput(false)
+                          setRetryReasonInput('')
+                        }}
+                        className="h-8 w-8 hover:bg-red-100"
+                      >
+                        <IconClose className="text-red-600 h-3 w-3" />
+                      </Button>
+                    </div>
+                  )}
                 </div>
 
                 {/* Sources panel */}
@@ -977,7 +1019,7 @@ Generated: ${createdTime || 'N/A'}
         </div>
 
         {/* Retry input */}
-        {showRetryInput && onRetry && (
+        {/* {showRetryInput && onRetry && (
           <div className="mt-4 max-w-2xl">
             <input
               type="text"
@@ -1001,7 +1043,7 @@ Generated: ${createdTime || 'N/A'}
               </Button>
             </div>
           </div>
-        )}
+        )} */}
 
         {/* Suggested Questions */}
         {isLastMessage && !isStreaming && promptMessages.length > 0 && (
