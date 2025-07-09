@@ -162,6 +162,13 @@ export function BotMessage({
   const [selectedAnswerIndex, setSelectedAnswerIndex] = useState(0)
   const [showAllSources, setShowAllSources] = useState(false)
 
+  // Retry limit constants
+  const MAX_RETRY_ATTEMPTS = 3
+
+  // Calculate current retry count
+  const currentRetryCount = retriedAnswers ? retriedAnswers.length : 0
+  const hasReachedRetryLimit = currentRetryCount >= MAX_RETRY_ATTEMPTS
+
   // Function to extract unique URLs from message content
   const extractUrlsFromMessage = (message: string) => {
     // Regular expression to match both markdown links and plain URLs
@@ -333,6 +340,14 @@ export function BotMessage({
       }, 2000)
     }
   }, [chatId])
+
+  // Close retry input if limit is reached
+  useEffect(() => {
+    if (hasReachedRetryLimit && showRetryInput) {
+      setShowRetryInput(false)
+      setRetryReasonInput('')
+    }
+  }, [hasReachedRetryLimit, showRetryInput])
   useEffect(() => {
     const handleClickOutside = (event: any) => {
       if (
@@ -629,7 +644,7 @@ Generated: ${createdTime || 'N/A'}
       <div
         className={cn(
           'flex flex-col w-full max-w-screen-2xl mx-auto px-4',
-          !isStreaming && 'pr-[280px]'
+          !isStreaming && 'pr-[0px]'
         )}
       >
         <div className="flex items-start">
@@ -743,10 +758,10 @@ Generated: ${createdTime || 'N/A'}
                 )}
                 <div
                   ref={messageRef}
-                  className="prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0"
+                  className="prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0 max-w-full"
                 >
                   <MemoizedReactMarkdown
-                    className="prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0"
+                    className="prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0 max-w-full"
                     remarkPlugins={[remarkGfm, remarkMath]}
                     rehypePlugins={[rehypeRaw as any, rehypeSanitize]}
                     components={{
@@ -907,17 +922,57 @@ Generated: ${createdTime || 'N/A'}
                   </Button>
 
                   {onRetry && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8"
-                      onClick={() => setShowRetryInput(true)}
-                    >
-                      <IconRefresh className="h-4 w-4" />
-                      <span className="sr-only">Retry</span>
-                    </Button>
+                    <div className="flex items-center gap-1">
+                      {currentRetryCount > 0 && (
+                        <span
+                          className={cn(
+                            'text-xs',
+                            hasReachedRetryLimit
+                              ? 'text-red-500 font-medium'
+                              : currentRetryCount >= MAX_RETRY_ATTEMPTS - 1
+                                ? 'text-orange-500'
+                                : 'text-gray-500'
+                          )}
+                        >
+                          {currentRetryCount}/{MAX_RETRY_ATTEMPTS}
+                        </span>
+                      )}
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() =>
+                              !hasReachedRetryLimit && setShowRetryInput(true)
+                            }
+                            disabled={hasReachedRetryLimit}
+                          >
+                            <IconRefresh
+                              className={cn(
+                                'h-4 w-4',
+                                hasReachedRetryLimit && 'text-gray-400'
+                              )}
+                            />
+                            <span className="sr-only">
+                              {hasReachedRetryLimit
+                                ? 'Retry limit reached'
+                                : 'Retry'}
+                            </span>
+                          </Button>
+                        </TooltipTrigger>
+                        {hasReachedRetryLimit && (
+                          <TooltipContent>
+                            <p>
+                              Maximum retry attempts ({MAX_RETRY_ATTEMPTS})
+                              reached
+                            </p>
+                          </TooltipContent>
+                        )}
+                      </Tooltip>
+                    </div>
                   )}
-                  {showRetryInput && (
+                  {showRetryInput && !hasReachedRetryLimit && (
                     <div className="flex items-center gap-1 ml-2 min-w-[200px]">
                       <input
                         type="text"
@@ -957,6 +1012,11 @@ Generated: ${createdTime || 'N/A'}
                       >
                         <IconClose className="text-red-600 h-3 w-3" />
                       </Button>
+                    </div>
+                  )}
+                  {hasReachedRetryLimit && (
+                    <div className="ml-2 px-2 py-1 bg-red-50 border border-red-200 rounded text-xs text-red-600">
+                      Retry limit reached ({MAX_RETRY_ATTEMPTS} attempts)
                     </div>
                   )}
                 </div>
