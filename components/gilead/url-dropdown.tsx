@@ -51,19 +51,46 @@ export function UrlDropdown({ disabled }: { disabled: boolean }) {
   const extractUrls = React.useMemo(() => {
     if (!isUrlEnabled) return []
 
-    const urlPattern = /\[([^\]]+)\]\((https?:\/\/[^\s\)]+)\)/g
     const urlMap = new Map<string, UrlItem>()
     let match
 
     chatMessages.forEach((msg, index) => {
       const content = msg.message
-      while ((match = urlPattern.exec(content)) !== null) {
+
+      // Pattern 1: Markdown links with complete URLs [text](url)
+      const markdownPattern = /\[([^\]]+)\]\((https?:\/\/[^\s\)]+)\)/g
+      while ((match = markdownPattern.exec(content)) !== null) {
         const url = match[2]
-        // Only add if this URL hasn't been seen before
         if (!urlMap.has(url)) {
           urlMap.set(url, {
             id: `url-${index}-${urlMap.size}`,
             title: match[1],
+            url: url
+          })
+        }
+      }
+
+      // Pattern 2: Markdown links with incomplete URLs [text](url...
+      const incompleteMarkdownPattern = /\[([^\]]+)\]\((https?:\/\/[^\s\)]+)/g
+      while ((match = incompleteMarkdownPattern.exec(content)) !== null) {
+        const url = match[2]
+        if (!urlMap.has(url)) {
+          urlMap.set(url, {
+            id: `url-${index}-${urlMap.size}`,
+            title: match[1],
+            url: url
+          })
+        }
+      }
+
+      // Pattern 3: Plain URLs without markdown formatting
+      const plainUrlPattern = /(https?:\/\/[^\s\)]+)/g
+      while ((match = plainUrlPattern.exec(content)) !== null) {
+        const url = match[1]
+        if (!urlMap.has(url)) {
+          urlMap.set(url, {
+            id: `url-${index}-${urlMap.size}`,
+            title: url, // Use URL as title for plain URLs
             url: url
           })
         }
