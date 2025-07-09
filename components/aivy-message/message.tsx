@@ -644,7 +644,7 @@ Generated: ${createdTime || 'N/A'}
       <div
         className={cn(
           'flex flex-col w-full max-w-screen-2xl mx-auto px-4',
-          !isStreaming && 'pr-[0px]'
+          sources.length > 0 && 'pr-[280px]'
         )}
       >
         <div className="flex items-start">
