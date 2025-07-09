@@ -449,8 +449,8 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
   ])
 
   return (
-    <div className="group w-full overflow-auto pl-0 transition-all duration-300 ease-in-out peer-[[data-state=open]]:lg:pl-[300px] peer-[[data-state=open]]:xl:pl-[340px] bg-[#fefcfe]">
-      <div className="flex flex-col h-[calc(100vh-4rem)] w-full">
+    <div className="group w-full pl-0 transition-all duration-300 ease-in-out peer-[[data-state=open]]:lg:pl-[300px] peer-[[data-state=open]]:xl:pl-[340px] bg-[#fefcfe]">
+      <div className="flex flex-col h-[calc(100vh-4rem)] w-full justify-center">
         {chatMessages.length ? (
           <div className="flex-1 w-full h-full overflow-y-auto">
             <div className="w-full mx-auto mb-8 bg-white flex flex-col min-h-[70vh]">

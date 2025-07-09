@@ -158,7 +158,7 @@ export function PromptForm({
             </button> */}
             <ReasoningFactor />
             <UrlDropdown disabled />
-            <KeywordsDropdown disabled />
+            {/* <KeywordsDropdown disabled /> */}
             <button
               type="submit"
               className="ml-auto rounded-full w-12 h-12 flex items-center justify-center bg-[#C7203A] text-white shadow-none border-none"
