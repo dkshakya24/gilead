@@ -143,7 +143,7 @@ export function SidebarItem({
         </span>
       </div>
       {isActive && (
-        <div className="absolute right-[8px] top-[1px]">{children}</div>
+        <div className="absolute right-[8px] top-[5px]">{children}</div>
       )}
     </motion.div>
   )
