@@ -644,7 +644,7 @@ Generated: ${createdTime || 'N/A'}
       <div
         className={cn(
           'flex flex-col w-full max-w-screen-2xl mx-auto px-4',
-          !isStreaming && 'pr-[280px]'
+          !isStreaming && 'pr-[0px]'
         )}
       >
         <div className="flex items-start">
@@ -758,10 +758,10 @@ Generated: ${createdTime || 'N/A'}
                 )}
                 <div
                   ref={messageRef}
-                  className="prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0"
+                  className="prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0 max-w-full"
                 >
                   <MemoizedReactMarkdown
-                    className="prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0"
+                    className="prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0 max-w-full"
                     remarkPlugins={[remarkGfm, remarkMath]}
                     rehypePlugins={[rehypeRaw as any, rehypeSanitize]}
                     components={{
