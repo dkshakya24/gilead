@@ -111,7 +111,13 @@ export function UrlDropdown({ disabled }: { disabled: boolean }) {
                 : 'cursor-pointer bg-white border-gray-200'
             }`}
         >
-          <span>URL ({isUrlEnabled ? extractUrls.length : 0})</span>
+          <span>
+            URL (
+            {isUrlEnabled
+              ? `${selectedUrls.length}/${extractUrls.length}`
+              : '0'}
+            )
+          </span>
           <ChevronDown
             className={`transition-transform duration-200 w-4 h-4 ${
               !disabled && isDropdownOpen ? 'rotate-180' : ''
