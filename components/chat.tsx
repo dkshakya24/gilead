@@ -499,7 +499,8 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
                               hour12: true
                             }),
                             retried: retried,
-                            retriedAnswers: retriedAnswers
+                            // Don't include retriedAnswers during streaming to prevent duplication
+                            retriedAnswers: undefined
                           }
                         ]
                       : chatMessages

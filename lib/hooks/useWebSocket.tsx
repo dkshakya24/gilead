@@ -99,37 +99,9 @@ const useWebSocket = (url: string): WebSocketHook => {
         setRetried(data.retried)
         setCurrentRetryReason(data.retry_reason || null)
 
-        // Handle retried answers
-        if (data.retry_reason && data.retried_answers) {
-          // Add the current retry reason to the retried answers if it's not already there
-          const updatedRetriedAnswers = [...(data.retried_answers || [])]
-          if (
-            data.retry_reason &&
-            !updatedRetriedAnswers.some(
-              answer =>
-                typeof answer === 'object' &&
-                answer.retry_reason === data.retry_reason
-            )
-          ) {
-            updatedRetriedAnswers.unshift({
-              retry_reason: data.retry_reason,
-              answer: data.message || '',
-              responseTime: data.responseTime
-            })
-          }
-          setRetriedAnswers(updatedRetriedAnswers)
-        } else if (data.retry_reason && !data.retried_answers) {
-          // If we have a retry_reason but no retried_answers, create a single entry
-          setRetriedAnswers([
-            {
-              retry_reason: data.retry_reason,
-              answer: data.message || '',
-              responseTime: data.responseTime
-            }
-          ])
-        } else {
-          setRetriedAnswers(data.retried_answers || [])
-        }
+        // Handle retried answers - use only what the backend provides
+        // Don't automatically add the current response to retriedAnswers
+        setRetriedAnswers(data.retried_answers || [])
       } else {
         setRetried(false)
         setRetriedAnswers([])
