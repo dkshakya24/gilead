@@ -47,7 +47,22 @@ export function ChatList({
 }: ChatList) {
   const chatListRef = useRef<HTMLDivElement>(null)
 
-  // Auto-scroll to bottom when a retry occurs
+  // Auto-scroll to bottom when new messages are added or during streaming
+  useEffect(() => {
+    if (messages.length > 0) {
+      // Use setTimeout to ensure DOM is updated before scrolling
+      const timeoutId = setTimeout(() => {
+        chatListRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'end'
+        })
+      }, 100)
+
+      return () => clearTimeout(timeoutId)
+    }
+  }, [messages.length])
+
+  // Auto-scroll during streaming for real-time following
   useEffect(() => {
     const hasRetriedMessage = messages.some(message => message.isRetried)
     if (hasRetriedMessage && chatListRef.current) {
