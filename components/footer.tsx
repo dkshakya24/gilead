@@ -12,9 +12,9 @@ export function FooterText({ className, ...props }: React.ComponentProps<'p'>) {
       )}
       {...props}
     >
-      <b className="text-primary">AIVY</b> By{' '}
-      <ExternalLink href="https://gilead.com/">
-        <b className="text-secondary">gilead</b>
+      <b className="text-primary">GABI ARC</b> By{' '}
+      <ExternalLink href="https://chryselys.com/">
+        <b className="text-secondary">Gilead</b>
       </ExternalLink>
       .
     </p>

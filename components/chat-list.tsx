@@ -8,7 +8,7 @@ import {
   UserMessage,
   BotMessage,
   MessageLoader2
-} from '@/components/aivy-message/message'
+} from '@/components/messages-component/message'
 import { useEffect, useRef } from 'react'
 
 export interface ChatList {
@@ -31,6 +31,7 @@ export interface ChatList {
     userMessage: string,
     chatId: string
   ) => (reason: string) => void
+  isNewMessage?: boolean
   // streamingMessages: { message: string }[]
 }
 
@@ -43,13 +44,14 @@ export function ChatList({
   setInput,
   animation,
   ragStreaming,
-  handleRetry
+  handleRetry,
+  isNewMessage = false
 }: ChatList) {
   const chatListRef = useRef<HTMLDivElement>(null)
 
-  // Auto-scroll to bottom when new messages are added or during streaming
+  // Auto-scroll to bottom only when new messages are added (not when opening existing chat)
   useEffect(() => {
-    if (messages.length > 0) {
+    if (messages.length > 0 && isNewMessage) {
       // Use setTimeout to ensure DOM is updated before scrolling
       const timeoutId = setTimeout(() => {
         chatListRef.current?.scrollIntoView({
@@ -60,7 +62,7 @@ export function ChatList({
 
       return () => clearTimeout(timeoutId)
     }
-  }, [messages.length])
+  }, [messages.length, isNewMessage])
 
   // Auto-scroll during streaming for real-time following
   useEffect(() => {
