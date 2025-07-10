@@ -9,10 +9,16 @@ interface WebSocketState {
   setIsSuggestions: (value: boolean) => void
   retried: boolean
   setRetried: (value: boolean) => void
-  retriedAnswers?: Array<{ retry_reason: string; answer: string }> | string[]
+  retriedAnswers?:
+    | Array<{ retry_reason: string; answer: string; responseTime?: string }>
+    | string[]
   setRetriedAnswers: (
-    answers: Array<{ retry_reason: string; answer: string }> | string[]
+    answers:
+      | Array<{ retry_reason: string; answer: string; responseTime?: string }>
+      | string[]
   ) => void
+  currentRetryReason: string | null
+  setCurrentRetryReason: (reason: string | null) => void
   refreshChatHistory: boolean
   setRefreshChatHistory: (value: boolean) => void
 }
@@ -28,6 +34,8 @@ export const useWebSocketStore = create<WebSocketState>(set => ({
   setRetried: value => set({ retried: value }),
   retriedAnswers: [],
   setRetriedAnswers: answers => set({ retriedAnswers: answers }),
+  currentRetryReason: null,
+  setCurrentRetryReason: reason => set({ currentRetryReason: reason }),
   refreshChatHistory: false,
   setRefreshChatHistory: value => set({ refreshChatHistory: value })
 }))
