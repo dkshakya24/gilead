@@ -12,7 +12,7 @@ import { useScrollAnchor } from '@/lib/hooks/use-scroll-anchor'
 // import { toast } from 'sonner'
 import { API_URL, PROJECT_NAME } from '@/lib/utils'
 import useWebSocket from '@/lib/hooks/useWebSocket'
-import Annotations from './aivy-message/annotations'
+import Annotations from './messages-component/annotations'
 import { MdOutlineInsertComment } from 'react-icons/md'
 import { Button } from './ui/button'
 import { useStore } from '@/lib/store/useStore'
@@ -92,6 +92,7 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
   const [dataKey, setDataKey] = useState<string[]>([])
   const [retryingChatId, setRetryingChatId] = useState<string | null>(null)
   const [retryReason, setRetryReason] = useState<string>('')
+  const [isNewMessage, setIsNewMessage] = useState(false)
 
   const carouselRef = useRef<HTMLDivElement>(null)
   console.log(initialMessages, 'initialMessages')
@@ -155,6 +156,7 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
   }
   useEffect(() => {
     if (initialMessages?.messages?.length > 0) {
+      setIsNewMessage(false) // Set to false when loading existing messages
       const chathistory: ChatMessage[] = []
 
       initialMessages.messages?.forEach((chat: any) => {
@@ -235,6 +237,17 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
     }
   }, [path, initialMessages])
 
+  // Reset isNewMessage flag after auto-scroll is triggered
+  useEffect(() => {
+    if (isNewMessage) {
+      const timeoutId = setTimeout(() => {
+        setIsNewMessage(false)
+      }, 500) // Reset after 500ms to allow auto-scroll to complete
+
+      return () => clearTimeout(timeoutId)
+    }
+  }, [isNewMessage])
+
   useEffect(() => {
     if (path === '/arc' && !newchatboxId) {
       let isMounted = true
@@ -280,6 +293,7 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
 
   const handleSend = () => {
     emptyMessages()
+    setIsNewMessage(true) // Set to true when sending a new message
     const userMessage: ChatMessage = {
       sender: 'user',
       message: input,
@@ -513,6 +527,7 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
                   setInput={setInput}
                   ragStreaming={ragStreaming}
                   handleRetry={handleRetry}
+                  isNewMessage={isNewMessage}
                 />
               </div>
             </div>
