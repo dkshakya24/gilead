@@ -8,7 +8,7 @@ import {
   UserMessage,
   BotMessage,
   MessageLoader2
-} from '@/components/aivy-message/message'
+} from '@/components/messages-component/message'
 import { useEffect, useRef } from 'react'
 
 export interface ChatList {
