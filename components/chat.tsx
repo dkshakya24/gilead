@@ -7,24 +7,13 @@ import { EmptyScreen } from '@/components/empty-screen'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Session, initialMessage } from '@/lib/types'
 import { usePathname, useRouter } from 'next/navigation'
-import { Message, UIState } from '@/lib/chat/actions'
 import { useScrollAnchor } from '@/lib/hooks/use-scroll-anchor'
-// import { toast } from 'sonner'
-import { API_URL, PROJECT_NAME } from '@/lib/utils'
 import useWebSocket from '@/lib/hooks/useWebSocket'
 import Annotations from './messages-component/annotations'
 import { MdOutlineInsertComment } from 'react-icons/md'
 import { Button } from './ui/button'
 import { useStore } from '@/lib/store/useStore'
 import { toast } from 'sonner'
-import {
-  MdOutlineScience,
-  MdOutlineBiotech,
-  MdOutlineBusinessCenter,
-  MdOutlinePersonSearch,
-  MdCheck
-} from 'react-icons/md'
-import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip'
 
 export interface ChatPageProps {
   params: {
@@ -364,20 +353,17 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
         }
       }
 
-      // Remove both the original bot message and its corresponding user message
       const filteredMessages = chatMessages.filter((msg, index) => {
-        // Remove the original bot message
         if (index === originalBotMessageIndex) {
           return false
         }
-        // Remove the corresponding user message if found
+
         if (index === userMessageIndex) {
           return false
         }
         return true
       })
 
-      // Add only the user message back (no placeholder for retry)
       const newMessages = [
         ...filteredMessages,
         ...(correspondingUserMessage ? [correspondingUserMessage] : [])

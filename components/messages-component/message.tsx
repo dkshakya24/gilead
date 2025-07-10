@@ -736,20 +736,6 @@ Generated: ${createdTime || 'N/A'}
                 {/* Answer Version Indicator */}
                 {retried && retriedAnswers && retriedAnswers.length > 0 && (
                   <div className="mb-3">
-                    {/* <div className="flex items-center gap-2 mb-2">
-              <div
-                className={cn(
-                  'w-2 h-2 rounded-full',
-                  selectedAnswerIndex === 0 ? 'bg-secondary' : 'bg-orange-500'
-                )}
-              ></div>
-              <p className="text-sm font-medium text-gray-700">
-                {selectedAnswerIndex === 0
-                  ? 'Current Answer'
-                  : `Previous Answer ${selectedAnswerIndex}`}
-              </p>
-            </div> */}
-
                     {/* Retry Reason Display */}
                     {(() => {
                       const retryReasonToShow = getRetryReason()

@@ -12,7 +12,7 @@ export default async function SignupPage() {
 
   return (
     <main className="flex flex-col p-4">
-      {/* <SignupForm /> */} <h1>For Signup Connect with Chryselys Team</h1>
+      {/* <SignupForm /> */} <h1>For Signup Connect with gilead Team</h1>
     </main>
   )
 }
