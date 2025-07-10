@@ -34,7 +34,7 @@ This template ships with OpenAI `gpt-3.5-turbo` as the default. However, thanks 
 
 ## Deploy Your Own
 
-You can deploy your own version of the gilead By Chryselys to gilead with one click:
+You can deploy your own version of the gilead By gilead to gilead with one click:
 
 [![Deploy with gilead](https://gilead.com/button)](https://gilead.com/new/clone?demo-title=Next.js+Chat&demo-description=A+full-featured%2C+hackable+Next.js+AI+chatbot+built+by+gilead+Labs&demo-url=https%3A%2F%2Fchat.gilead.ai%2F&demo-image=%2F%2Fimages.ctfassets.net%2Fe5382hct74si%2F4aVPvWuTmBvzM5cEdRdqeW%2F4234f9baf160f68ffb385a43c3527645%2FCleanShot_2023-06-16_at_17.09.21.png&project-name=Next.js+Chat&repository-name=nextjs-chat&repository-url=https%3A%2F%2Fgithub.com%2Fgilead-labs%2Fai-chatbot&from=templates&skippable-integrations=1&env=OPENAI_API_KEY%2CAUTH_SECRET&envDescription=How+to+get+these+env+vars&envLink=https%3A%2F%2Fgithub.com%2Fgilead-labs%2Fai-chatbot%2Fblob%2Fmain%2F.env.example&teamCreateStatus=hidden&stores=[{"type":"kv"}])
 
@@ -46,7 +46,7 @@ Remember to update your environment variables (`KV_URL`, `KV_REST_API_URL`, `KV_
 
 ## Running locally
 
-You will need to use the environment variables [defined in `.env.example`](.env.example) to run gilead By Chryselys. It's recommended you use [gilead Environment Variables](https://gilead.com/docs/projects/environment-variables) for this, but a `.env` file is all that is necessary.
+You will need to use the environment variables [defined in `.env.example`](.env.example) to run gilead By gilead. It's recommended you use [gilead Environment Variables](https://gilead.com/docs/projects/environment-variables) for this, but a `.env` file is all that is necessary.
 
 > Note: You should not commit your `.env` file or it will expose secrets that will allow others to control access to your various OpenAI and authentication provider accounts.
 
@@ -63,6 +63,6 @@ Your app template should now be running on [localhost:3000](http://localhost:300
 
 ## Authors
 
-This library is created by [Chryselys](https://chryselys.com) and [Next.js](https://nextjs.org) team members, with contributions from:
+This library is created by [gilead](https://gilead.com) and [Next.js](https://nextjs.org) team members, with contributions from:
 
--Chryselys.com - [here](https://chryselys.com)
+-gilead.com - [here](https://gilead.com)

@@ -37,7 +37,7 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
       description: 'Currently we have 2025 Program details'
     },
     ...(session?.user.email === 'irana.kolev@emdserono.com' ||
-    session?.user.email === 'ramakrishna.kodam@chryselys.com'
+    session?.user.email === 'ramakrishna.kodam@gilead.com'
       ? [
           {
             label: 'LC',
