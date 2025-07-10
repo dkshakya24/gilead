@@ -153,7 +153,7 @@ export function BotMessage({
   const [selectedMessage, setSelectedMessage] = useState<string | null>(null)
   const pathname = usePathname()
   const currentChatId = pathname.split('/').pop()
-  const { isCopied, copyToClipboard } = useCopyToClipboard({ timeout: 2000 })
+  const { copyToClipboard } = useCopyToClipboard({ timeout: 2000 })
   const [isDownloaded, setIsDownloaded] = useState(false)
   const [isSpeaking, setIsSpeaking] = useState(false)
   const [retryReasonInput, setRetryReasonInput] = useState('')
@@ -161,6 +161,8 @@ export function BotMessage({
   const { isSuggestions, currentRetryReason } = useWebSocketStore()
   const [selectedAnswerIndex, setSelectedAnswerIndex] = useState(0)
   const [showAllSources, setShowAllSources] = useState(false)
+  const [copiedUrl, setCopiedUrl] = useState<string | null>(null)
+  const [isMessageCopied, setIsMessageCopied] = useState(false)
 
   // Retry limit constants
   const MAX_RETRY_ATTEMPTS = 3
@@ -885,9 +887,13 @@ Generated: ${createdTime || 'N/A'}
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8"
-                    onClick={() => copyToClipboard(children)}
+                    onClick={async () => {
+                      await copyToClipboard(children)
+                      setIsMessageCopied(true)
+                      setTimeout(() => setIsMessageCopied(false), 2000)
+                    }}
                   >
-                    {isCopied ? (
+                    {isMessageCopied ? (
                       <IconCheck className="h-4 w-4" />
                     ) : (
                       <IconCopy className="h-4 w-4" />
@@ -1066,7 +1072,7 @@ Generated: ${createdTime || 'N/A'}
                           (source, index) => (
                             <div
                               key={`${source.url}-${index}`}
-                              className={`flex items-center gap-3 p-3 hover:bg-gray-50 ${
+                              className={`relative p-3 hover:bg-gray-50 ${
                                 (showAllSources ? sources : displayedSources)
                                   .length ===
                                 index + 1
@@ -1074,53 +1080,60 @@ Generated: ${createdTime || 'N/A'}
                                   : 'border-b-2 border-gray-200'
                               }`}
                             >
-                              <div className="flex-1 min-w-0">
+                              <div className="space-y-1 pr-16">
                                 <div className="font-medium text-sm">
                                   {source.title}
                                 </div>
-                                <div className="text-xs text-gray-500 truncate flex items-center gap-2">
+                                <div className="text-xs text-gray-500 truncate">
                                   <span className="truncate">
                                     {source.url.length > 40
                                       ? `${source.url.substring(0, 20)}...${source.url.substring(source.url.length - 20)}`
                                       : source.url}
                                   </span>
-                                  <div className="flex items-center gap-1 flex-shrink-0">
-                                    <Tooltip>
-                                      <TooltipTrigger asChild>
-                                        <button
-                                          onClick={() =>
-                                            copyToClipboard(source.url)
-                                          }
-                                          className="p-1 hover:bg-gray-100 rounded"
-                                        >
-                                          {isCopied ? (
-                                            <IconCheck className="h-3 w-3 text-green-500" />
-                                          ) : (
-                                            <IconCopy className="h-3 w-3 text-gray-400" />
-                                          )}
-                                        </button>
-                                      </TooltipTrigger>
-                                      <TooltipContent>
-                                        {isCopied ? 'Copied!' : 'Copy URL'}
-                                      </TooltipContent>
-                                    </Tooltip>
-                                    <Tooltip>
-                                      <TooltipTrigger asChild>
-                                        <a
-                                          href={source.url}
-                                          target="_blank"
-                                          rel="noopener noreferrer"
-                                          className="p-1 hover:bg-gray-100 rounded"
-                                        >
-                                          <ExternalLink className="h-3 w-3 text-gray-400" />
-                                        </a>
-                                      </TooltipTrigger>
-                                      <TooltipContent>
-                                        Open in new tab
-                                      </TooltipContent>
-                                    </Tooltip>
-                                  </div>
                                 </div>
+                              </div>
+                              <div className="absolute top-2 right-2 flex items-center gap-1">
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <button
+                                      onClick={async () => {
+                                        await copyToClipboard(source.url)
+                                        setCopiedUrl(source.url)
+                                        setTimeout(
+                                          () => setCopiedUrl(null),
+                                          2000
+                                        )
+                                      }}
+                                      className="p-1 hover:bg-gray-100 rounded"
+                                    >
+                                      {copiedUrl === source.url ? (
+                                        <IconCheck className="h-3 w-3 text-green-500" />
+                                      ) : (
+                                        <IconCopy className="h-3 w-3 text-primary" />
+                                      )}
+                                    </button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    {copiedUrl === source.url
+                                      ? 'Copied!'
+                                      : 'Copy URL'}
+                                  </TooltipContent>
+                                </Tooltip>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <a
+                                      href={source.url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="text-primary hover:text-primary/80"
+                                    >
+                                      <ExternalLink className="h-3 w-3" />
+                                    </a>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    Open in new tab
+                                  </TooltipContent>
+                                </Tooltip>
                               </div>
                             </div>
                           )
