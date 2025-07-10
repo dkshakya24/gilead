@@ -31,8 +31,8 @@ import {
 } from '@/lib/utils'
 import CustomModal from '@/components/ui/CustomModal'
 import { AiOutlineClose } from 'react-icons/ai' // Using React Icons for the close icon
-import { SpinnerMessage } from '@/components/aivy-message/message'
-import { spinner } from '@/components/aivy-message/spinner'
+import { SpinnerMessage } from '@/components/messages-component/message'
+import { spinner } from '@/components/messages-component/spinner'
 import { AiOutlineLoading3Quarters } from 'react-icons/ai' // Import a spinning loader icon
 import { TbLoader } from 'react-icons/tb'
 import DraggableQuestions from '@/components/gilead/draggableQuestions'
