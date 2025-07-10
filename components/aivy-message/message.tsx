@@ -158,7 +158,7 @@ export function BotMessage({
   const [isSpeaking, setIsSpeaking] = useState(false)
   const [retryReasonInput, setRetryReasonInput] = useState('')
   const [showRetryInput, setShowRetryInput] = useState(false)
-  const { isSuggestions } = useWebSocketStore()
+  const { isSuggestions, currentRetryReason } = useWebSocketStore()
   const [selectedAnswerIndex, setSelectedAnswerIndex] = useState(0)
   const [showAllSources, setShowAllSources] = useState(false)
 
@@ -531,6 +531,12 @@ export function BotMessage({
 
   // Get retry reason for the selected answer
   const getRetryReason = () => {
+    // If we're showing the current answer (index 0) and have a current retry reason from the store
+    if (selectedAnswerIndex === 0 && currentRetryReason) {
+      return currentRetryReason
+    }
+
+    // If we're showing a retried answer and have retried answers
     if (
       retried &&
       retriedAnswers &&
@@ -538,7 +544,11 @@ export function BotMessage({
       selectedAnswerIndex > 0
     ) {
       const retriedAnswer = retriedAnswers[selectedAnswerIndex - 1]
-      if (typeof retriedAnswer === 'object' && retriedAnswer.retry_reason) {
+      if (
+        typeof retriedAnswer === 'object' &&
+        retriedAnswer.retry_reason &&
+        retriedAnswer.retry_reason !== null
+      ) {
         return retriedAnswer.retry_reason
       }
     }
@@ -739,21 +749,31 @@ Generated: ${createdTime || 'N/A'}
             </div> */}
 
                     {/* Retry Reason Display */}
-                    {getRetryReason() && (
-                      <div className="mt-2 p-2 bg-orange-50 border border-orange-200 rounded-md">
-                        <div className="flex items-start gap-2">
-                          <div className="w-1 h-1 rounded-full bg-orange-500 mt-2 flex-shrink-0"></div>
-                          <div>
-                            <p className="text-xs font-medium text-orange-800 mb-1">
-                              Retry Reason:
-                            </p>
-                            <p className="text-xs text-orange-700 italic">
-                              {getRetryReason()}
-                            </p>
+                    {(() => {
+                      const retryReasonToShow = getRetryReason()
+                      // Show retry reason if we have a valid reason from any source
+                      const shouldShowRetryReason =
+                        (retryReasonToShow && retryReasonToShow !== null) ||
+                        (selectedAnswerIndex === 0 &&
+                          retryReason &&
+                          retryReason !== null)
+
+                      return shouldShowRetryReason ? (
+                        <div className="mt-2 p-2 bg-orange-50 border border-orange-200 rounded-md">
+                          <div className="flex items-start gap-2">
+                            <div className="w-1 h-1 rounded-full bg-orange-500 mt-2 flex-shrink-0"></div>
+                            <div>
+                              <p className="text-xs font-medium text-orange-800 mb-1">
+                                Retry Reason:
+                              </p>
+                              <p className="text-xs text-orange-700 italic">
+                                {retryReasonToShow || retryReason}
+                              </p>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    )}
+                      ) : null
+                    })()}
                   </div>
                 )}
                 <div
@@ -1046,25 +1066,61 @@ Generated: ${createdTime || 'N/A'}
                           (source, index) => (
                             <div
                               key={`${source.url}-${index}`}
-                              className="rounded-lg border bg-card p-2 hover:bg-accent/50 transition-colors"
+                              className={`flex items-center gap-3 p-3 hover:bg-gray-50 ${
+                                (showAllSources ? sources : displayedSources)
+                                  .length ===
+                                index + 1
+                                  ? ''
+                                  : 'border-b-2 border-gray-200'
+                              }`}
                             >
-                              <div className="flex items-start justify-between gap-2">
-                                <div className="space-y-1 flex-1">
-                                  <h3 className="font-medium text-sm line-clamp-1">
-                                    {source.title}
-                                  </h3>
-                                  <p className="text-xs text-muted-foreground line-clamp-2">
-                                    {source.description}
-                                  </p>
+                              <div className="flex-1 min-w-0">
+                                <div className="font-medium text-sm">
+                                  {source.title}
                                 </div>
-                                <a
-                                  href={source.url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-primary hover:text-primary/80"
-                                >
-                                  <ExternalLink className="h-4 w-4" />
-                                </a>
+                                <div className="text-xs text-gray-500 truncate flex items-center gap-2">
+                                  <span className="truncate">
+                                    {source.url.length > 40
+                                      ? `${source.url.substring(0, 20)}...${source.url.substring(source.url.length - 20)}`
+                                      : source.url}
+                                  </span>
+                                  <div className="flex items-center gap-1 flex-shrink-0">
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <button
+                                          onClick={() =>
+                                            copyToClipboard(source.url)
+                                          }
+                                          className="p-1 hover:bg-gray-100 rounded"
+                                        >
+                                          {isCopied ? (
+                                            <IconCheck className="h-3 w-3 text-green-500" />
+                                          ) : (
+                                            <IconCopy className="h-3 w-3 text-gray-400" />
+                                          )}
+                                        </button>
+                                      </TooltipTrigger>
+                                      <TooltipContent>
+                                        {isCopied ? 'Copied!' : 'Copy URL'}
+                                      </TooltipContent>
+                                    </Tooltip>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <a
+                                          href={source.url}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="p-1 hover:bg-gray-100 rounded"
+                                        >
+                                          <ExternalLink className="h-3 w-3 text-gray-400" />
+                                        </a>
+                                      </TooltipTrigger>
+                                      <TooltipContent>
+                                        Open in new tab
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </div>
+                                </div>
                               </div>
                             </div>
                           )

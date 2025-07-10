@@ -206,7 +206,8 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
                 })
                 .replace(',', ''),
               retried: chat.retried || false,
-              retriedAnswers: retriedAnswers
+              retriedAnswers: retriedAnswers,
+              retryReason: item.retry_reason || null
             })
           }
         })

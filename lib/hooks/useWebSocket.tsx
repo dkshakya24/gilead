@@ -15,7 +15,10 @@ interface WebSocketHook {
   ragStreaming?: boolean
   isSuggestions: boolean
   retried: boolean
-  retriedAnswers?: Array<{ retry_reason: string; answer: string }> | string[]
+  retriedAnswers?:
+    | Array<{ retry_reason: string; answer: string; responseTime?: string }>
+    | string[]
+  currentRetryReason?: string | null
 }
 
 const useWebSocket = (url: string): WebSocketHook => {
@@ -32,7 +35,8 @@ const useWebSocket = (url: string): WebSocketHook => {
     setRagStreaming,
     setIsSuggestions,
     setRetried,
-    setRetriedAnswers
+    setRetriedAnswers,
+    setCurrentRetryReason
   } = useWebSocketStore()
 
   const emptyMessages = () => {
@@ -93,10 +97,43 @@ const useWebSocket = (url: string): WebSocketHook => {
       // Handle retry data
       if (!animation) {
         setRetried(data.retried)
-        setRetriedAnswers(data.retried_answers)
+        setCurrentRetryReason(data.retry_reason || null)
+
+        // Handle retried answers
+        if (data.retry_reason && data.retried_answers) {
+          // Add the current retry reason to the retried answers if it's not already there
+          const updatedRetriedAnswers = [...(data.retried_answers || [])]
+          if (
+            data.retry_reason &&
+            !updatedRetriedAnswers.some(
+              answer =>
+                typeof answer === 'object' &&
+                answer.retry_reason === data.retry_reason
+            )
+          ) {
+            updatedRetriedAnswers.unshift({
+              retry_reason: data.retry_reason,
+              answer: data.message || '',
+              responseTime: data.responseTime
+            })
+          }
+          setRetriedAnswers(updatedRetriedAnswers)
+        } else if (data.retry_reason && !data.retried_answers) {
+          // If we have a retry_reason but no retried_answers, create a single entry
+          setRetriedAnswers([
+            {
+              retry_reason: data.retry_reason,
+              answer: data.message || '',
+              responseTime: data.responseTime
+            }
+          ])
+        } else {
+          setRetriedAnswers(data.retried_answers || [])
+        }
       } else {
         setRetried(false)
         setRetriedAnswers([])
+        setCurrentRetryReason(null)
       }
 
       console.log(data, 'datadata')
@@ -125,7 +162,8 @@ const useWebSocket = (url: string): WebSocketHook => {
     isStreaming: useWebSocketStore(state => state.isStreaming),
     isSuggestions: useWebSocketStore(state => state.isSuggestions),
     retried: useWebSocketStore(state => state.retried),
-    retriedAnswers: useWebSocketStore(state => state.retriedAnswers)
+    retriedAnswers: useWebSocketStore(state => state.retriedAnswers),
+    currentRetryReason: useWebSocketStore(state => state.currentRetryReason)
   }
 }
 
