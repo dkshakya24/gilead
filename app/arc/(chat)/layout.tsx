@@ -2,7 +2,6 @@ import { auth } from '@/auth'
 import SidebarGilead from '@/components/gilead/sidebar-gilead'
 import { Header } from '@/components/Header'
 import { SidebarDesktop } from '@/components/sidebar-desktop'
-import SourceMultiSelect from '@/components/source-multi-select'
 import { Session } from '@/lib/types'
 interface ChatLayoutProps {
   children: React.ReactNode
