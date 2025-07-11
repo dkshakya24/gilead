@@ -6,10 +6,12 @@ import { UsersManagement } from '@/components/admin/users-management'
 export default async function UsersPage() {
   const session = (await auth()) as Session
 
-  if (!session?.user || session.user.email !== 'admin@chryselys.com') {
+  if (!session) {
+    redirect('/login')
+  }
+  if (session.user.role !== 'admin') {
     redirect('/')
   }
-
   return (
     <div className="flex-1 flex flex-col space-y-4 p-8">
       <div className="flex items-center justify-center">

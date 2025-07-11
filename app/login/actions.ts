@@ -4,60 +4,83 @@ import { signIn } from '@/auth'
 import { User } from '@/lib/types'
 import { AuthError } from 'next-auth'
 import { z } from 'zod'
-import { ResultCode } from '@/lib/utils'
+import { ResultCode, USER_MANAGEMENT_API } from '@/lib/utils'
 
-const users = [
-  {
-    id: '1',
-    email: 'admin@chryselys.com',
-    password: 'Admin@chryselys123',
-    name: 'Admin',
-    salt: 'qbc'
-  },
-  {
-    id: '2',
-    email: 'sourabh.pandey2@gilead.com',
-    password: 'Admin@gilead123',
-    name: 'Sourabh',
-    salt: 'def'
-  },
-  {
-    id: '3',
-    email: 'vaishali.chaudhuri@gilead.com',
-    password: 'Admin@gilead123',
-    name: 'Vaishali',
-    salt: 'ghi'
-  },
-  {
-    id: '4',
-    email: 'gilead@gabiarc.com',
-    password: 'Admin@gilead123',
-    name: 'Gilead',
-    salt: 'jkl'
-  },
-  {
-    id: '6',
-    email: 'chitra.narasimhachari@gilead.com',
-    password: 'Admin@gilead123',
-    name: 'Chitra',
-    salt: 'qbc'
+// API endpoint for authentication
+
+// Interface for API response
+interface AuthApiResponse {
+  authenticated: boolean
+  user: {
+    password: string
+    role: string
+    email: string
+    name: string
+    access_enabled: string
+    user_id: string
   }
-  // Add more users as needed
-]
+}
 
-// export async function getUser(email: string) {
-//   const user = await kv.hgetall<User>(`user:${email}`)
-//   return user
-// }
+// Interface for API request
+interface AuthApiRequest {
+  action: string
+  user_id: string
+  password: string
+}
 
 export async function getUser(
   email: string,
   password: string
 ): Promise<User | undefined> {
-  const user = users.find(
-    user => user.email === email && user.password === password
-  )
-  return user
+  try {
+    const payload: AuthApiRequest = {
+      action: 'authenticate',
+      user_id: email,
+      password: password
+    }
+
+    console.log(
+      'Sending authentication request:',
+      JSON.stringify(payload, null, 2)
+    )
+
+    const response = await fetch(USER_MANAGEMENT_API, {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    })
+
+    console.log('Response status:', response.status, response.statusText)
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error(
+        'Authentication API error:',
+        response.status,
+        response.statusText,
+        'Response body:',
+        errorText
+      )
+      return undefined
+    }
+
+    const data: AuthApiResponse = await response.json()
+
+    if (data.authenticated && data.user.access_enabled === 'True') {
+      return {
+        id: data.user.user_id,
+        email: data.user.email,
+        name: data.user.name,
+        role: data.user.role,
+        password: data.user.password, // Note: In production, you might not want to store this
+        salt: 'api-auth' // Default salt for API authenticated users
+      }
+    }
+
+    return undefined
+  } catch (error) {
+    console.error('Authentication error:', error)
+    return undefined
+  }
 }
 
 interface Result {

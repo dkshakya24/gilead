@@ -26,7 +26,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             return {
               id: user.id,
               email: user.email,
-              name: user.name, // Add this line
+              name: user.name,
+              role: user.role, // Add role from API response
               emailVerified: new Date()
             }
           } else {
@@ -37,18 +38,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         return null
       }
     })
-    // MicrosoftEntraID({
-    //   clientId: AUTH_MICROSOFT_ENTRA_ID_ID,
-    //   clientSecret: AUTH_MICROSOFT_ENTRA_ID_SECRET,
-    //   issuer: `https://login.microsoftonline.com/${AUTH_MICROSOFT_ENTRA_ID_ISSUER}/v2.0`,
-    // }),
   ],
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id
         token.email = user.email
-        token.name = user.name // Add this line
+        token.name = user.name
+        token.role = user.role // Add role to token
         token.emailVerified = new Date()
       }
       return token
@@ -58,7 +55,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user = {
           id: token.id as string,
           email: token.email as string,
-          name: token.name as string, // Add this line
+          name: token.name as string,
+          role: token.role as string, // Add role to session
           emailVerified: token.emailVerified as Date
         }
       }

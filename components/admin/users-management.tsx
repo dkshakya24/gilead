@@ -32,7 +32,7 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog'
-import { API_URL } from '@/lib/utils'
+import { API_URL, USER_MANAGEMENT_API } from '@/lib/utils'
 
 // Define the user interface based on your API response
 interface User {
@@ -66,18 +66,15 @@ export function UsersManagement() {
   const fetchUsers = async () => {
     try {
       setLoading(true)
-      const response = await fetch(
-        `https://bncqce2qts4p6kdmq4tkyls4va0blbkv.lambda-url.us-east-1.on.aws/`,
-        {
-          method: 'POST',
-          body: JSON.stringify({
-            action: 'list_users'
-          })
-          // headers: {
-          //   'Content-Type': 'application/json'
-          // }
-        }
-      )
+      const response = await fetch(`${USER_MANAGEMENT_API}`, {
+        method: 'POST',
+        body: JSON.stringify({
+          action: 'list_users'
+        })
+        // headers: {
+        //   'Content-Type': 'application/json'
+        // }
+      })
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
@@ -114,17 +111,14 @@ export function UsersManagement() {
 
       const newStatus = user.access_enabled === 'True' ? 'False' : 'True'
 
-      const response = await fetch(
-        `https://bncqce2qts4p6kdmq4tkyls4va0blbkv.lambda-url.us-east-1.on.aws/`,
-        {
-          method: 'POST',
-          body: JSON.stringify({
-            user_id: userId,
-            action: 'set_access',
-            access_enabled: newStatus
-          })
-        }
-      )
+      const response = await fetch(`${USER_MANAGEMENT_API}`, {
+        method: 'POST',
+        body: JSON.stringify({
+          user_id: userId,
+          action: 'set_access',
+          access_enabled: newStatus
+        })
+      })
 
       if (!response.ok) {
         throw new Error('Failed to update user status')
@@ -159,16 +153,13 @@ export function UsersManagement() {
     if (!userToDelete) return
 
     try {
-      const response = await fetch(
-        'https://bncqce2qts4p6kdmq4tkyls4va0blbkv.lambda-url.us-east-1.on.aws/',
-        {
-          method: 'POST',
-          body: JSON.stringify({
-            action: 'delete_user',
-            user_id: userToDelete
-          })
-        }
-      )
+      const response = await fetch(`${USER_MANAGEMENT_API}`, {
+        method: 'POST',
+        body: JSON.stringify({
+          action: 'delete_user',
+          user_id: userToDelete
+        })
+      })
 
       if (!response.ok) {
         throw new Error('Failed to delete user')
@@ -201,21 +192,18 @@ export function UsersManagement() {
     }
 
     try {
-      const response = await fetch(
-        'https://bncqce2qts4p6kdmq4tkyls4va0blbkv.lambda-url.us-east-1.on.aws/',
-        {
-          method: 'POST',
-          body: JSON.stringify({
-            action: 'add_user',
-            user_id: newUser.email,
-            password: newUser.password,
-            name: newUser.name,
-            role: newUser.role,
-            access_enabled: 'True',
-            email: newUser.email
-          })
-        }
-      )
+      const response = await fetch(`${USER_MANAGEMENT_API}`, {
+        method: 'POST',
+        body: JSON.stringify({
+          action: 'add_user',
+          user_id: newUser.email,
+          password: newUser.password,
+          name: newUser.name,
+          role: newUser.role,
+          access_enabled: 'True',
+          email: newUser.email
+        })
+      })
 
       if (!response.ok) {
         throw new Error('Failed to add user')
