@@ -21,6 +21,9 @@ export const PPT_DOWNLOAD_API =
   'https://11vzxy3g5g.execute-api.us-east-1.amazonaws.com/dev/gilead_download_ppt_chat'
 export const USER_MANAGEMENT_API =
   'https://bncqce2qts4p6kdmq4tkyls4va0blbkv.lambda-url.us-east-1.on.aws/'
+
+export const EDIT_DELETE_CHAT_API =
+  'https://6try2laitd.execute-api.us-east-1.amazonaws.com/dev'
 // export const AUTH_MICROSOFT_ENTRA_ID_ID =
 //   process.env.NEXT_PUBLIC_AUTH_MICROSOFT_ENTRA_ID_ID
 // export const AUTH_MICROSOFT_ENTRA_ID_SECRET =

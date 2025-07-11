@@ -6,7 +6,7 @@ import { kv } from '@vercel/kv'
 
 import { auth } from '@/auth'
 import { type Chat } from '@/lib/types'
-import { API_URL, PROJECT_NAME } from '@/lib/utils'
+import { API_URL, EDIT_DELETE_CHAT_API, PROJECT_NAME } from '@/lib/utils'
 
 export async function getChats(userId?: string | null) {
   if (!userId) {
@@ -74,16 +74,13 @@ export async function editChat({
     new_name: header_name
   }
   try {
-    const response = await fetch(
-      `https://6try2laitd.execute-api.us-east-1.amazonaws.com/dev/editchat`,
-      {
-        method: 'POST',
-        body: JSON.stringify(payload),
-        headers: {
-          'Content-Type': 'application/json'
-        }
+    const response = await fetch(`${EDIT_DELETE_CHAT_API}/editchat`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+      headers: {
+        'Content-Type': 'application/json'
       }
-    )
+    })
     if (response.ok) {
       console.log('Chat title updated successfully', payload)
     } else {
@@ -110,16 +107,13 @@ export async function removeChat({ Session_id }: { Session_id: string }) {
     deletedReason: 'Deleted to test API'
   }
   try {
-    const response = await fetch(
-      `https://6try2laitd.execute-api.us-east-1.amazonaws.com/dev/deletechat`,
-      {
-        method: 'POST',
-        body: JSON.stringify(payload),
-        headers: {
-          'Content-Type': 'application/json'
-        }
+    const response = await fetch(`${EDIT_DELETE_CHAT_API}/deletechat`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+      headers: {
+        'Content-Type': 'application/json'
       }
-    )
+    })
 
     if (response.ok) {
       console.log('Deletion successfull') // Callback for successful deletion (optional)
