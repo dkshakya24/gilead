@@ -87,7 +87,10 @@ export function UsersManagement() {
       setUsers(data.users || [])
     } catch (error) {
       console.error('Error fetching users:', error)
-      toast.error('Failed to fetch users')
+      toast.error('Failed to fetch users', {
+        position: 'top-right',
+        className: 'bottom-auto'
+      })
     } finally {
       setLoading(false)
     }
@@ -134,10 +137,16 @@ export function UsersManagement() {
             : user
         )
       )
-      toast.success('User status updated successfully')
+      toast.success('User status updated successfully', {
+        position: 'top-right',
+        className: 'bottom-auto'
+      })
     } catch (error) {
       console.error('Error updating user status:', error)
-      toast.error('Failed to update user status')
+      toast.error('Failed to update user status', {
+        position: 'top-right',
+        className: 'bottom-auto'
+      })
     }
   }
 
@@ -166,10 +175,16 @@ export function UsersManagement() {
       }
 
       setUsers(users.filter(user => user.user_id !== userToDelete))
-      toast.success('User deleted successfully')
+      toast.success('User deleted successfully', {
+        position: 'top-right',
+        className: 'bottom-auto'
+      })
     } catch (error) {
       console.error('Error deleting user:', error)
-      toast.error('Failed to delete user')
+      toast.error('Failed to delete user', {
+        position: 'top-right',
+        className: 'bottom-auto'
+      })
     } finally {
       setDeleteDialogOpen(false)
       setUserToDelete(null)
@@ -178,7 +193,10 @@ export function UsersManagement() {
 
   const handleAddUser = async () => {
     if (!newUser.name || !newUser.email || !newUser.password) {
-      toast.error('Please fill in all fields')
+      toast.error('Please fill in all fields', {
+        position: 'top-right',
+        className: 'bottom-auto'
+      })
       return
     }
 
@@ -203,14 +221,20 @@ export function UsersManagement() {
         throw new Error('Failed to add user')
       }
 
-      const newUserData = await response.json()
-      setUsers([...users, newUserData])
+      // Refresh the users list after successful addition
+      await fetchUsers()
       setAddDialogOpen(false)
       setNewUser({ name: '', email: '', password: '', role: 'user' })
-      toast.success('User added successfully')
+      toast.success('User added successfully', {
+        position: 'top-right',
+        className: 'bottom-auto'
+      })
     } catch (error) {
       console.error('Error adding user:', error)
-      toast.error('Failed to add user')
+      toast.error('Failed to add user', {
+        position: 'top-right',
+        className: 'bottom-auto'
+      })
     }
   }
 
