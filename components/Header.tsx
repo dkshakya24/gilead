@@ -102,8 +102,7 @@ export async function Header() {
           <ReasoningFactor />
           <UrlDropdown disabled={false} />
           <ExportDropdown session={session} />
-          {(session?.user?.role === 'admin' ||
-            session?.user?.email === 'sourabh.pandey2@gilead.com') && (
+          {session?.user?.role === 'admin' && (
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>

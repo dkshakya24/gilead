@@ -28,7 +28,8 @@ export default function LoginForm() {
       } else {
         toast.success(getMessageFromCode(state.resultCode), {
           position: 'top-right',
-          className: 'bottom-auto'
+          className: 'bottom-auto',
+          duration: 1000 // 1 second
         })
         // router.refresh()
         router.push('/arc')
