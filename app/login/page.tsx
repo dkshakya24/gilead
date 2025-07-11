@@ -34,9 +34,12 @@ export default function Page() {
 
           <div className="mt-5 text-center text-sm text-gray-600">
             Don&apos;t have an account?{' '}
-            <Link href="/register" className="font-semibold text-[#27272A]">
+            <span
+              // href="/register"
+              className="font-semibold text-[#27272A]"
+            >
               Register
-            </Link>
+            </span>
           </div>
         </div>
       </div>

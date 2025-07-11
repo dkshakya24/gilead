@@ -24,10 +24,16 @@ import {
   PiChatCircleDotsDuotone,
   PiDatabaseDuotone
 } from 'react-icons/pi'
-import { Bell } from 'lucide-react'
+import { Bell, Users } from 'lucide-react'
 import { ExportDropdown } from './gilead/export-dropdown'
 import { UrlDropdown } from './gilead/url-dropdown'
 import ReasoningFactor from './gilead/reasoning-factor'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from '@/components/ui/tooltip'
 
 async function UserOrLogin() {
   const session = (await auth()) as Session
@@ -96,6 +102,24 @@ export async function Header() {
           <ReasoningFactor />
           <UrlDropdown disabled={false} />
           <ExportDropdown session={session} />
+          {(session?.user?.email === 'admin@chryselys.com' ||
+            session?.user?.email === 'sourabh.pandey2@gilead.com') && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Link
+                    href="/admin/users"
+                    className="flex items-center justify-center w-[38px] h-[38px] bg-white border border-gray-200 rounded-full hover:bg-gray-50 transition-colors"
+                  >
+                    <Users className="h-4 w-4" />
+                  </Link>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Manage Users</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
           <button className="flex items-center cursor-not-allowed opacity-50 justify-center w-[38px] h-[38px] bg-white border border-gray-200 rounded-full">
             <Bell className="h-4 w-4" />
           </button>

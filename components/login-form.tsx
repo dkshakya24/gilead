@@ -63,13 +63,13 @@ export default function LoginForm() {
             />
           </div>
           <div className="flex -mt-2 items-center justify-between">
-            <Checkbox id="remember-me" label="Remember me" />
-            <Link
-              href="/forgot-password"
+            <Checkbox id="remember-me" label="Remember me" disabled />
+            <p
+              // href="/forgot-password"
               className="text-[12px] text-[#27272A] hover:text-crimson-600"
             >
               Forgot Password
-            </Link>
+            </p>
           </div>
 
           <LoginButton />
