@@ -27,6 +27,27 @@ declare module 'next-auth/jwt' {
   }
 }
 
+export interface RetryAnswer {
+  answer: string
+  retry_reason?: string
+  responseTime?: string
+}
+
+export interface ChatMessage {
+  sender: string
+  message: string
+  chatId?: string
+  responseTime?: any
+  sourceData?: any[]
+  citations?: any
+  createdTime?: string
+  retried?: boolean
+  retriedAnswers?: string[] | { retry_reason: string; answer: string }[]
+  retryReason?: string
+  onRetry?: (reason: string) => void
+  isRetried?: boolean
+}
+
 export interface Chat extends Record<string, any> {
   id: string
   title: string

@@ -5,7 +5,7 @@ import { ChatList } from '@/components/chat-list'
 import { ChatPanel } from '@/components/chat-panel'
 import { EmptyScreen } from '@/components/empty-screen'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Session, initialMessage } from '@/lib/types'
+import { Session, ChatMessage } from '@/lib/types'
 import { usePathname, useRouter } from 'next/navigation'
 import { useScrollAnchor } from '@/lib/hooks/use-scroll-anchor'
 import useWebSocket from '@/lib/hooks/useWebSocket'
@@ -21,26 +21,39 @@ export interface ChatPageProps {
   }
 }
 
-export interface ChatProps extends React.ComponentProps<'div'> {
-  initialMessages?: any
+export interface ChatProps {
   id?: string
-  session?: Session
+  className?: string
+  initialMessages?: any
+  session: Session
 }
-export interface ChatMessage {
-  sender: string
-  message: string
-  chatId?: string
-  responseTime?: any
-  citations?: any
-  sourceData?: any
-  createdTime?: string
-  isRetried?: boolean
-  retryReason?: string
-  onRetry?: (reason: string) => void
-  retried?: boolean
-  retriedAnswers?:
-    | Array<{ retry_reason: string; answer: string; responseTime?: string }>
-    | string[]
+interface RetryAnswer {
+  answer: string
+  retry_reason?: string
+  responseTime?: string
+}
+
+interface ChatData {
+  messages?: Array<{
+    message: Array<{
+      role: 'user' | 'assistant'
+      content: string
+      created_time: string
+      responseTime?: string
+      sources?: any[]
+      specific_citations?: any[]
+      retried_answers?: Array<{
+        answer: string
+        retry_reason?: string
+        responseTime?: string
+      }> | string[]
+      retry_reason?: string
+    }>
+    message_id: string
+    retried?: boolean
+  }>
+  Data?: string[]
+  error?: string
 }
 
 export function Chat({ id, className, session, initialMessages }: ChatProps) {
@@ -82,6 +95,9 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
   const [retryingChatId, setRetryingChatId] = useState<string | null>(null)
   const [retryReason, setRetryReason] = useState<string>('')
   const [isNewMessage, setIsNewMessage] = useState(false)
+
+  // Add state for initial data loading
+  const [isInitialFetch, setIsInitialFetch] = useState(true)
 
   const carouselRef = useRef<HTMLDivElement>(null)
   console.log(initialMessages, 'initialMessages')
@@ -144,87 +160,97 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
     // Show feedback form logic here
   }
   useEffect(() => {
-    if (initialMessages?.messages?.length > 0) {
-      setIsNewMessage(false) // Set to false when loading existing messages
-      const chathistory: ChatMessage[] = []
-
-      initialMessages.messages?.forEach((chat: any) => {
-        chat.message.forEach((item: any) => {
-          if (item.role === 'user') {
-            chathistory.push({
-              sender: 'user',
-              message: item.content,
-              createdTime: new Date(item.created_time)
-                .toLocaleString('en-US', {
-                  month: 'short',
-                  day: '2-digit',
-                  hour: 'numeric',
-                  minute: '2-digit',
-                  hour12: true
+    const fetchInitialMessages = async () => {
+      if (!id || !session?.user?.email || !isInitialFetch) return
+      
+      setIsLoading(true)
+      try {
+        const { getChatClient } = await import('@/lib/chat/client-actions')
+        const data: ChatData = await getChatClient(id, session.user.email)
+        
+        if (data?.messages) {
+          const chathistory: ChatMessage[] = []
+          data.messages.forEach((chat) => {
+            chat.message.forEach((item) => {
+              if (item.role === 'user') {
+                chathistory.push({
+                  sender: 'user',
+                  message: item.content,
+                  createdTime: new Date(item.created_time)
+                    .toLocaleString('en-US', {
+                      month: 'short',
+                      day: '2-digit',
+                      hour: 'numeric',
+                      minute: '2-digit',
+                      hour12: true
+                    })
+                    .replace(',', '')
                 })
-                .replace(',', '')
-            })
-          } else if (item.role === 'assistant') {
-            // Extract retried answers if they exist
-            const retriedAnswers =
-              item.retried_answers?.map((retry: any) => {
-                // Handle both object format with retry_reason and responseTime, and string format
-                if (typeof retry === 'object' && retry.answer) {
-                  return {
-                    answer: retry.answer,
-                    retry_reason: retry.retry_reason || null,
-                    responseTime: retry.responseTime || null
+              } else if (item.role === 'assistant') {
+                const retriedAnswers = item.retried_answers?.map((retry: any) => {
+                  if (typeof retry === 'object' && retry.answer) {
+                    return {
+                      retry_reason: retry.retry_reason || '',
+                      answer: retry.answer
+                    }
                   }
-                } else if (typeof retry === 'string') {
                   return retry
-                }
-                return retry
-              }) || []
-            chathistory.push({
-              sender: 'receiver',
-              message: item.content,
-              chatId: chat.message_id,
-              responseTime: item.responseTime,
-              sourceData: item.sources || [],
-              citations: item.specific_citations || [],
-              createdTime: new Date(item.created_time)
-                .toLocaleString('en-US', {
-                  month: 'short',
-                  day: '2-digit',
-                  hour: 'numeric',
-                  minute: '2-digit',
-                  hour12: true
+                }) || []
+                
+                chathistory.push({
+                  sender: 'receiver',
+                  message: item.content,
+                  chatId: chat.message_id,
+                  responseTime: item.responseTime,
+                  sourceData: item.sources || [],
+                  citations: item.specific_citations || [],
+                  createdTime: new Date(item.created_time)
+                    .toLocaleString('en-US', {
+                      month: 'short',
+                      day: '2-digit',
+                      hour: 'numeric',
+                      minute: '2-digit',
+                      hour12: true
+                    })
+                    .replace(',', ''),
+                  retried: chat.retried || false,
+                  retriedAnswers: retriedAnswers,
+                  retryReason: item.retry_reason,
+                  isRetried: false
                 })
-                .replace(',', ''),
-              retried: chat.retried || false,
-              retriedAnswers: retriedAnswers,
-              retryReason: item.retry_reason || null
+              }
+            })
+          })
+          
+          if (data.Data) {
+            setDataKey(data.Data)
+          }
+          setChatMessages(chathistory)
+        } else if (data?.error) {
+          if (data.error === 'No documents found for the provided User-Id and chatter_id') {
+            // This is an expected case for new chats, don't show error
+            console.log('No existing chat found')
+          } else {
+            toast.error('Failed to load chat', {
+              position: 'top-right',
+              className: 'bottom-auto'
             })
           }
+        }
+      } catch (error) {
+        console.error('Error fetching initial messages:', error)
+        toast.error('Failed to load chat', {
+          position: 'top-right',
+          className: 'bottom-auto'
         })
-      })
-
-      if (initialMessages?.length > 0 && initialMessages[0].Data) {
-        setDataKey(initialMessages[0].Data)
+      } finally {
+        setIsLoading(false)
+        setIsInitialFetch(false)
       }
-      setChatMessages(chathistory)
-      console.log(chathistory, 'chathistory')
-    } else if (
-      initialMessages?.error ===
-      'No documents found for the provided User-Id and chatter_id'
-    ) {
-      console.log('kasdhasdrouter')
-      toast.error('No Chat Found', {
-        position: 'top-right',
-        className: 'bottom-auto'
-      })
-    } else if (initialMessages?.messages?.length === 0) {
-      toast.error('No Chat Found', {
-        position: 'top-right',
-        className: 'bottom-auto'
-      })
     }
-  }, [path, initialMessages])
+
+    fetchInitialMessages()
+  }, [id, session?.user?.email, isInitialFetch, setChatMessages])
 
   // Reset isNewMessage flag after auto-scroll is triggered
   useEffect(() => {
@@ -448,6 +474,14 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
     retried,
     retriedAnswers
   ])
+
+  if (isLoading) {
+    return (
+      <div className="flex h-[calc(100vh-4rem)] items-center justify-center">
+        <div className="animate-pulse text-gray-500">Loading chat...</div>
+      </div>
+    )
+  }
 
   return (
     <div className="group w-full pl-0 transition-all duration-300 ease-in-out peer-[[data-state=open]]:lg:pl-[300px] peer-[[data-state=open]]:xl:pl-[340px] bg-[#fefcfe]">

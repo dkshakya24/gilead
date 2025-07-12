@@ -1,23 +1,11 @@
 import { create } from 'zustand'
-
-interface ChatMessage {
-  sender: string
-  message: string
-  chatId?: string
-  responseTime?: any
-  citations?: any
-  createdTime?: string
-  isRetried?: boolean
-  retryReason?: string
-  retried?: boolean
-  retriedAnswers?: Array<{ retry_reason: string; answer: string }> | string[]
-}
+import { ChatMessage } from '@/lib/types'
 
 interface AppState {
   isStreaming: boolean
   setIsStreaming: (isStreaming: boolean) => void
-  reasoning: 'High' | 'Medium' | 'Low'
-  setReasoning: (reasoning: 'High' | 'Medium' | 'Low') => void
+  reasoning: string
+  setReasoning: (reasoning: string) => void
   chatMessages: ChatMessage[]
   setChatMessages: (messages: ChatMessage[]) => void
   chatId: string
