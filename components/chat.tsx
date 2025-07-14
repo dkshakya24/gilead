@@ -242,7 +242,7 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
       let isMounted = true
       const fetchData = async () => {
         try {
-          const response = await fetch('/api/utils/generate-id', {
+          const response = await fetch('/utils/generate-id', {
             method: 'GET',
             cache: 'no-store',
             headers: {
