@@ -48,5 +48,5 @@ export default async function ChatPage({ params }: ChatPageProps) {
   //   }
   console.log(chat, 'chatchatchat')
 
-  return <Chat session={session} id={params.id} initialMessages={chat} />
+  return <Chat session={session} id={params.id} />
 }
