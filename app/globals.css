@@ -77,3 +77,19 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Hide native browser password toggle button on Windows */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none;
+}
+
+/* Hide WebKit password toggle button */
+input[type="password"]::-webkit-credentials-auto-fill-button {
+  display: none !important;
+}
+
+/* Hide Firefox password toggle button */
+input[type="password"]::-moz-password-toggle {
+  display: none;
+}
