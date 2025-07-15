@@ -6,7 +6,7 @@ import { notFound, redirect } from 'next/navigation'
 import { auth } from '@/auth'
 import { Chat } from '@/components/chat'
 import { Session } from '@/lib/types'
-import { getChat } from '@/app/actions'
+// import { getChat } from '@/app/actions'
 // import { UIState } from '@/lib/chat/actions'
 
 export interface ChatPageProps {
@@ -37,7 +37,7 @@ export default async function ChatPage({ params }: ChatPageProps) {
   }
 
   // const userId = session.user.id as string
-  const chat = await getChat(params.id)
+  // const chat = await getChat(params.id)
 
   //   if (!chat) {
   //     redirect('/')
@@ -46,7 +46,6 @@ export default async function ChatPage({ params }: ChatPageProps) {
   //   if (chat?.userId !== session?.user?.id) {
   //     notFound()
   //   }
-  console.log(chat, 'chatchatchat')
 
   return <Chat session={session} id={params.id} />
 }
