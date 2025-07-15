@@ -32,7 +32,7 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog'
-import { API_URL, USER_MANAGEMENT_API } from '@/lib/utils'
+import { API_URL, USER_MANAGEMENT_API, hashPassword } from '@/lib/utils'
 
 // Define the user interface based on your API response
 interface User {
@@ -192,12 +192,15 @@ export function UsersManagement() {
     }
 
     try {
+      // Hash the password before sending to API
+      const hashedPassword = await hashPassword(newUser.password)
+
       const response = await fetch(`${USER_MANAGEMENT_API}`, {
         method: 'POST',
         body: JSON.stringify({
           action: 'add_user',
           user_id: newUser.email,
-          password: newUser.password,
+          password: hashedPassword, // Send hashed password instead of plain text
           name: newUser.name,
           role: newUser.role,
           access_enabled: 'True',

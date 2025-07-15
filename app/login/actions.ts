@@ -4,7 +4,7 @@ import { signIn } from '@/auth'
 import { User } from '@/lib/types'
 import { AuthError } from 'next-auth'
 import { z } from 'zod'
-import { ResultCode, USER_MANAGEMENT_API } from '@/lib/utils'
+import { ResultCode, USER_MANAGEMENT_API, verifyPassword } from '@/lib/utils'
 
 // API endpoint for authentication
 
@@ -66,13 +66,21 @@ export async function getUser(
     const data: AuthApiResponse = await response.json()
 
     if (data.authenticated && data.user.access_enabled === 'True') {
+      // Verify password using bcrypt
+      const isPasswordValid = await verifyPassword(password, data.user.password)
+
+      if (!isPasswordValid) {
+        console.error('Password verification failed')
+        return undefined
+      }
+
       return {
         id: data.user.user_id,
         email: data.user.email,
         name: data.user.name,
         role: data.user.role,
-        password: data.user.password, // Note: In production, you might not want to store this
-        salt: 'api-auth' // Default salt for API authenticated users
+        password: data.user.password,
+        salt: 'api-auth'
       }
     }
 

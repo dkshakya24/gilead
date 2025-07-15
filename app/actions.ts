@@ -2,7 +2,6 @@
 
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
-import { kv } from '@vercel/kv'
 
 import { auth } from '@/auth'
 import { type Chat } from '@/lib/types'
@@ -14,116 +13,25 @@ export async function getChats(userId?: string | null) {
   }
 
   try {
-    const pipeline = kv.pipeline()
-    const chats: string[] = await kv.zrange(`user:chat:${userId}`, 0, -1, {
-      rev: true
-    })
+    // Fetch chats from your API instead of KV store
+    const response = await fetch(
+      `${API_URL}/get-chat-history?user_id=${userId}`,
+      {
+        method: 'GET'
+      }
+    )
 
-    for (const chat of chats) {
-      pipeline.hgetall(chat)
+    if (!response.ok) {
+      throw new Error('Failed to fetch chats')
     }
 
-    const results = await pipeline.exec()
-
-    return results as Chat[]
+    const data = await response.json()
+    return data || []
   } catch (error) {
+    console.error('Error fetching chats:', error)
     return []
   }
 }
-
-// export async function getChat(id: string) {
-//   const session = await auth()
-
-//   try {
-//     const response = await fetch(
-//       `${API_URL}/get-chat-history?user_id=${session?.user?.email}&session_id=${id}`,
-//       {
-//         method: 'GET'
-//       }
-//     )
-//     const resp = await response.json()
-
-//     console.log('resp.body', resp)
-
-//     return resp
-
-//     // return data
-//     // setNewchatboxId(data.chatter_id)
-//     // Further processing of data can be done here
-//   } catch (error) {
-//     console.error('Error fetching data:', error)
-//   }
-// }
-// export async function editChat({
-//   Session_id,
-//   header_name
-// }: {
-//   Session_id: string
-//   header_name: string
-// }) {
-//   const session = await auth()
-//   if (!session) {
-//     return {
-//       error: 'Unauthorized'
-//     }
-//   }
-//   const payload = {
-//     action: 'edit_chatname',
-//     user_id: session?.user?.email,
-//     session_id: Session_id,
-//     new_name: header_name
-//   }
-//   try {
-//     const response = await fetch(`${EDIT_DELETE_CHAT_API}/editchat`, {
-//       method: 'POST',
-//       body: JSON.stringify(payload),
-//       headers: {
-//         'Content-Type': 'application/json'
-//       }
-//     })
-//     if (response.ok) {
-//       console.log('Chat title updated successfully', payload)
-//     } else {
-//       throw new Error('Failed to update chat title')
-//     }
-//   } catch (error) {
-//     console.log('Failed to update chat title:', error)
-//     throw error
-//   }
-// }
-// export async function removeChat({ Session_id }: { Session_id: string }) {
-//   const session = await auth()
-
-//   if (!session) {
-//     return {
-//       error: 'Unauthorized'
-//     }
-//   }
-//   const payload = {
-//     action: 'delete_chat',
-//     user_id: session?.user?.email,
-//     session_id: Session_id,
-//     deletedBy: 'Test',
-//     deletedReason: 'Deleted to test API'
-//   }
-//   try {
-//     const response = await fetch(`${EDIT_DELETE_CHAT_API}/deletechat`, {
-//       method: 'POST',
-//       body: JSON.stringify(payload),
-//       headers: {
-//         'Content-Type': 'application/json'
-//       }
-//     })
-
-//     if (response.ok) {
-//       console.log('Deletion successfull') // Callback for successful deletion (optional)
-//     } else {
-//       throw new Error('Deletion failed')
-//     }
-//   } catch (error) {
-//     console.log('Deletion Failed')
-//   }
-// }
 
 export async function shareChat(id: string) {
   const session = await auth()
@@ -134,22 +42,39 @@ export async function shareChat(id: string) {
     }
   }
 
-  const chat = await kv.hgetall<Chat>(`chat:${id}`)
+  try {
+    // Fetch chat from API
+    const response = await fetch(
+      `${API_URL}/get-chat-history?user_id=${session.user.email}&session_id=${id}`,
+      {
+        method: 'GET'
+      }
+    )
 
-  if (!chat || chat.userId !== session.user.id) {
+    if (!response.ok) {
+      throw new Error('Failed to fetch chat')
+    }
+
+    const chat = await response.json()
+
+    if (!chat || chat.user_id !== session.user.email) {
+      return {
+        error: 'Something went wrong'
+      }
+    }
+
+    const payload = {
+      ...chat,
+      sharePath: `/share/${chat.session_id}`
+    }
+
+    return payload
+  } catch (error) {
+    console.error('Error sharing chat:', error)
     return {
       error: 'Something went wrong'
     }
   }
-
-  const payload = {
-    ...chat,
-    sharePath: `/share/${chat.id}`
-  }
-
-  await kv.hmset(`chat:${chat.id}`, payload)
-
-  return payload
 }
 
 export async function refreshHistory(path: string) {

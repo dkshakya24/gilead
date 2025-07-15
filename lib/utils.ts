@@ -107,3 +107,18 @@ export const getMessageFromCode = (resultCode: string) => {
       return 'Logged in!'
   }
 }
+
+// bcrypt utilities for password hashing
+export const hashPassword = async (password: string): Promise<string> => {
+  const bcrypt = await import('bcryptjs')
+  const saltRounds = 12
+  return bcrypt.hash(password, saltRounds)
+}
+
+export const verifyPassword = async (
+  password: string,
+  hashedPassword: string
+): Promise<boolean> => {
+  const bcrypt = await import('bcryptjs')
+  return bcrypt.compare(password, hashedPassword)
+}
