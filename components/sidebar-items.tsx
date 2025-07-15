@@ -3,7 +3,7 @@
 import { SideBarChat } from '@/lib/types'
 import { AnimatePresence, motion } from 'framer-motion'
 
-import { removeChat, shareChat, editChat } from '@/app/actions'
+import { editChatClient, removeChatClient } from '@/lib/chat/client-actions'
 
 import { SidebarActions } from '@/components/sidebar-actions'
 import { SidebarItem } from '@/components/sidebar-item'
@@ -31,13 +31,26 @@ export function SidebarItems({ chats, accordian }: SidebarItemsProps) {
               <SidebarItem index={index} chat={chat} accordian={accordian}>
                 <SidebarActions
                   chat={chat}
-                  removeChat={removeChat}
+                  removeChat={async (args: { Session_id: string }) => {
+                    try {
+                      await removeChatClient({
+                        Session_id: args.Session_id,
+                        user_id: chat.user_id || ''
+                      })
+                    } catch (error) {
+                      console.error('Failed to remove chat:', error)
+                    }
+                  }}
                   editChat={async (args: {
                     Session_id: string
                     header_name: string
                   }) => {
                     try {
-                      await editChat(args)
+                      await editChatClient({
+                        Session_id: args.Session_id,
+                        header_name: args.header_name,
+                        user_id: chat.user_id || ''
+                      })
                     } catch (error) {
                       console.error('Failed to edit chat:', error)
                     }
