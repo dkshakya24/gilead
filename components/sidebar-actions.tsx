@@ -99,7 +99,9 @@ export function SidebarActions({
 
   return (
     <>
-      <div className="flex items-center gap-0 w-full justify-end bg-primary rounded-lg">
+      <div
+        className={`flex items-center gap-0 w-full justify-end bg-primary rounded-lg  ${isEditing ? 'mt-[0px]' : 'mt-[10px]'}`}
+      >
         {isEditing ? (
           <div
             className={`flex items-center gap-0 bg-secondary w-full ${isEditing ? 'mt-[0px] rounded-sm p-1' : ''}`}
