@@ -197,13 +197,12 @@ export function SidebarActions({
             </AlertDialogCancel>
             <AlertDialogAction
               disabled={isRemovePending}
-              onClick={event => {
+              onClick={async event => {
                 event.preventDefault()
                 // @ts-ignore
                 startRemoveTransition(async () => {
                   const result = await removeChat({
                     Session_id: chat.Session_id
-                    // path: chat.path
                   })
 
                   if (result && 'error' in result) {
@@ -216,11 +215,9 @@ export function SidebarActions({
                     position: 'top-right',
                     className: 'bottom-auto top-2'
                   })
-                  // Trigger chat history refresh
                   setRefreshChatHistory(true)
-                  router.refresh()
-                  router.push('/new')
-                  // redirect('/')
+                  // Use router.replace to ensure navigation works as expected after deletion
+                  router.push('/arc')
                 })
               }}
             >
