@@ -132,7 +132,7 @@ export const AUTH_STRATEGY = {
   //
   // Set to FALSE if your API expects to receive a plain password and will hash it itself
   // before comparing with the stored hash
-  SEND_HASHED_PASSWORD: true
+  SEND_HASHED_PASSWORD: false
 }
 
 // Get password for API payload based on authentication strategy
