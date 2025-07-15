@@ -122,3 +122,23 @@ export const verifyPassword = async (
   const bcrypt = await import('bcryptjs')
   return bcrypt.compare(password, hashedPassword)
 }
+
+// Configuration for authentication strategy
+export const AUTH_STRATEGY = {
+  // IMPORTANT: Choose the correct strategy based on your API implementation
+  //
+  // Set to TRUE if your API expects to receive a hashed password and will compare it directly
+  // with the stored hash in the database
+  //
+  // Set to FALSE if your API expects to receive a plain password and will hash it itself
+  // before comparing with the stored hash
+  SEND_HASHED_PASSWORD: true
+}
+
+// Get password for API payload based on authentication strategy
+export const getPasswordForApi = async (password: string): Promise<string> => {
+  if (AUTH_STRATEGY.SEND_HASHED_PASSWORD) {
+    return await hashPassword(password)
+  }
+  return password
+}

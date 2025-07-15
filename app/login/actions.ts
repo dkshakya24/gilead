@@ -4,7 +4,12 @@ import { signIn } from '@/auth'
 import { User } from '@/lib/types'
 import { AuthError } from 'next-auth'
 import { z } from 'zod'
-import { ResultCode, USER_MANAGEMENT_API, verifyPassword } from '@/lib/utils'
+import {
+  ResultCode,
+  USER_MANAGEMENT_API,
+  verifyPassword,
+  getPasswordForApi
+} from '@/lib/utils'
 
 // API endpoint for authentication
 
@@ -33,10 +38,13 @@ export async function getUser(
   password: string
 ): Promise<User | undefined> {
   try {
+    // Get password for API based on authentication strategy
+    const passwordForApi = await getPasswordForApi(password)
+
     const payload: AuthApiRequest = {
       action: 'authenticate',
       user_id: email,
-      password: password
+      password: passwordForApi
     }
 
     console.log(
