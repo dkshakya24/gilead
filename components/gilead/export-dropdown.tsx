@@ -27,7 +27,8 @@ import {
   API_URL,
   PROJECT_NAME,
   PPT_GENERATE_API,
-  PPT_DOWNLOAD_API
+  PPT_DOWNLOAD_API,
+  DOCX_GENERATE_API
 } from '@/lib/utils'
 import CustomModal from '@/components/ui/CustomModal'
 import { AiOutlineClose } from 'react-icons/ai' // Using React Icons for the close icon
@@ -326,16 +327,13 @@ export function ExportDropdown({ session }: { session?: any }) {
       }
     }
     try {
-      const response = await fetch(
-        `https://g6dy9f8dr4.execute-api.us-east-1.amazonaws.com/dev/`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(payload)
-        }
-      )
+      const response = await fetch(`${DOCX_GENERATE_API}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      })
 
       if (!response.ok) {
         throw new Error(`Error: ${response.status} ${response.statusText}`)

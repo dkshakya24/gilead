@@ -19,11 +19,16 @@ export const PPT_GENERATE_API =
   'https://jnjldv2wrroq4d2yvxst5p7kki0basvl.lambda-url.us-east-1.on.aws/'
 export const PPT_DOWNLOAD_API =
   'https://11vzxy3g5g.execute-api.us-east-1.amazonaws.com/dev/gilead_download_ppt_chat'
+
 export const USER_MANAGEMENT_API =
   'https://bncqce2qts4p6kdmq4tkyls4va0blbkv.lambda-url.us-east-1.on.aws/'
 
 export const EDIT_DELETE_CHAT_API =
   'https://6try2laitd.execute-api.us-east-1.amazonaws.com/dev'
+
+export const DOCX_GENERATE_API =
+  'https://g6dy9f8dr4.execute-api.us-east-1.amazonaws.com/dev/'
+
 // export const AUTH_MICROSOFT_ENTRA_ID_ID =
 //   process.env.NEXT_PUBLIC_AUTH_MICROSOFT_ENTRA_ID_ID
 // export const AUTH_MICROSOFT_ENTRA_ID_SECRET =
