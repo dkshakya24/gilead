@@ -18,7 +18,10 @@ jest.mock('next/navigation', () => ({
   },
   useSearchParams() {
     return new URLSearchParams()
-  }
+  },
+  redirect: jest.fn().mockImplementation(() => {
+    throw new Error('REDIRECT')
+  })
 }))
 
 // Mock Next.js image component
@@ -305,37 +308,115 @@ jest.mock('@/lib/chat/actions', () => ({
 
 // Mock Chat component
 jest.mock('@/components/chat', () => ({
-  Chat: ({ session, ...props }) => (
-    <div data-testid="chat-component">
-      <input placeholder="Ask anything here..." />
-      <button>Send</button>
-      <div data-testid="messages">{props.children}</div>
-    </div>
-  )
+  Chat: ({ session, ...props }) => {
+    const [messages, setMessages] = React.useState([])
+    const [isStreaming, setIsStreaming] = React.useState(false)
+    const [inputValue, setInputValue] = React.useState('')
+
+    // Mock WebSocket hook
+    const useWebSocket = require('@/lib/hooks/useWebSocket').default
+    const mockWebSocket = useWebSocket()
+
+    React.useEffect(() => {
+      if (mockWebSocket.messages) {
+        setMessages(mockWebSocket.messages)
+      }
+      if (mockWebSocket.isStreaming !== undefined) {
+        setIsStreaming(mockWebSocket.isStreaming)
+      }
+    }, [mockWebSocket.messages, mockWebSocket.isStreaming])
+
+    const handleSend = async () => {
+      if (inputValue.trim() && mockWebSocket.sendMessage) {
+        try {
+          await mockWebSocket.sendMessage(inputValue)
+        } catch (err) {
+          // Optionally, set an error state or log
+        }
+        setInputValue('')
+      }
+    }
+
+    return (
+      <div data-testid="chat-component">
+        <input
+          placeholder="Ask anything here..."
+          value={inputValue}
+          onChange={e => setInputValue(e.target.value)}
+          disabled={isStreaming}
+        />
+        <button onClick={handleSend} disabled={isStreaming}>
+          Send
+        </button>
+        <div data-testid="messages">
+          {messages.map((msg, index) => (
+            <div key={index} data-testid={`message-${index}`}>
+              {msg.content || msg.message}
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
 }))
 
 // Mock ChatPanel component
 jest.mock('@/components/chat-panel', () => ({
-  ChatPanel: ({ children, ...props }) => (
-    <div data-testid="chat-panel">
-      <form>
-        <input placeholder="Ask anything here..." />
-        <button type="submit">Send</button>
-      </form>
-      {children}
-    </div>
-  )
+  ChatPanel: ({ children, onSubmit, ...props }) => {
+    const [inputValue, setInputValue] = React.useState('')
+
+    const handleSubmit = e => {
+      e.preventDefault()
+      if (onSubmit && inputValue.trim()) {
+        onSubmit(inputValue)
+        setInputValue('')
+      }
+    }
+
+    return (
+      <div data-testid="chat-panel">
+        <form onSubmit={handleSubmit}>
+          <input
+            placeholder="Ask anything here..."
+            value={inputValue}
+            onChange={e => setInputValue(e.target.value)}
+          />
+          <button type="submit">Send</button>
+        </form>
+        {children}
+      </div>
+    )
+  }
 }))
 
 // Mock PromptForm component
 jest.mock('@/components/prompt-form', () => ({
-  PromptForm: ({ children, ...props }) => (
-    <div data-testid="prompt-form">
-      <textarea placeholder="Ask anything here..." />
-      <button type="submit">Send</button>
-      {children}
-    </div>
-  )
+  PromptForm: ({ children, setInput, isStreaming, ...props }) => {
+    const [inputValue, setInputValue] = React.useState('')
+
+    const handleChange = e => {
+      const value = e.target.value
+      setInputValue(value)
+      if (setInput) {
+        setInput(value)
+      }
+    }
+
+    return (
+      <div data-testid="prompt-form">
+        <textarea
+          placeholder="Ask anything here..."
+          value={inputValue}
+          onChange={handleChange}
+          disabled={isStreaming}
+        />
+        <button type="submit" disabled={isStreaming}>
+          Send
+        </button>
+        {children}
+      </div>
+    )
+  }
 }))
 
 // Mock uuid
@@ -503,7 +584,13 @@ beforeAll(() => {
   console.error = (...args) => {
     if (
       typeof args[0] === 'string' &&
-      args[0].includes('Warning: ReactDOM.render is no longer supported')
+      (args[0].includes('Warning: ReactDOM.render is no longer supported') ||
+        args[0].includes(
+          'Warning: Invalid value for prop `action` on <form> tag'
+        ) ||
+        args[0].includes(
+          'Error: Not implemented: HTMLFormElement.prototype.requestSubmit'
+        ))
     ) {
       return
     }
