@@ -16,6 +16,8 @@ __tests__/
 ├── integration/           # Integration tests for main functionality
 │   ├── auth.test.tsx     # Authentication flow tests
 │   ├── chat.test.tsx     # Chat functionality tests
+│   ├── chat-history.test.tsx # Chat history functionality tests
+│   ├── export-download.test.tsx # PPT download and DOCX export tests
 │   ├── routing.test.tsx  # Routing and navigation tests
 │   └── websocket.test.tsx # WebSocket integration tests
 ├── utils/
@@ -122,7 +124,45 @@ pnpm test:ci
 - ✅ Session handling for different user roles
 - ✅ Page layouts render correctly
 
-### 4. WebSocket Integration Tests (`websocket.test.tsx`)
+### 4. Chat History Integration Tests (`chat-history.test.tsx`)
+
+**What it tests:**
+
+- Chat history rendering and functionality
+- History fetching and caching
+- Search and filtering capabilities
+- Navigation between chat sessions
+- Loading states and empty states
+
+**Key scenarios:**
+
+- ✅ Chat history renders correctly with today and previous chats
+- ✅ Search functionality filters chat history
+- ✅ New chat button navigates to new chat page
+- ✅ Loading states display during data fetching
+- ✅ Chat history data is cached for performance
+- ✅ Empty states are handled appropriately
+
+### 5. Export and Download Integration Tests (`export-download.test.tsx`)
+
+**What it tests:**
+
+- PPT download functionality
+- DOCX export functionality
+- Export dropdown UI and interactions
+- File generation and download process
+- Modal interactions for PPT customization
+
+**Key scenarios:**
+
+- ✅ Export dropdown renders and opens correctly
+- ✅ DOCX export generates and downloads Word documents
+- ✅ PPT export modal allows question selection and customization
+- ✅ PPT generation and download process works end-to-end
+- ✅ Loading states during file generation and download
+- ✅ Error handling during export process
+
+### 6. WebSocket Integration Tests (`websocket.test.tsx`)
 
 **What it tests:**
 
