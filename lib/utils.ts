@@ -29,13 +29,6 @@ export const EDIT_DELETE_CHAT_API =
 export const DOCX_GENERATE_API =
   'https://g6dy9f8dr4.execute-api.us-east-1.amazonaws.com/dev/'
 
-// export const AUTH_MICROSOFT_ENTRA_ID_ID =
-//   process.env.NEXT_PUBLIC_AUTH_MICROSOFT_ENTRA_ID_ID
-// export const AUTH_MICROSOFT_ENTRA_ID_SECRET =
-//   process.env.NEXT_PUBLIC_AUTH_MICROSOFT_ENTRA_ID_SECRET
-// export const AUTH_MICROSOFT_ENTRA_ID_ISSUER =
-//   process.env.NEXT_PUBLIC_AUTH_MICROSOFT_ENTRA_ID_ISSUER
-
 export async function fetcher<JSON = any>(
   input: RequestInfo,
   init?: RequestInit
