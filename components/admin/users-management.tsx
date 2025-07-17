@@ -32,7 +32,11 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog'
-import { API_URL, USER_MANAGEMENT_API } from '@/lib/utils'
+import {
+  API_URL,
+  USER_LIST_MANAGEMENT_API,
+  USER_MANAGEMENT_API
+} from '@/lib/utils'
 
 // Define the user interface based on your API response
 interface User {
@@ -66,7 +70,7 @@ export function UsersManagement() {
   const fetchUsers = async () => {
     try {
       setLoading(true)
-      const response = await fetch(`${USER_MANAGEMENT_API}`, {
+      const response = await fetch(`${USER_LIST_MANAGEMENT_API}`, {
         method: 'POST',
         body: JSON.stringify({
           action: 'list_users'

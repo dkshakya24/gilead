@@ -19,7 +19,8 @@ export const PPT_GENERATE_API =
   'https://jnjldv2wrroq4d2yvxst5p7kki0basvl.lambda-url.us-east-1.on.aws/'
 export const PPT_DOWNLOAD_API =
   'https://11vzxy3g5g.execute-api.us-east-1.amazonaws.com/dev/gilead_download_ppt_chat'
-
+export const USER_LIST_MANAGEMENT_API =
+  'https://bncqce2qts4p6kdmq4tkyls4va0blbkv.lambda-url.us-east-1.on.aws/'
 export const USER_MANAGEMENT_API =
   'https://bncqce2qts4p6kdmq4tkyls4va0blbkv.lambda-url.us-east-1.on.aws/'
 
