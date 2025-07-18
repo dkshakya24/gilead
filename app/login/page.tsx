@@ -8,7 +8,7 @@ export default function Page() {
   return (
     <div className="p-4 flex flex-col gap-x-4 md:flex-row h-screen">
       {/* Left Side */}
-      <div className="w-full flex flex-col md:w-1/2 p-4 items-center justify-center rounded-3xl bg-[#F8F8F8] shadow-[0_0_6px_rgba(0,0,0,0.2)]">
+      <div className="w-full flex flex-col md:w-[60%] p-4 items-center justify-center rounded-3xl bg-[#F8F8F8] shadow-[0_0_6px_rgba(0,0,0,0.2)]">
         <div className="w-full max-w-[400px]">
           <div className="mb-6">
             <Image
@@ -45,14 +45,14 @@ export default function Page() {
       </div>
 
       {/* Right Side */}
-      <div className="w-full md:w-1/2 h-full flex items-center justify-center">
+      <div className="w-full md:w-[40%] h-full flex items-center justify-center">
         <div className="relative w-full h-full">
           <Image
             src={rightimage}
             alt="Platform Interface"
             fill
-            className="object-contain w-full h-full"
-            sizes="(max-width: 768px) 100vw, 50vw"
+            className="object-contain"
+            sizes="(max-width: 768px) 100vw, 40vw"
             priority
           />
         </div>
