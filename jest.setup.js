@@ -157,7 +157,16 @@ jest.mock('@radix-ui/react-dropdown-menu', () => ({
 jest.mock('@radix-ui/react-tooltip', () => ({
   Tooltip: ({ children }) => children,
   TooltipContent: ({ children }) => children,
-  TooltipTrigger: ({ children }) => children
+  TooltipTrigger: ({ children }) => children,
+  TooltipProvider: ({ children }) => children,
+  TooltipPrimitive: {
+    Provider: ({ children }) => children,
+    Root: ({ children }) => children,
+    Trigger: ({ children }) => children,
+    Content: {
+      displayName: 'TooltipContent'
+    }
+  }
 }))
 
 jest.mock('@radix-ui/react-alert-dialog', () => ({
@@ -165,7 +174,30 @@ jest.mock('@radix-ui/react-alert-dialog', () => ({
   AlertDialogContent: ({ children }) => children,
   AlertDialogHeader: ({ children }) => children,
   AlertDialogTitle: ({ children }) => children,
-  AlertDialogTrigger: ({ children }) => children
+  AlertDialogTrigger: ({ children }) => children,
+  AlertDialogPrimitive: {
+    Root: ({ children }) => children,
+    Trigger: ({ children }) => children,
+    Portal: ({ children }) => children,
+    Overlay: {
+      displayName: 'AlertDialogOverlay'
+    },
+    Content: {
+      displayName: 'AlertDialogContent'
+    },
+    Title: {
+      displayName: 'AlertDialogTitle'
+    },
+    Description: {
+      displayName: 'AlertDialogDescription'
+    },
+    Action: {
+      displayName: 'AlertDialogAction'
+    },
+    Cancel: {
+      displayName: 'AlertDialogCancel'
+    }
+  }
 }))
 
 jest.mock('@radix-ui/react-select', () => ({
@@ -501,6 +533,19 @@ if (typeof HTMLFormElement !== 'undefined') {
     // Also dispatch the submit event
     const event = new Event('submit', { bubbles: true, cancelable: true })
     this.dispatchEvent(event)
+  }
+}
+
+// Mock additional browser APIs that might not be available in JSDOM
+if (typeof window !== 'undefined') {
+  // Mock requestAnimationFrame if not available
+  if (!window.requestAnimationFrame) {
+    window.requestAnimationFrame = callback => setTimeout(callback, 16)
+  }
+
+  // Mock cancelAnimationFrame if not available
+  if (!window.cancelAnimationFrame) {
+    window.cancelAnimationFrame = id => clearTimeout(id)
   }
 }
 

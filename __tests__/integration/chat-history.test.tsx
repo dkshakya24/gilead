@@ -26,7 +26,7 @@ jest.mock('@/lib/store/websocket-store', () => ({
     isStreaming: false,
     setIsStreaming: jest.fn(),
     refreshChatHistory: false,
-    setRefreshChatHistory: jest.fn()
+    setRefreshChatHistory: jest.fn(() => {})
   })
 }))
 
@@ -120,8 +120,10 @@ describe('Chat History Integration Tests', () => {
     it('should navigate to new chat when button is clicked', async () => {
       // Mock window.location.href
       const originalLocation = window.location
-      delete window.location
-      window.location = { ...originalLocation, href: '' } as any
+      Object.defineProperty(window, 'location', {
+        value: { ...originalLocation, href: '' },
+        writable: true
+      })
 
       render(<ChatHistory userId={userId} />)
 
@@ -132,7 +134,10 @@ describe('Chat History Integration Tests', () => {
       expect(window.location.href).toBe('/new')
 
       // Restore original location
-      window.location = originalLocation
+      Object.defineProperty(window, 'location', {
+        value: originalLocation,
+        writable: true
+      })
     })
 
     it('should filter chats when search is used', async () => {
@@ -210,7 +215,7 @@ describe('Chat History Integration Tests', () => {
       render(<SidebarList userId={userId} />)
 
       // Check for loading state (shimmer)
-      const loadingElements = screen.getAllByClassName('animate-pulse')
+      const loadingElements = document.querySelectorAll('.animate-pulse')
       expect(loadingElements.length).toBeGreaterThan(0)
     })
 
