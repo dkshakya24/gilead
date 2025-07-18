@@ -45,12 +45,17 @@ export default function Page() {
       </div>
 
       {/* Right Side */}
-      <div className="w-full md:w-1/2 h-full">
-        <Image
-          src={rightimage}
-          alt="Platform Interface"
-          className="w-full h-full object-inherit"
-        />
+      <div className="w-full md:w-1/2 h-full flex items-center justify-center">
+        <div className="relative w-full h-full">
+          <Image
+            src={rightimage}
+            alt="Platform Interface"
+            fill
+            className="object-contain w-full h-full"
+            sizes="(max-width: 768px) 100vw, 50vw"
+            priority
+          />
+        </div>
       </div>
     </div>
   )
