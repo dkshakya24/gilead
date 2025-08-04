@@ -10,6 +10,8 @@ export default function NewPage() {
 
   useEffect(() => {
     setChatMessages([])
+    // Set flag to indicate we're coming from new chat
+    sessionStorage.setItem('fromNewChat', 'true')
     router.replace('/arc')
   }, [setChatMessages, router])
 
