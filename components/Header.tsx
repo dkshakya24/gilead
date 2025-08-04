@@ -89,7 +89,7 @@ export async function Header() {
     <header className="sticky top-0 z-50 flex items-center justify-between bg-white/80 backdrop-blur-md w-full h-16 px-6 border-b border-gray-100 dark:bg-white/80 shadow-sm">
       <div className="flex items-center gap-3">
         <SidebarToggle />
-        <Link href="/" className="hover:opacity-80 transition-opacity">
+        <Link href="/new" className="hover:opacity-80 transition-opacity">
           <Image
             src={logo}
             alt="Gilead"
