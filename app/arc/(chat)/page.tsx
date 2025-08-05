@@ -1,4 +1,4 @@
-import { Chat } from '@/components/chat'
+import { Chat, ChatPageProps } from '@/components/chat'
 import { auth } from '@/auth'
 import { Session } from '@/lib/types'
 import { redirect } from 'next/navigation'
@@ -12,7 +12,7 @@ export const metadata = {
   title: 'Welcome to GABI ARC'
 }
 
-export default async function IndexPage() {
+export default async function IndexPage({ params }: ChatPageProps) {
   // const id = await getChatId()
   const session = (await auth()) as Session
   if (!session) {
@@ -23,7 +23,7 @@ export default async function IndexPage() {
   return (
     <>
       {/* <ToastOnLoad /> */}
-      <Chat session={session} />
+      <Chat session={session} id={params?.id} />
     </>
   )
 }

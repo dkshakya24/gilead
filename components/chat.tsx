@@ -84,6 +84,7 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
   const [isNewMessage, setIsNewMessage] = useState(false)
   const [isInitialFetch, setIsInitialFetch] = useState(true)
   const carouselRef = useRef<HTMLDivElement>(null)
+  const hasCalledApi = useRef(false)
   console.log(initialMessages, 'initialMessages')
 
   const startAutoScroll = useCallback(() => {
@@ -263,8 +264,9 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
   }, [isNewMessage])
 
   useEffect(() => {
-    if (path === '/arc' && !newchatboxId) {
-      let isMounted = true
+    // Only generate new chat ID when user lands on /arc for the first time (no existing chat ID)
+    if (path === '/arc' && !id && !newchatboxId && !hasCalledApi.current) {
+      hasCalledApi.current = true
       const fetchData = async () => {
         try {
           const response = await fetch('/utils/generate-id', {
@@ -276,19 +278,14 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
             }
           })
           const data = await response.json()
-          if (isMounted) {
-            setNewchatboxId(data.id)
-          }
+          setNewchatboxId(data.id)
         } catch (error) {
           console.error('Error fetching data:', error)
         }
       }
       fetchData()
-      return () => {
-        isMounted = false
-      }
     }
-  }, [path, newchatboxId])
+  }, [path, id])
 
   // Get URL tracking state from localStorage
   const isUrlEnabled =
@@ -296,9 +293,15 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
       ? localStorage.getItem('urlEnabled') !== 'false'
       : true
 
+  // Helper function to extract session ID from URL path
+  const getSessionIdFromPath = (pathname: string): string | null => {
+    const chatMatch = pathname.match(/\/arc\/chat\/([^\/]+)/)
+    return chatMatch ? chatMatch[1] : null
+  }
+
   const payload = {
     action: 'sendmessage',
-    sessionId: id ? id : newchatboxId,
+    sessionId: id ? id : newchatboxId || getSessionIdFromPath(path),
     query: input,
     userId: session?.user.email,
     reasoning: reasoning,
@@ -329,13 +332,17 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
     console.log(payload, 'payloadddd')
   }
 
+  // Update URL when new chat ID is generated for new chat
   useEffect(() => {
-    if (session?.user) {
-      if (!path.includes('chat') && chatMessages.length === 1) {
-        window.history.replaceState({}, '', `/arc/chat/${newchatboxId}`)
-      }
+    if (
+      session?.user &&
+      newchatboxId &&
+      path === '/arc' &&
+      chatMessages.length === 1
+    ) {
+      window.history.replaceState({}, '', `/arc/chat/${newchatboxId}`)
     }
-  }, [newchatboxId, path, session?.user, chatMessages])
+  }, [newchatboxId, session?.user, path, chatMessages])
 
   const {
     messagesRef,
