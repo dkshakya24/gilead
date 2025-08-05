@@ -293,9 +293,15 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
       ? localStorage.getItem('urlEnabled') !== 'false'
       : true
 
+  // Helper function to extract session ID from URL path
+  const getSessionIdFromPath = (pathname: string): string | null => {
+    const chatMatch = pathname.match(/\/arc\/chat\/([^\/]+)/)
+    return chatMatch ? chatMatch[1] : null
+  }
+
   const payload = {
     action: 'sendmessage',
-    sessionId: id ? id : newchatboxId,
+    sessionId: id ? id : newchatboxId || getSessionIdFromPath(path),
     query: input,
     userId: session?.user.email,
     reasoning: reasoning,
