@@ -405,7 +405,7 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
 
       const payload = {
         action: 'sendmessage',
-        sessionId: id ? id : newchatboxId,
+        sessionId: id ? id : newchatboxId || getSessionIdFromPath(path),
         query: userMessage,
         userId: session?.user.email,
         reasoning: reasoning,
