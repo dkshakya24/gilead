@@ -240,87 +240,104 @@ export function UsersManagement() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-end">
+    <div className="space-y-4 sm:space-y-6 p-4 sm:p-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-4">
         <Button
           onClick={() => setAddDialogOpen(true)}
-          className="bg-rose-500 hover:bg-rose-600 text-white"
+          className="bg-rose-500 hover:bg-rose-600 text-white w-full sm:w-auto"
         >
           <Plus className="mr-2 h-4 w-4" />
           Add User
         </Button>
       </div>
 
-      <div className="border rounded-lg overflow-hidden">
-        <Table>
-          <TableHeader>
-            <TableRow className="bg-gray-50">
-              <TableHead className="uppercase text-xs font-medium text-gray-500">
-                Username
-              </TableHead>
-              <TableHead className="uppercase text-xs font-medium text-gray-500">
-                Email
-              </TableHead>
-              <TableHead className="uppercase text-xs font-medium text-gray-500">
-                Role
-              </TableHead>
-              <TableHead className="uppercase text-xs font-medium text-gray-500">
-                Password
-              </TableHead>
-              <TableHead className="uppercase text-xs font-medium text-gray-500">
-                Status
-              </TableHead>
-              <TableHead className="uppercase text-xs font-medium text-gray-500">
-                Actions
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {users.map(user => (
-              <TableRow key={user.user_id} className="border-b border-gray-100">
-                <TableCell className="font-medium">{user.name}</TableCell>
-                <TableCell>{user.email}</TableCell>
-                <TableCell className="capitalize">{user.role}</TableCell>
-                <TableCell className="flex items-center space-x-2">
-                  <span className="font-mono">
-                    {showPassword[user.user_id] ? user.password : '•'.repeat(8)}
-                  </span>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => togglePasswordVisibility(user.user_id)}
-                    className="hover:bg-transparent"
-                  >
-                    {showPassword[user.user_id] ? (
-                      <EyeOff className="h-4 w-4 text-gray-400" />
-                    ) : (
-                      <Eye className="h-4 w-4 text-gray-400" />
-                    )}
-                  </Button>
-                </TableCell>
-                <TableCell>
-                  <Switch
-                    checked={user.access_enabled === 'True'}
-                    onCheckedChange={() => toggleUserStatus(user.user_id)}
-                    disabled={user.email === 'admin@chryselys.com'}
-                    className="data-[state=checked]:bg-rose-500"
-                  />
-                </TableCell>
-                <TableCell>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleDeleteUser(user.user_id)}
-                    disabled={user.email === 'admin@chryselys.com'}
-                    className="hover:bg-transparent"
-                  >
-                    <Trash2 className="h-4 w-4 text-rose-500" />
-                  </Button>
-                </TableCell>
+      <div className="border rounded-lg overflow-scroll">
+        <div className="overflow-x-auto max-h-[450px] pb-[100px]">
+          <Table className="min-w-full">
+            <TableHeader>
+              <TableRow className="bg-gray-50">
+                <TableHead className="uppercase text-xs font-medium text-gray-500 px-2 sm:px-4 py-3 whitespace-nowrap">
+                  Username
+                </TableHead>
+                <TableHead className="uppercase text-xs font-medium text-gray-500 px-2 sm:px-4 py-3 whitespace-nowrap">
+                  Email
+                </TableHead>
+                <TableHead className="uppercase text-xs font-medium text-gray-500 px-2 sm:px-4 py-3 whitespace-nowrap">
+                  Role
+                </TableHead>
+                <TableHead className="uppercase text-xs font-medium text-gray-500 px-2 sm:px-4 py-3 whitespace-nowrap">
+                  Password
+                </TableHead>
+                <TableHead className="uppercase text-xs font-medium text-gray-500 px-2 sm:px-4 py-3 whitespace-nowrap">
+                  Status
+                </TableHead>
+                <TableHead className="uppercase text-xs font-medium text-gray-500 px-2 sm:px-4 py-3 whitespace-nowrap">
+                  Actions
+                </TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {users.map(user => (
+                <TableRow
+                  key={user.user_id}
+                  className="border-b border-gray-100 hover:bg-gray-50"
+                >
+                  <TableCell className="font-medium px-2 sm:px-4 py-3 text-sm">
+                    <div className="min-w-[100px] max-w-[150px] truncate">
+                      {user.name}
+                    </div>
+                  </TableCell>
+                  <TableCell className="px-2 sm:px-4 py-3 text-sm">
+                    <div className="min-w-[120px] max-w-[180px] truncate">
+                      {user.email}
+                    </div>
+                  </TableCell>
+                  <TableCell className="capitalize px-2 sm:px-4 py-3 text-sm whitespace-nowrap">
+                    {user.role}
+                  </TableCell>
+                  <TableCell className="flex items-center space-x-2 px-2 sm:px-4 py-3">
+                    <span className="font-mono text-sm min-w-[60px] max-w-[100px] truncate">
+                      {showPassword[user.user_id]
+                        ? user.password
+                        : '•'.repeat(8)}
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => togglePasswordVisibility(user.user_id)}
+                      className="hover:bg-transparent p-1 sm:p-2 flex-shrink-0"
+                    >
+                      {showPassword[user.user_id] ? (
+                        <EyeOff className="h-4 w-4 text-gray-400" />
+                      ) : (
+                        <Eye className="h-4 w-4 text-gray-400" />
+                      )}
+                    </Button>
+                  </TableCell>
+                  <TableCell className="px-2 sm:px-4 py-3 whitespace-nowrap">
+                    <Switch
+                      checked={user.access_enabled === 'True'}
+                      onCheckedChange={() => toggleUserStatus(user.user_id)}
+                      disabled={user.email === 'admin@chryselys.com'}
+                      className="data-[state=checked]:bg-rose-500"
+                    />
+                  </TableCell>
+                  <TableCell className="px-2 sm:px-4 py-3 whitespace-nowrap">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleDeleteUser(user.user_id)}
+                      disabled={user.email === 'admin@chryselys.com'}
+                      className="hover:bg-transparent p-1 sm:p-2"
+                    >
+                      <Trash2 className="h-4 w-4 text-rose-500" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       </div>
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
