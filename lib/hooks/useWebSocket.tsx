@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useWebSocketStore } from '@/lib/store/websocket-store'
+import { useModelStore } from '@/lib/store/model-store'
 
 interface WebSocketHook {
   messages: { message: string }[]
@@ -15,7 +16,10 @@ interface WebSocketHook {
   ragStreaming?: boolean
   isSuggestions: boolean
   retried: boolean
-  retriedAnswers?: Array<{ retry_reason: string; answer: string }> | string[]
+  retriedAnswers?:
+    | Array<{ retry_reason: string; answer: string; responseTime?: string }>
+    | string[]
+  currentRetryReason?: string | null
 }
 
 const useWebSocket = (url: string): WebSocketHook => {
@@ -32,7 +36,8 @@ const useWebSocket = (url: string): WebSocketHook => {
     setRagStreaming,
     setIsSuggestions,
     setRetried,
-    setRetriedAnswers
+    setRetriedAnswers,
+    setCurrentRetryReason
   } = useWebSocketStore()
 
   const emptyMessages = () => {
@@ -93,19 +98,31 @@ const useWebSocket = (url: string): WebSocketHook => {
       // Handle retry data
       if (!animation) {
         setRetried(data.retried)
-        setRetriedAnswers(data.retried_answers)
+        setCurrentRetryReason(data.retry_reason || null)
+
+        // Handle retried answers - use only what the backend provides
+        // Don't automatically add the current response to retriedAnswers
+        setRetriedAnswers(data.retried_answers || [])
       } else {
         setRetried(false)
         setRetriedAnswers([])
+        setCurrentRetryReason(null)
       }
 
       console.log(data, 'datadata')
     }
   }
 
+  const { cloudProvider, llmModel } = useModelStore()
+
   const sendMessage = (message: any) => {
     if (socketRef.current) {
-      socketRef.current.send(JSON.stringify(message))
+      const messageWithModel = {
+        ...message,
+        cloud_provider: cloudProvider,
+        llm_model: llmModel
+      }
+      socketRef.current.send(JSON.stringify(messageWithModel))
       setAnimation(true)
       setIsStreaming(true)
     }
@@ -125,7 +142,8 @@ const useWebSocket = (url: string): WebSocketHook => {
     isStreaming: useWebSocketStore(state => state.isStreaming),
     isSuggestions: useWebSocketStore(state => state.isSuggestions),
     retried: useWebSocketStore(state => state.retried),
-    retriedAnswers: useWebSocketStore(state => state.retriedAnswers)
+    retriedAnswers: useWebSocketStore(state => state.retriedAnswers),
+    currentRetryReason: useWebSocketStore(state => state.currentRetryReason)
   }
 }
 

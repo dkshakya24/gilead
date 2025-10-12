@@ -27,12 +27,13 @@ import {
   API_URL,
   PROJECT_NAME,
   PPT_GENERATE_API,
-  PPT_DOWNLOAD_API
+  PPT_DOWNLOAD_API,
+  DOCX_GENERATE_API
 } from '@/lib/utils'
 import CustomModal from '@/components/ui/CustomModal'
 import { AiOutlineClose } from 'react-icons/ai' // Using React Icons for the close icon
-import { SpinnerMessage } from '@/components/aivy-message/message'
-import { spinner } from '@/components/aivy-message/spinner'
+import { SpinnerMessage } from '@/components/messages-component/message'
+import { spinner } from '@/components/messages-component/spinner'
 import { AiOutlineLoading3Quarters } from 'react-icons/ai' // Import a spinning loader icon
 import { TbLoader } from 'react-icons/tb'
 import DraggableQuestions from '@/components/gilead/draggableQuestions'
@@ -326,16 +327,13 @@ export function ExportDropdown({ session }: { session?: any }) {
       }
     }
     try {
-      const response = await fetch(
-        `https://g6dy9f8dr4.execute-api.us-east-1.amazonaws.com/dev/`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(payload)
-        }
-      )
+      const response = await fetch(`${DOCX_GENERATE_API}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      })
 
       if (!response.ok) {
         throw new Error(`Error: ${response.status} ${response.statusText}`)
@@ -370,12 +368,12 @@ export function ExportDropdown({ session }: { session?: any }) {
       },
       {
         label: 'PDF',
-        icon: <FileCheck className="h-5 w-5 text-[#d49332]" />,
+        icon: <FileCheck className="h-5 w-5 text-[#d09027]" />,
         disabled: true
       },
       {
         label: 'Mail',
-        icon: <Mail className="h-5 w-5 text-[#d49332]" />,
+        icon: <Mail className="h-5 w-5 text-[#d09027]" />,
         disabled: true
       }
     ],

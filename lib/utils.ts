@@ -5,6 +5,18 @@ import { twMerge } from 'tailwind-merge'
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
+// export const API_URL = "https://arc.gabi.gilead.com/api"
+// export const FEEDBACK_API ='https://arc.gabi.gilead.com/api'
+// export const SUGGESTION_API ='https://arc.gabi.gilead.com/api/get_suggested_questions'
+// export const WEBSOCKET = "wss://arc.gabi.gilead.com/ws/chat"
+// export const PROJECT_NAME = "gilead"
+// export const PPT_GENERATE_API ='https://arc.gabi.gilead.com/api/generate_chathistory_ppt'
+// export const PPT_DOWNLOAD_API ='https://arc.gabi.gilead.com/api/download_ppt'
+// export const USER_MANAGEMENT_API ='http://commercial-ds-gabi-arc-app-backend:8000/api/user_action'
+// export const USER_LIST_MANAGEMENT_API ='https://arc.gabi.gilead.com/api/user_action'
+// export const EDIT_DELETE_CHAT_API ='https://arc.gabi.gilead.com/api'
+// export const DOCX_GENERATE_API ='https://arc.gabi.gilead.com/api/docx_export'
+
 
 export const API_URL =
   'https://6try2laitd.execute-api.us-east-1.amazonaws.com/dev'
@@ -14,17 +26,22 @@ export const SUGGESTION_API =
   'https://gwmitkqkl6.execute-api.us-east-1.amazonaws.com/dev/'
 export const WEBSOCKET =
   'wss://7x4ndqse6e.execute-api.us-east-1.amazonaws.com/dev'
-export const PROJECT_NAME = process.env.NEXT_PUBLIC_PROJECT_NAME
+export const PROJECT_NAME = "gilead"
 export const PPT_GENERATE_API =
   'https://jnjldv2wrroq4d2yvxst5p7kki0basvl.lambda-url.us-east-1.on.aws/'
 export const PPT_DOWNLOAD_API =
   'https://11vzxy3g5g.execute-api.us-east-1.amazonaws.com/dev/gilead_download_ppt_chat'
-// export const AUTH_MICROSOFT_ENTRA_ID_ID =
-//   process.env.NEXT_PUBLIC_AUTH_MICROSOFT_ENTRA_ID_ID
-// export const AUTH_MICROSOFT_ENTRA_ID_SECRET =
-//   process.env.NEXT_PUBLIC_AUTH_MICROSOFT_ENTRA_ID_SECRET
-// export const AUTH_MICROSOFT_ENTRA_ID_ISSUER =
-//   process.env.NEXT_PUBLIC_AUTH_MICROSOFT_ENTRA_ID_ISSUER
+export const USER_LIST_MANAGEMENT_API =
+  'https://bncqce2qts4p6kdmq4tkyls4va0blbkv.lambda-url.us-east-1.on.aws/'
+export const USER_MANAGEMENT_API =
+  'https://bncqce2qts4p6kdmq4tkyls4va0blbkv.lambda-url.us-east-1.on.aws/'
+
+export const EDIT_DELETE_CHAT_API =
+  'https://6try2laitd.execute-api.us-east-1.amazonaws.com/dev'
+
+export const DOCX_GENERATE_API =
+  'https://g6dy9f8dr4.execute-api.us-east-1.amazonaws.com/dev/'
+
 
 export async function fetcher<JSON = any>(
   input: RequestInfo,

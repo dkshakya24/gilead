@@ -81,9 +81,9 @@ export function KeywordsDropdown({ disabled }: { disabled: boolean }) {
                 <div className="flex-1 font-medium">{keyword.text}</div>
                 <button
                   onClick={e => deleteKeyword(keyword.id, e)}
-                  className="flex items-center justify-center h-8 w-8 rounded-full bg-red-50 hover:bg-red-100"
+                  className="flex items-center justify-center h-8 w-8 rounded-full bg-[#d09027]/10 hover:bg-[#d09027]/20"
                 >
-                  <Trash2 className="h-4 w-4 text-[#d49332]" />
+                  <Trash2 className="h-4 w-4 text-[#d09027]" />
                 </button>
               </div>
             ))}

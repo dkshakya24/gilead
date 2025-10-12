@@ -1,6 +1,31 @@
 import { Message } from 'ai'
 import { timeStamp } from 'console'
 import { string } from 'zod'
+import NextAuth from 'next-auth'
+import 'next-auth/jwt'
+
+// Extend NextAuth types to include role
+declare module 'next-auth' {
+  interface User {
+    role?: string
+  }
+
+  interface Session {
+    user: {
+      id: string
+      email: string
+      name?: string
+      role?: string
+      emailVerified?: Date
+    }
+  }
+}
+
+declare module 'next-auth/jwt' {
+  interface JWT {
+    role?: string
+  }
+}
 
 export interface Chat extends Record<string, any> {
   id: string
@@ -50,6 +75,7 @@ export interface Session {
     id: string
     email: string
     name?: string
+    role?: string
     emailVerified?: Date
   }
 }
@@ -64,5 +90,6 @@ export interface User extends Record<string, any> {
   email: string
   password: string
   salt: string
+  role?: string
   emailVerified?: Date
 }

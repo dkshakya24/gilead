@@ -2,7 +2,7 @@
 
 import * as React from 'react'
 import Textarea from 'react-textarea-autosize'
-import logoicon from '@/public/aivy-icon.png'
+import logoicon from '@/public/bot.png'
 import { Button } from '@/components/ui/button'
 import {
   Tooltip,
@@ -102,7 +102,7 @@ export function PromptForm({
           <div className="flex items-center gap-3 mt-auto">
             {/* <div className="flex items-center border border-gray-200 rounded-full px-4 py-2 text-base text-gray-700 bg-white">
               Reasoning Factor:{' '}
-              <span className="ml-2 text-red-600 font-semibold">HIGH</span>
+              <span className="ml-2 text-[#d09027] font-semibold">HIGH</span>
               <svg
                 className="ml-2 w-4 h-4 text-gray-400"
                 fill="none"
@@ -157,11 +157,11 @@ export function PromptForm({
               Keywords
             </button> */}
             <ReasoningFactor />
-            <UrlDropdown disabled />
-            <KeywordsDropdown disabled />
+            {/* <UrlDropdown disabled /> */}
+            {/* <KeywordsDropdown disabled /> */}
             <button
               type="submit"
-              className="ml-auto rounded-full w-12 h-12 flex items-center justify-center bg-[#d49332] text-white shadow-none border-none"
+              className="ml-auto rounded-full w-12 h-12 flex items-center justify-center bg-chryselys text-white shadow-none border-none hover:bg-chryselys/90"
             >
               <svg
                 className="w-6 h-6"

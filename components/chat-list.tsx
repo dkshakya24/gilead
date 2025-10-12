@@ -8,7 +8,7 @@ import {
   UserMessage,
   BotMessage,
   MessageLoader2
-} from '@/components/aivy-message/message'
+} from '@/components/messages-component/message'
 import { useEffect, useRef } from 'react'
 
 export interface ChatList {
@@ -31,6 +31,7 @@ export interface ChatList {
     userMessage: string,
     chatId: string
   ) => (reason: string) => void
+  isNewMessage?: boolean
   // streamingMessages: { message: string }[]
 }
 
@@ -43,11 +44,27 @@ export function ChatList({
   setInput,
   animation,
   ragStreaming,
-  handleRetry
+  handleRetry,
+  isNewMessage = false
 }: ChatList) {
   const chatListRef = useRef<HTMLDivElement>(null)
 
-  // Auto-scroll to bottom when a retry occurs
+  // Auto-scroll to bottom only when new messages are added (not when opening existing chat)
+  useEffect(() => {
+    if (messages.length > 0 && isNewMessage) {
+      // Use setTimeout to ensure DOM is updated before scrolling
+      const timeoutId = setTimeout(() => {
+        chatListRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'end'
+        })
+      }, 100)
+
+      return () => clearTimeout(timeoutId)
+    }
+  }, [messages.length, isNewMessage])
+
+  // Auto-scroll during streaming for real-time following
   useEffect(() => {
     const hasRetriedMessage = messages.some(message => message.isRetried)
     if (hasRetriedMessage && chatListRef.current) {
@@ -74,7 +91,7 @@ export function ChatList({
   }, -1)
 
   return (
-    <div className="relative mx-auto md:max-w-3xl lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl px-4 pb-[200px] md:pb-0">
+    <div className="relative mx-auto w-full px-4 pb-[200px] md:pb-0">
       {!isShared && !session ? (
         <>
           <div className="group relative mb-4 flex items-start md:-ml-10">

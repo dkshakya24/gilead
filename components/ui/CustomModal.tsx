@@ -44,7 +44,7 @@ const CustomModal: React.FC<IModalProps> = ({
 
   return isModalOpen
     ? ReactDOM.createPortal(
-        <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-[hsla(202,33%,95%,0.51)] z-50">
+        <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-[hsla(202,33%,95%,0.51)] z-[1000]">
           <div
             ref={modalRef}
             className="relative flex flex-col items-center justify-center max-h-[86vh] bg-white shadow-lg"

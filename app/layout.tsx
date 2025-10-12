@@ -13,7 +13,7 @@ export const metadata = {
     ? new URL(`https://${process.env.VERCEL_URL}`)
     : undefined,
   title: {
-    default: 'Welcome to AIVY',
+    default: 'Welcome to ARC',
     template: ``
   },
   description: 'An AI-powered chatbot',

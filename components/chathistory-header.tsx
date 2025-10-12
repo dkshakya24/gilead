@@ -10,7 +10,7 @@ const ChatHistoryHeader = ({ userId }: { userId?: string }) => {
     <>
       <div className="flex flex-col gap-2">
         <button
-          className="w-full flex cursor-pointer items-center justify-center gap-2 bg-[#d49332] hover:bg-[#b91c43] text-white py-3 px-4 rounded-md"
+          className="w-full flex cursor-pointer items-center justify-center gap-2 bg-chryselys hover:bg-chryselys/90 text-white py-3 px-4 rounded-md"
           onClick={() => (window.location.href = '/new')}
         >
           + New Chat

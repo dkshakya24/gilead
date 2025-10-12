@@ -16,10 +16,10 @@
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 3.9%;
 
-    --primary: 35.93 65.32% 51.37%; /* modern pink/red */
+    --primary: 39 68% 48%; /* chryselys gold #d09027 */
     --primary-foreground: 0 0% 98%;
 
-    --secondary: 35.93 65.32% 51.37%/* soft blue background */
+    --secondary: 39 68% 48%; /* chryselys gold */
     --secondary-foreground: 240 5.9% 10%;
 
     --muted: 220 14% 96%; /* very light gray for muted */
@@ -48,10 +48,10 @@
     --popover: 240 10% 15%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 340 82% 52%;
+    --primary: 39 68% 48%;
     --primary-foreground: 240 5.9% 10%;
 
-    --secondary: 220 14% 20%;
+    --secondary: 39 68% 48%;
     --secondary-foreground: 0 0% 98%;
 
     --muted: 240 3.7% 15.9%;
@@ -76,4 +76,20 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Hide native browser password toggle button on Windows */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none;
+}
+
+/* Hide WebKit password toggle button */
+input[type="password"]::-webkit-credentials-auto-fill-button {
+  display: none !important;
+}
+
+/* Hide Firefox password toggle button */
+input[type="password"]::-moz-password-toggle {
+  display: none;
 }

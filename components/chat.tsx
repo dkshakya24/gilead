@@ -7,24 +7,13 @@ import { EmptyScreen } from '@/components/empty-screen'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Session, initialMessage } from '@/lib/types'
 import { usePathname, useRouter } from 'next/navigation'
-import { Message, UIState } from '@/lib/chat/actions'
 import { useScrollAnchor } from '@/lib/hooks/use-scroll-anchor'
-// import { toast } from 'sonner'
-import { API_URL, PROJECT_NAME } from '@/lib/utils'
 import useWebSocket from '@/lib/hooks/useWebSocket'
-import Annotations from './aivy-message/annotations'
+import Annotations from './messages-component/annotations'
 import { MdOutlineInsertComment } from 'react-icons/md'
 import { Button } from './ui/button'
 import { useStore } from '@/lib/store/useStore'
 import { toast } from 'sonner'
-import {
-  MdOutlineScience,
-  MdOutlineBiotech,
-  MdOutlineBusinessCenter,
-  MdOutlinePersonSearch,
-  MdCheck
-} from 'react-icons/md'
-import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip'
 
 export interface ChatPageProps {
   params: {
@@ -43,19 +32,28 @@ export interface ChatMessage {
   chatId?: string
   responseTime?: any
   citations?: any
+  sourceData?: any
   createdTime?: string
   isRetried?: boolean
   retryReason?: string
   onRetry?: (reason: string) => void
   retried?: boolean
-  retriedAnswers?: string[]
+  retriedAnswers?:
+    | Array<{ retry_reason: string; answer: string; responseTime?: string }>
+    | string[]
 }
 
 export function Chat({ id, className, session, initialMessages }: ChatProps) {
   const router = useRouter()
   const path = usePathname()
-  const { reasoning, chatMessages, setChatMessages, chatId, setChatId } =
-    useStore()
+  const {
+    reasoning,
+    chatMessages,
+    setChatMessages,
+    chatId,
+    setChatId,
+    selectedUrls
+  } = useStore()
   const {
     messages,
     sendMessage,
@@ -83,7 +81,8 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
   const [dataKey, setDataKey] = useState<string[]>([])
   const [retryingChatId, setRetryingChatId] = useState<string | null>(null)
   const [retryReason, setRetryReason] = useState<string>('')
-
+  const [isNewMessage, setIsNewMessage] = useState(false)
+  const [isInitialFetch, setIsInitialFetch] = useState(true)
   const carouselRef = useRef<HTMLDivElement>(null)
   console.log(initialMessages, 'initialMessages')
 
@@ -145,75 +144,130 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
     // Show feedback form logic here
   }
   useEffect(() => {
-    if (initialMessages?.messages?.length > 0) {
-      const chathistory: ChatMessage[] = []
+    const fetchChat = async () => {
+      if (path.includes('chat')) {
+        if (!id || !session?.user?.email || !isInitialFetch) return
 
-      initialMessages.messages?.forEach((chat: any) => {
-        chat.message.forEach((item: any) => {
-          if (item.role === 'user') {
-            chathistory.push({
-              sender: 'user',
-              message: item.content,
-              createdTime: new Date(item.created_time)
-                .toLocaleString('en-US', {
-                  month: 'short',
-                  day: '2-digit',
-                  hour: 'numeric',
-                  minute: '2-digit',
-                  hour12: true
-                })
-                .replace(',', '')
+        setIsLoading(true)
+        try {
+          const { getChatClient } = await import('@/lib/chat/client-actions')
+          const data: any = await getChatClient(id, session.user.email)
+          const initialMessages = data.messages
+          if (initialMessages?.length > 0) {
+            setIsNewMessage(false) // Set to false when loading existing messages
+            const chathistory: ChatMessage[] = []
+
+            initialMessages?.forEach((chat: any) => {
+              chat.message.forEach((item: any) => {
+                if (item.role === 'user') {
+                  chathistory.push({
+                    sender: 'user',
+                    message: item.content,
+                    createdTime: new Date(item.created_time)
+                      .toLocaleString('en-US', {
+                        month: 'short',
+                        day: '2-digit',
+                        hour: 'numeric',
+                        minute: '2-digit',
+                        hour12: true
+                      })
+                      .replace(',', '')
+                  })
+                } else if (item.role === 'assistant') {
+                  // Extract retried answers if they exist
+                  const retriedAnswers =
+                    item.retried_answers?.map((retry: any) => {
+                      // Handle both object format with retry_reason and responseTime, and string format
+                      if (typeof retry === 'object' && retry.answer) {
+                        return {
+                          answer: retry.answer,
+                          retry_reason: retry.retry_reason || null,
+                          responseTime: retry.responseTime || null
+                        }
+                      } else if (typeof retry === 'string') {
+                        return retry
+                      }
+                      return retry
+                    }) || []
+                  chathistory.push({
+                    sender: 'receiver',
+                    message: item.content,
+                    chatId: chat.message_id,
+                    responseTime: item.responseTime,
+                    sourceData: item.sources || [],
+                    citations: item.specific_citations || [],
+                    createdTime: new Date(item.created_time)
+                      .toLocaleString('en-US', {
+                        month: 'short',
+                        day: '2-digit',
+                        hour: 'numeric',
+                        minute: '2-digit',
+                        hour12: true
+                      })
+                      .replace(',', ''),
+                    retried: chat.retried || false,
+                    retriedAnswers: retriedAnswers,
+                    retryReason: item.retry_reason || null
+                  })
+                }
+              })
             })
-          } else if (item.role === 'assistant') {
-            // Extract retried answers if they exist
-            const retriedAnswers =
-              item.retried_answers?.map((retry: any) => retry.answer) || []
-            chathistory.push({
-              sender: 'receiver',
-              message: item.content,
-              chatId: chat.message_id,
-              responseTime: item.responseTime,
-              createdTime: new Date(item.created_time)
-                .toLocaleString('en-US', {
-                  month: 'short',
-                  day: '2-digit',
-                  hour: 'numeric',
-                  minute: '2-digit',
-                  hour12: true
-                })
-                .replace(',', ''),
-              retried: chat.retried || false,
-              retriedAnswers: retriedAnswers
+
+            if (
+              initialMessages?.messages?.length > 0 &&
+              initialMessages?.messages[0]?.Data
+            ) {
+              setDataKey(initialMessages?.messages[0]?.Data)
+            }
+            setChatMessages(chathistory)
+            console.log(chathistory, 'chathistory')
+          } else if (
+            initialMessages?.error ===
+            'No documents found for the provided User-Id and chatter_id'
+          ) {
+            console.log('kasdhasdrouter')
+            toast.error('No Chat Found', {
+              position: 'top-right',
+              className: 'bottom-auto'
+            })
+          } else if (initialMessages?.messages?.length === 0) {
+            toast.error('No Chat Found', {
+              position: 'top-right',
+              className: 'bottom-auto'
             })
           }
-        })
-      })
-
-      if (initialMessages?.length > 0 && initialMessages[0].Data) {
-        setDataKey(initialMessages[0].Data)
+        } catch (error) {
+          console.error('Error fetching initial messages:', error)
+          toast.error('Failed to load chat', {
+            position: 'top-right',
+            className: 'bottom-auto'
+          })
+        } finally {
+          setIsLoading(false)
+          setIsInitialFetch(false)
+        }
       }
-      setChatMessages(chathistory)
-      console.log(chathistory, 'chathistory')
-    } else if (
-      initialMessages?.error ===
-      'No documents found for the provided User-Id and chatter_id'
-    ) {
-      console.log('kasdhasdrouter')
-      toast.error('No Chat Found', {
-        position: 'top-right',
-        className: 'bottom-auto'
-      })
-    } else if (initialMessages === undefined) {
-      console.log('kasdhasdrouter1')
     }
+    fetchChat()
   }, [path, initialMessages])
+
+  // Reset isNewMessage flag after auto-scroll is triggered
+  useEffect(() => {
+    if (isNewMessage) {
+      const timeoutId = setTimeout(() => {
+        setIsNewMessage(false)
+      }, 500) // Reset after 500ms to allow auto-scroll to complete
+
+      return () => clearTimeout(timeoutId)
+    }
+  }, [isNewMessage])
 
   useEffect(() => {
     if (path === '/arc' && !newchatboxId) {
       let isMounted = true
       const fetchData = async () => {
         try {
-          const response = await fetch('/api/utils/generate-id', {
+          const response = await fetch('/utils/generate-id', {
             method: 'GET',
             cache: 'no-store',
             headers: {
@@ -236,16 +290,24 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
     }
   }, [path, newchatboxId])
 
+  // Get URL tracking state from localStorage
+  const isUrlEnabled =
+    typeof window !== 'undefined'
+      ? localStorage.getItem('urlEnabled') !== 'false'
+      : true
+
   const payload = {
     action: 'sendmessage',
     sessionId: id ? id : newchatboxId,
     query: input,
     userId: session?.user.email,
-    reasoning: reasoning
+    reasoning: reasoning,
+    urls: isUrlEnabled ? selectedUrls : []
   }
 
   const handleSend = () => {
     emptyMessages()
+    setIsNewMessage(true) // Set to true when sending a new message
     const userMessage: ChatMessage = {
       sender: 'user',
       message: input,
@@ -316,20 +378,17 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
         }
       }
 
-      // Remove both the original bot message and its corresponding user message
       const filteredMessages = chatMessages.filter((msg, index) => {
-        // Remove the original bot message
         if (index === originalBotMessageIndex) {
           return false
         }
-        // Remove the corresponding user message if found
+
         if (index === userMessageIndex) {
           return false
         }
         return true
       })
 
-      // Add only the user message back (no placeholder for retry)
       const newMessages = [
         ...filteredMessages,
         ...(correspondingUserMessage ? [correspondingUserMessage] : [])
@@ -344,7 +403,8 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
         userId: session?.user.email,
         reasoning: reasoning,
         retry_reason: reason,
-        messageId: chatId
+        messageId: chatId,
+        urls: isUrlEnabled ? selectedUrls : []
       }
       emptyMessages()
       sendMessage(payload)
@@ -415,118 +475,143 @@ export function Chat({ id, className, session, initialMessages }: ChatProps) {
   ])
 
   return (
-    <div className="group w-full overflow-auto pl-0 transition-all duration-300 ease-in-out peer-[[data-state=open]]:lg:pl-[300px] peer-[[data-state=open]]:xl:pl-[340px] bg-[#fefcfe]">
-      <div className="flex flex-col h-[calc(100vh-4rem)] w-full justify-center">
-        {chatMessages.length ? (
-          <div className="flex-1 w-full h-full overflow-y-auto flex justify-center items-start">
-            <div className="w-full mx-auto mb-8 bg-white flex flex-col min-h-[70vh]">
-              {/* Chat Header */}
-              <div className="sticky top-0 z-10 left-0 right-0 h-[60px] bg-white flex items-center justify-between px-6">
-                <div className="flex items-center gap-3">
-                  {/* <span className="text-xl font-semibold text-gray-800">
+    <>
+      {isLoading ? (
+        <div className="flex h-[calc(100vh-4rem)] items-center justify-center w-full">
+          <h1 className="animate-pulse text-gray-500 w-full justify-center items-center text-center">
+            Loading chat...
+          </h1>
+        </div>
+      ) : (
+        <div className="group w-full pl-0 transition-all duration-300 ease-in-out peer-[[data-state=open]]:lg:pl-[300px] peer-[[data-state=open]]:xl:pl-[340px] bg-[#fefcfe]">
+          <div className="flex flex-col h-[calc(100vh-4rem)] w-full justify-center">
+            {chatMessages.length ? (
+              <div className="flex-1 w-full h-full overflow-y-auto">
+                <div className="w-full mx-auto mb-8 bg-white flex flex-col min-h-[70vh]">
+                  {/* Chat Header */}
+                  <div className="sticky top-0 z-10 left-0 right-0 h-[60px] bg-white flex items-center justify-between px-6">
+                    <div className="flex items-center gap-3">
+                      {/* <span className="text-xl font-semibold text-gray-800">
                     GILEAD AI Assistant
                   </span> */}
-                </div>
-                {/* Optional actions: export/share, etc. */}
-                <div className="flex items-center gap-2 ml-2">
-                  {chatMessages.length && !isBtnClicked && (
-                    <Button
-                      onClick={handleannotationClicked}
-                      className="hover:bg-primary transition-colors p-2 sm:p-3"
-                    >
-                      <MdOutlineInsertComment className="w-5 h-5 text-white" />
-                    </Button>
-                  )}
-                  {/* Add more action buttons here if needed */}
+                    </div>
+                    {/* Optional actions: export/share, etc. */}
+                    <div className="flex items-center gap-2 ml-2">
+                      {chatMessages.length && !isBtnClicked && (
+                        <Button
+                          onClick={handleannotationClicked}
+                          className="hover:bg-primary transition-colors p-2 sm:p-3"
+                        >
+                          <MdOutlineInsertComment className="w-5 h-5 text-white" />
+                        </Button>
+                      )}
+                      {/* Add more action buttons here if needed */}
+                    </div>
+                  </div>
+                  {/* Chat List */}
+                  <div className="flex-1 w-full px-4 py-6 overflow-y-auto">
+                    <ChatList
+                      messages={
+                        isStreaming && messages.length > 0
+                          ? [
+                              ...chatMessages,
+                              {
+                                sender: 'bot',
+                                message: messages
+                                  .map(item => item.message)
+                                  .join(''),
+                                chatId: chat_id,
+                                sourceData: sourceData,
+                                citations: citationsData,
+                                responseTime: responseTime,
+                                createdTime: new Date().toLocaleString(
+                                  'en-US',
+                                  {
+                                    day: '2-digit',
+                                    month: 'short',
+                                    hour: 'numeric',
+                                    minute: '2-digit',
+                                    hour12: true
+                                  }
+                                ),
+                                retried: retried,
+                                // Don't include retriedAnswers during streaming to prevent duplication
+                                retriedAnswers: undefined
+                              }
+                            ]
+                          : chatMessages
+                      }
+                      isShared={false}
+                      session={session}
+                      isLoading={isLoading}
+                      isStreaming={isStreaming}
+                      animation={animation}
+                      setInput={setInput}
+                      ragStreaming={ragStreaming}
+                      handleRetry={handleRetry}
+                      isNewMessage={isNewMessage}
+                    />
+                  </div>
                 </div>
               </div>
-              {/* Chat List */}
-              <div className="flex-1 w-full px-4 py-6 overflow-y-auto">
-                <ChatList
-                  messages={
-                    isStreaming && messages.length > 0
-                      ? [
-                          ...chatMessages,
-                          {
-                            sender: 'bot',
-                            message: messages
-                              .map(item => item.message)
-                              .join(''),
-                            chatId: chat_id,
-                            sourceData: sourceData,
-                            citations: citationsData,
-                            responseTime: responseTime,
-                            createdTime: new Date().toLocaleString('en-US', {
-                              day: '2-digit',
-                              month: 'short',
-                              hour: 'numeric',
-                              minute: '2-digit',
-                              hour12: true
-                            }),
-                            retried: retried,
-                            retriedAnswers: retriedAnswers
-                          }
-                        ]
-                      : chatMessages
-                  }
-                  isShared={false}
-                  session={session}
-                  isLoading={isLoading}
-                  isStreaming={isStreaming}
-                  animation={animation}
+            ) : null}
+
+            {chatMessages.length ? (
+              <div className="w-full bg-white backdrop-blur supports-[backdrop-filter]:bg-white transition-all duration-300 ease-in-out fixed md:relative bottom-0 left-0 right-0 z-50">
+                <ChatPanel
+                  id={id}
+                  input={input}
                   setInput={setInput}
-                  ragStreaming={ragStreaming}
-                  handleRetry={handleRetry}
+                  isAtBottom={isAtBottom}
+                  scrollToBottom={scrollToBottom}
+                  scrollToTop={scrollToTop}
+                  onSubmit={handleSend}
+                  isStreaming={isStreaming}
                 />
               </div>
-            </div>
-          </div>
-        ) : null}
+            ) : (
+              <>
+                {!path.includes('chat') ? (
+                  <div className="flex flex-col items-center justify-center w-full py-4 sm:py-6 px-2 sm:px-4 lg:px-6 pt-[100px] md:pt-4">
+                    <div className="flex flex-col items-center justify-center h-full pb-4">
+                      {session && <EmptyScreen session={session} />}
+                    </div>
+                    <div className="w-full max-w-4xl">
+                      <ChatPanel
+                        id={id}
+                        input={input}
+                        setInput={setInput}
+                        isAtBottom={isAtBottom}
+                        scrollToBottom={scrollToBottom}
+                        scrollToTop={scrollToTop}
+                        onSubmit={handleSend}
+                        isStreaming={isStreaming}
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex h-[calc(100vh-4rem)] items-center justify-center w-full">
+                    <h1 className="animate-pulse text-gray-500 w-full justify-center items-center text-center">
+                      Loading chat...
+                    </h1>
+                  </div>
+                )}
+              </>
+            )}
 
-        {chatMessages.length ? (
-          <div className="w-full bg-white backdrop-blur supports-[backdrop-filter]:bg-white transition-all duration-300 ease-in-out fixed md:relative bottom-0 left-0 right-0 z-50">
-            <ChatPanel
-              id={id}
-              input={input}
-              setInput={setInput}
-              isAtBottom={isAtBottom}
-              scrollToBottom={scrollToBottom}
-              scrollToTop={scrollToTop}
-              onSubmit={handleSend}
-              isStreaming={isStreaming}
-            />
+            {isBtnClicked && (
+              <div className="fixed top-20 right-2 left-2 md:right-4 md:left-auto z-50 transition-opacity duration-700 ease-in-out max-h-[calc(100vh-6rem)] w-auto max-w-[calc(100%-1rem)] md:max-w-md overflow-auto">
+                <div className="opacity-100">
+                  <Annotations
+                    setIsAnnotationsClicked={setIsBtnClicked}
+                    data={annotations}
+                  />
+                </div>
+              </div>
+            )}
           </div>
-        ) : (
-          <div className="flex flex-col items-center justify-center w-full py-4 sm:py-6 px-2 sm:px-4 lg:px-6 pt-[100px] md:pt-4">
-            <div className="flex flex-col items-center justify-center h-full pb-4">
-              {session && <EmptyScreen session={session} />}
-            </div>
-            <div className="w-full max-w-4xl">
-              <ChatPanel
-                id={id}
-                input={input}
-                setInput={setInput}
-                isAtBottom={isAtBottom}
-                scrollToBottom={scrollToBottom}
-                scrollToTop={scrollToTop}
-                onSubmit={handleSend}
-                isStreaming={isStreaming}
-              />
-            </div>
-          </div>
-        )}
-
-        {isBtnClicked && (
-          <div className="fixed top-20 right-2 left-2 md:right-4 md:left-auto z-50 transition-opacity duration-700 ease-in-out max-h-[calc(100vh-6rem)] w-auto max-w-[calc(100%-1rem)] md:max-w-md overflow-auto">
-            <div className="opacity-100">
-              <Annotations
-                setIsAnnotationsClicked={setIsBtnClicked}
-                data={annotations}
-              />
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
+        </div>
+      )}
+    </>
   )
 }

@@ -43,7 +43,7 @@ const SidebarGilead = ({
               <Button
                 variant="ghost"
                 size="icon"
-                className="rounded-lg"
+                className="rounded-lg text-chryselys hover:text-chryselys hover:bg-chryselys/10"
                 onClick={() => (window.location.href = '/new')}
                 aria-label="New Chat"
               >
@@ -78,7 +78,7 @@ const SidebarGilead = ({
             <SidebarFooter>
               {/* <Button
                 variant="ghost"
-                className="text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900"
+                className="text-[#d09027] dark:text-[#d09027] hover:bg-[#d09027]/10 dark:hover:bg-[#d09027]/20"
                 // onClick={handleSignOut}
                 aria-label="Sign Out"
               >

@@ -15,20 +15,26 @@ import { SidebarMobile } from './sidebar-mobile'
 import { SidebarToggle } from './sidebar-toggle'
 import { ChatHistory } from './chat-history'
 import { Session } from '@/lib/types'
-import logo from '@/public/companylogo.svg'
+import logo from '@/public/chrylogo.svg'
 import Image from 'next/image'
-import logoicon from '@/public/companylogo.svg'
+import logoicon from '@/public/chrylogo.svg'
 // import SourceMultiSelect from './source-multi-select'
 import {
   PiHouseLineDuotone,
   PiChatCircleDotsDuotone,
   PiDatabaseDuotone
 } from 'react-icons/pi'
-import { Bell } from 'lucide-react'
+import { Bell, Users } from 'lucide-react'
 import { ExportDropdown } from './gilead/export-dropdown'
-import { KeywordsDropdown } from './gilead/keywords-dropdown'
 import { UrlDropdown } from './gilead/url-dropdown'
 import ReasoningFactor from './gilead/reasoning-factor'
+import { LLMModelDropdown } from './gilead/llm-model-dropdown'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from '@/components/ui/tooltip'
 
 async function UserOrLogin() {
   const session = (await auth()) as Session
@@ -84,10 +90,10 @@ export async function Header() {
     <header className="sticky top-0 z-50 flex items-center justify-between bg-white/80 backdrop-blur-md w-full h-16 px-6 border-b border-gray-100 dark:bg-white/80 shadow-sm">
       <div className="flex items-center gap-3">
         <SidebarToggle />
-        <Link href="/" className="hover:opacity-80 transition-opacity">
+        <Link href="/new" className="hover:opacity-80 transition-opacity">
           <Image
             src={logo}
-            alt="Chryselys"
+            alt="Gilead"
             className="max-w-[150px] max-h-[90px]"
           />
         </Link>
@@ -95,9 +101,26 @@ export async function Header() {
       <div className="flex items-center justify-end gap-4 flex-1 md:gap-6">
         <nav className="hidden md:flex items-center space-x-4">
           <ReasoningFactor />
-          <UrlDropdown disabled />
-          <KeywordsDropdown disabled />
+          <LLMModelDropdown disabled={false} />
+          <UrlDropdown disabled={false} />
           <ExportDropdown session={session} />
+          {session?.user?.role === 'admin' && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Link
+                    href="/admin/users"
+                    className="flex items-center justify-center w-[38px] h-[38px] bg-white border border-gray-200 rounded-full hover:bg-gray-50 transition-colors"
+                  >
+                    <Users className="h-4 w-4" />
+                  </Link>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Manage Users</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
           <button className="flex items-center cursor-not-allowed opacity-50 justify-center w-[38px] h-[38px] bg-white border border-gray-200 rounded-full">
             <Bell className="h-4 w-4" />
           </button>

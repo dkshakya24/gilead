@@ -29,6 +29,11 @@ module.exports = {
         mono: ['var(--font-geist-mono)']
       },
       colors: {
+        chryselys: {
+          DEFAULT: '#d09027',
+          light: '#d09027/10',
+          medium: '#d09027/20'
+        },
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',

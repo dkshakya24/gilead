@@ -6,7 +6,7 @@ import { kv } from '@vercel/kv'
 
 import { auth } from '@/auth'
 import { type Chat } from '@/lib/types'
-import { API_URL, PROJECT_NAME } from '@/lib/utils'
+import { API_URL, EDIT_DELETE_CHAT_API, PROJECT_NAME } from '@/lib/utils'
 
 export async function getChats(userId?: string | null) {
   if (!userId) {
@@ -31,62 +31,99 @@ export async function getChats(userId?: string | null) {
   }
 }
 
-export async function getChat(id: string) {
-  const session = await auth()
+// export async function getChat(id: string) {
+//   const session = await auth()
 
-  try {
-    const response = await fetch(
-      `${API_URL}/get-chat-history?user_id=${session?.user?.email}&session_id=${id}`,
-      {
-        method: 'GET'
-      }
-    )
-    const resp = await response.json()
+//   try {
+//     const response = await fetch(
+//       `${API_URL}/get-chat-history?user_id=${session?.user?.email}&session_id=${id}`,
+//       {
+//         method: 'GET'
+//       }
+//     )
+//     const resp = await response.json()
 
-    console.log('resp.body', resp)
+//     console.log('resp.body', resp)
 
-    return resp
+//     return resp
 
-    // return data
-    // setNewchatboxId(data.chatter_id)
-    // Further processing of data can be done here
-  } catch (error) {
-    console.error('Error fetching data:', error)
-  }
-}
+//     // return data
+//     // setNewchatboxId(data.chatter_id)
+//     // Further processing of data can be done here
+//   } catch (error) {
+//     console.error('Error fetching data:', error)
+//   }
+// }
+// export async function editChat({
+//   Session_id,
+//   header_name
+// }: {
+//   Session_id: string
+//   header_name: string
+// }) {
+//   const session = await auth()
+//   if (!session) {
+//     return {
+//       error: 'Unauthorized'
+//     }
+//   }
+//   const payload = {
+//     action: 'edit_chatname',
+//     user_id: session?.user?.email,
+//     session_id: Session_id,
+//     new_name: header_name
+//   }
+//   try {
+//     const response = await fetch(`${EDIT_DELETE_CHAT_API}/editchat`, {
+//       method: 'POST',
+//       body: JSON.stringify(payload),
+//       headers: {
+//         'Content-Type': 'application/json'
+//       }
+//     })
+//     if (response.ok) {
+//       console.log('Chat title updated successfully', payload)
+//     } else {
+//       throw new Error('Failed to update chat title')
+//     }
+//   } catch (error) {
+//     console.log('Failed to update chat title:', error)
+//     throw error
+//   }
+// }
+// export async function removeChat({ Session_id }: { Session_id: string }) {
+//   const session = await auth()
 
-export async function removeChat({ Session_id }: { Session_id: string }) {
-  const session = await auth()
+//   if (!session) {
+//     return {
+//       error: 'Unauthorized'
+//     }
+//   }
+//   const payload = {
+//     action: 'delete_chat',
+//     user_id: session?.user?.email,
+//     session_id: Session_id,
+//     deletedBy: 'Test',
+//     deletedReason: 'Deleted to test API'
+//   }
+//   try {
+//     const response = await fetch(`${EDIT_DELETE_CHAT_API}/deletechat`, {
+//       method: 'POST',
+//       body: JSON.stringify(payload),
+//       headers: {
+//         'Content-Type': 'application/json'
+//       }
+//     })
 
-  if (!session) {
-    return {
-      error: 'Unauthorized'
-    }
-  }
-  const payload = {
-    headers: {
-      'User-Id': session?.user?.email || ''
-    },
-    body: {
-      chatter_id: Session_id
-    }
-  }
-  try {
-    const response = await fetch(`${API_URL}/${PROJECT_NAME}_delete`, {
-      method: 'POST',
-
-      body: JSON.stringify(payload)
-    })
-
-    if (response.ok) {
-      console.log('Deletion successfull') // Callback for successful deletion (optional)
-    } else {
-      throw new Error('Deletion failed')
-    }
-  } catch (error) {
-    console.log('Deletion Failed')
-  }
-}
+//     if (response.ok) {
+//       console.log('Deletion successfull') // Callback for successful deletion (optional)
+//     } else {
+//       throw new Error('Deletion failed')
+//     }
+//   } catch (error) {
+//     console.log('Deletion Failed')
+//   }
+// }
 
 export async function shareChat(id: string) {
   const session = await auth()

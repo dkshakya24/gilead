@@ -9,7 +9,7 @@ const ToastOnLoad = dynamic(() => import('@/components/toast-onload'), {
   ssr: false
 })
 export const metadata = {
-  title: 'Welcome to AIVY'
+  title: 'Welcome to ARC'
 }
 
 export default async function IndexPage() {

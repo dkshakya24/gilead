@@ -28,7 +28,8 @@ export default function LoginForm() {
       } else {
         toast.success(getMessageFromCode(state.resultCode), {
           position: 'top-right',
-          className: 'bottom-auto'
+          className: 'bottom-auto',
+          duration: 1000 // 1 second
         })
         // router.refresh()
         router.push('/arc')
@@ -62,15 +63,15 @@ export default function LoginForm() {
               // onChange={(e) => setPassword(e.target.value)}
             />
           </div>
-          {/* <div className="flex -mt-2 items-center justify-between">
-            <Checkbox id="remember-me" label="Remember me" />
-            <Link
-              href="/forgot-password"
+          <div className="flex -mt-2 items-center justify-between">
+            <Checkbox id="remember-me" label="Remember me" disabled />
+            <p
+              // href="/forgot-password"
               className="text-[12px] text-[#27272A] hover:text-crimson-600"
             >
               Forgot Password
-            </Link>
-          </div> */}
+            </p>
+          </div>
 
           <LoginButton />
         </div>
