@@ -18,9 +18,9 @@ export const metadata = {
   },
   description: 'An AI-powered chatbot',
   icons: {
-    icon: '/favicon.ico',
-    shortcut: '/favicon-16x16.png',
-    apple: '/apple-touch-icon.png'
+    icon: '/chrylogo.svg',
+    shortcut: '/chrylogo.svg',
+    apple: '/chrylogo.svg'
   }
 }
 
